@@ -1,0 +1,17 @@
+# Render.com deployment config
+# Deploy: connect GitHub repo → Render auto-detects this file
+
+services:
+  - type: web
+    name: namara-platform
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python seed_data.py
+    startCommand: python server.py
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: NAMARA_SECRET
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0

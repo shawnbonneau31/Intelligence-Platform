@@ -1,0 +1,275 @@
+"""
+Namara Water Risk Intelligence Platform — Database Layer
+SQLite database with tables for users, API keys, builder quality, scoring cache, and audit log.
+"""
+
+import sqlite3
+import os
+import hashlib
+import secrets
+import json
+from datetime import datetime
+
+DB_PATH = os.path.join(os.path.dirname(__file__), "data", "namara.db")
+
+
+def get_db():
+    """Get a database connection with row factory."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA foreign_keys=ON")
+    return conn
+
+
+def init_db():
+    """Initialize database schema."""
+    conn = get_db()
+    c = conn.cursor()
+
+    c.executescript("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        company TEXT,
+        tier TEXT DEFAULT 'lookup' CHECK(tier IN ('lookup', 'portfolio', 'enterprise')),
+        is_admin INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now')),
+        last_login TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS api_keys (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        key_hash TEXT UNIQUE NOT NULL,
+        key_prefix TEXT NOT NULL,
+        name TEXT DEFAULT 'Default',
+        tier TEXT DEFAULT 'lookup',
+        rate_limit_per_min INTEGER DEFAULT 10,
+        rate_limit_per_day INTEGER DEFAULT 100,
+        is_active INTEGER DEFAULT 1,
+        created_at TEXT DEFAULT (datetime('now')),
+        last_used TEXT,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS builders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        state TEXT NOT NULL,
+        license_number TEXT,
+        callback_rate REAL,
+        plumbing_material_score REAL,
+        code_violation_score REAL,
+        litigation_score REAL,
+        construction_volume_score REAL,
+        appliance_score REAL,
+        drainage_score REAL,
+        composite_score REAL,
+        grade TEXT CHECK(grade IN ('A', 'B', 'C', 'D')),
+        homes_built INTEGER,
+        year_established INTEGER,
+        specialties TEXT,
+        notes TEXT,
+        updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS water_quality (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        state TEXT UNIQUE NOT NULL,
+        violations_per_100k REAL,
+        lead_copper_exceedances REAL,
+        treatment_age_score REAL,
+        composite_score REAL,
+        data_source TEXT DEFAULT 'EPA SDWIS',
+        updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS housing_age (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        state TEXT UNIQUE NOT NULL,
+        median_year_built INTEGER,
+        pct_pre_1980 REAL,
+        pct_pre_1960 REAL,
+        infrastructure_score REAL,
+        data_source TEXT DEFAULT 'Census ACS',
+        updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS regulatory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        state TEXT UNIQUE NOT NULL,
+        leak_detection_mandate INTEGER DEFAULT 0,
+        auto_shutoff_mandate INTEGER DEFAULT 0,
+        insurance_incentive INTEGER DEFAULT 0,
+        building_code_year INTEGER,
+        compliance_score REAL,
+        notes TEXT,
+        updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS score_cache (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        address_hash TEXT UNIQUE NOT NULL,
+        zip_code TEXT,
+        state TEXT,
+        latitude REAL,
+        longitude REAL,
+        climate_score REAL,
+        water_quality_score REAL,
+        infrastructure_score REAL,
+        builder_score REAL,
+        regulatory_score REAL,
+        composite_score REAL,
+        risk_level TEXT,
+        full_report JSON,
+        created_at TEXT DEFAULT (datetime('now')),
+        expires_at TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS audit_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        api_key_id INTEGER,
+        action TEXT NOT NULL,
+        endpoint TEXT,
+        address TEXT,
+        zip_code TEXT,
+        response_code INTEGER,
+        response_time_ms REAL,
+        created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS rate_limits (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        api_key_id INTEGER NOT NULL,
+        window_start TEXT NOT NULL,
+        request_count INTEGER DEFAULT 1,
+        UNIQUE(api_key_id, window_start)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_builders_state ON builders(state);
+    CREATE INDEX IF NOT EXISTS idx_builders_grade ON builders(grade);
+    CREATE INDEX IF NOT EXISTS idx_score_cache_hash ON score_cache(address_hash);
+    CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id);
+    CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at);
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def hash_password(password):
+    salt = secrets.token_hex(16)
+    h = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
+    return f"{salt}:{h.hex()}"
+
+
+def verify_password(password, password_hash):
+    salt, h = password_hash.split(':')
+    check = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
+    return check.hex() == h
+
+
+def generate_api_key():
+    """Generate a new API key. Returns (full_key, prefix, hash)."""
+    key = f"nmr_{secrets.token_hex(24)}"
+    prefix = key[:12]
+    key_hash = hashlib.sha256(key.encode()).hexdigest()
+    return key, prefix, key_hash
+
+
+def create_user(email, password, company=None, tier='lookup', is_admin=False):
+    conn = get_db()
+    pw_hash = hash_password(password)
+    try:
+        conn.execute(
+            "INSERT INTO users (email, password_hash, company, tier, is_admin) VALUES (?, ?, ?, ?, ?)",
+            (email, pw_hash, company, tier, int(is_admin))
+        )
+        conn.commit()
+        user_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+        # Auto-generate an API key
+        key, prefix, key_hash = generate_api_key()
+        rate_limits = {'lookup': (10, 100), 'portfolio': (60, 5000), 'enterprise': (120, 50000)}
+        rpm, rpd = rate_limits.get(tier, (10, 100))
+        conn.execute(
+            "INSERT INTO api_keys (user_id, key_hash, key_prefix, tier, rate_limit_per_min, rate_limit_per_day) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, key_hash, prefix, tier, rpm, rpd)
+        )
+        conn.commit()
+        conn.close()
+        return user_id, key
+    except sqlite3.IntegrityError:
+        conn.close()
+        return None, None
+
+
+def authenticate_user(email, password):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    if row and verify_password(password, row['password_hash']):
+        conn.execute("UPDATE users SET last_login = datetime('now') WHERE id = ?", (row['id'],))
+        conn.commit()
+        conn.close()
+        return dict(row)
+    conn.close()
+    return None
+
+
+def validate_api_key(key):
+    key_hash = hashlib.sha256(key.encode()).hexdigest()
+    conn = get_db()
+    row = conn.execute("""
+        SELECT ak.*, u.email, u.company, u.tier as user_tier
+        FROM api_keys ak JOIN users u ON ak.user_id = u.id
+        WHERE ak.key_hash = ? AND ak.is_active = 1
+    """, (key_hash,)).fetchone()
+    if row:
+        conn.execute("UPDATE api_keys SET last_used = datetime('now') WHERE id = ?", (row['id'],))
+        conn.commit()
+    conn.close()
+    return dict(row) if row else None
+
+
+def check_rate_limit(api_key_id, rate_limit_per_min):
+    conn = get_db()
+    window = datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+    row = conn.execute(
+        "SELECT request_count FROM rate_limits WHERE api_key_id = ? AND window_start = ?",
+        (api_key_id, window)
+    ).fetchone()
+    if row:
+        if row['request_count'] >= rate_limit_per_min:
+            conn.close()
+            return False
+        conn.execute(
+            "UPDATE rate_limits SET request_count = request_count + 1 WHERE api_key_id = ? AND window_start = ?",
+            (api_key_id, window)
+        )
+    else:
+        conn.execute(
+            "INSERT OR IGNORE INTO rate_limits (api_key_id, window_start) VALUES (?, ?)",
+            (api_key_id, window)
+        )
+    conn.commit()
+    conn.close()
+    return True
+
+
+def log_request(user_id, api_key_id, action, endpoint, address=None, zip_code=None, response_code=200, response_time_ms=0):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO audit_log (user_id, api_key_id, action, endpoint, address, zip_code, response_code, response_time_ms) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (user_id, api_key_id, action, endpoint, address, zip_code, response_code, response_time_ms)
+    )
+    conn.commit()
+    conn.close()
+
+
+if __name__ == "__main__":
+    init_db()
+    print(f"Database initialized at {DB_PATH}")
