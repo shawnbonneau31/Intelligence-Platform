@@ -1,6 +1,6 @@
 """
 Namara Water Risk Intelligence Platform — Database Seeder
-Seeds all reference data: water quality, housing age, regulatory, and sample FL builders.
+Seeds all reference data: water quality, housing age, regulatory, pressure, and sample FL builders.
 """
 
 import sqlite3
@@ -90,6 +90,86 @@ def seed_regulatory(conn):
     )
 
 
+def seed_pressure_data(conn):
+    """Seed city water pressure data by state (AWWA Municipal Survey estimates)."""
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS city_pressure (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            state TEXT NOT NULL,
+            avg_psi REAL,
+            pct_over_80psi REAL,
+            pct_under_40psi REAL,
+            pressure_variability TEXT,
+            infrastructure_age_factor REAL,
+            pressure_score REAL,
+            data_source TEXT DEFAULT 'AWWA Municipal Survey',
+            updated_at TEXT DEFAULT (datetime('now')),
+            UNIQUE(state)
+        )
+    """)
+
+    # (state, avg_psi, pct_over_80psi, pct_under_40psi, variability, age_factor, score)
+    # Score 0-100 where higher = more risk
+    # Factors: older infrastructure, elevation changes, extreme temps, coastal corrosion
+    data = [
+        ("AL", 60, 15, 9, "Moderate", 0.82, 42),
+        ("AK", 52, 10, 18, "High", 0.78, 52),
+        ("AZ", 72, 28, 3, "High", 0.72, 55),
+        ("AR", 58, 14, 10, "Moderate", 0.80, 44),
+        ("CA", 65, 22, 12, "High", 0.90, 58),
+        ("CO", 70, 26, 4, "High", 0.75, 52),
+        ("CT", 56, 10, 12, "Low", 0.92, 46),
+        ("DE", 58, 12, 10, "Moderate", 0.84, 43),
+        ("DC", 54, 8, 16, "Low", 0.96, 48),
+        ("FL", 62, 18, 8, "Moderate", 0.85, 45),
+        ("GA", 60, 16, 9, "Moderate", 0.80, 43),
+        ("HI", 58, 14, 12, "Moderate", 0.76, 40),
+        ("ID", 64, 18, 6, "Moderate", 0.74, 42),
+        ("IL", 56, 10, 14, "Low", 0.90, 46),
+        ("IN", 58, 12, 12, "Low", 0.86, 44),
+        ("IA", 56, 10, 13, "Low", 0.88, 45),
+        ("KS", 60, 16, 8, "Moderate", 0.82, 44),
+        ("KY", 57, 12, 11, "Low", 0.84, 43),
+        ("LA", 55, 10, 14, "Moderate", 0.83, 46),
+        ("ME", 53, 8, 16, "Low", 0.88, 47),
+        ("MD", 58, 12, 10, "Low", 0.86, 44),
+        ("MA", 55, 9, 14, "Low", 0.93, 48),
+        ("MI", 56, 10, 13, "Low", 0.88, 46),
+        ("MN", 57, 10, 12, "Low", 0.84, 43),
+        ("MS", 56, 12, 13, "Moderate", 0.81, 45),
+        ("MO", 58, 14, 10, "Moderate", 0.84, 44),
+        ("MT", 60, 16, 8, "Moderate", 0.78, 42),
+        ("NE", 58, 14, 9, "Moderate", 0.82, 43),
+        ("NV", 68, 24, 5, "High", 0.70, 50),
+        ("NH", 54, 8, 14, "Low", 0.86, 44),
+        ("NJ", 57, 11, 12, "Low", 0.90, 46),
+        ("NM", 66, 22, 6, "High", 0.76, 50),
+        ("NY", 55, 8, 15, "Low", 0.95, 42),
+        ("NC", 60, 15, 8, "Moderate", 0.82, 42),
+        ("ND", 56, 10, 12, "Low", 0.80, 40),
+        ("OH", 56, 10, 14, "Low", 0.90, 46),
+        ("OK", 62, 18, 7, "Moderate", 0.80, 44),
+        ("OR", 58, 13, 10, "Moderate", 0.78, 42),
+        ("PA", 55, 9, 15, "Low", 0.92, 47),
+        ("RI", 54, 8, 14, "Low", 0.93, 47),
+        ("SC", 60, 15, 8, "Moderate", 0.80, 42),
+        ("SD", 57, 12, 10, "Low", 0.80, 41),
+        ("TN", 59, 14, 9, "Moderate", 0.82, 43),
+        ("TX", 68, 24, 5, "Moderate", 0.78, 48),
+        ("UT", 66, 20, 5, "Moderate", 0.74, 44),
+        ("VT", 53, 8, 16, "Low", 0.90, 46),
+        ("VA", 59, 13, 9, "Moderate", 0.82, 43),
+        ("WA", 58, 13, 10, "Moderate", 0.80, 42),
+        ("WV", 52, 8, 18, "High", 0.92, 54),
+        ("WI", 56, 10, 12, "Low", 0.86, 44),
+        ("WY", 62, 18, 7, "Moderate", 0.78, 42),
+    ]
+    conn.executemany(
+        "INSERT OR REPLACE INTO city_pressure (state, avg_psi, pct_over_80psi, pct_under_40psi, pressure_variability, infrastructure_age_factor, pressure_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        data
+    )
+
+
 def seed_builders_fl(conn):
     """Seed sample Florida builder quality data — top 50 builders."""
     # Clear existing builders to prevent duplicates on re-seed
@@ -173,6 +253,9 @@ def seed_all():
 
     print("Seeding regulatory data...")
     seed_regulatory(conn)
+
+    print("Seeding city pressure data...")
+    seed_pressure_data(conn)
 
     print("Seeding FL builder data (50 builders)...")
     seed_builders_fl(conn)

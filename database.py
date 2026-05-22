@@ -110,6 +110,20 @@ def init_db():
         updated_at TEXT DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS city_pressure (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        state TEXT NOT NULL,
+        avg_psi REAL,
+        pct_over_80psi REAL,
+        pct_under_40psi REAL,
+        pressure_variability TEXT,
+        infrastructure_age_factor REAL,
+        pressure_score REAL,
+        data_source TEXT DEFAULT 'AWWA Municipal Survey',
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(state)
+    );
+
     CREATE TABLE IF NOT EXISTS score_cache (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         address_hash TEXT UNIQUE NOT NULL,

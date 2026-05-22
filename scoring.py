@@ -1,6 +1,6 @@
 """
 Namara Water Risk Intelligence Platform — Risk Scoring Engine
-Composite scoring across 5 data layers: Climate, Water Quality, Infrastructure, Builder Quality, Regulatory.
+Composite scoring across 6 data layers: Climate, Water Quality, Infrastructure, Pressure, Builder Quality, Regulatory.
 """
 
 import requests
@@ -264,6 +264,26 @@ def score_infrastructure(infra_data):
     return round(min(infra_data.get("infrastructure_score", 50), 100), 1)
 
 
+# ─── Pressure Scoring ───
+
+def get_pressure_data(state):
+    """Get city water pressure data for a state."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute("SELECT * FROM city_pressure WHERE state = ?", (state,)).fetchone()
+    conn.close()
+    if row:
+        return dict(row)
+    return None
+
+
+def score_pressure(pressure_data):
+    """Score pressure risk 0-100."""
+    if not pressure_data:
+        return 50.0
+    return round(min(max(0, pressure_data.get("pressure_score", 50)), 100), 1)
+
+
 # ─── Builder Quality Scoring ───
 
 def search_builders(state=None, name=None, grade=None, limit=50):
@@ -333,7 +353,7 @@ def score_regulatory(reg_data):
 def compute_composite_score(zip_code, builder_name=None):
     """
     Compute full composite risk score for a zip code.
-    Returns detailed breakdown across all 5 layers.
+    Returns detailed breakdown across all 6 layers.
     """
     state = zip_to_state(zip_code)
     if not state:
@@ -353,19 +373,24 @@ def compute_composite_score(zip_code, builder_name=None):
     infra_data = get_infrastructure(state)
     infra_score = score_infrastructure(infra_data)
 
-    # Layer 4: Builder Quality
+    # Layer 4: Pressure
+    pressure_data = get_pressure_data(state)
+    pressure_score = score_pressure(pressure_data)
+
+    # Layer 5: Builder Quality
     builder_data = get_builder_score(state)
     builder_risk_score = score_builder(state)
 
-    # Layer 5: Regulatory
+    # Layer 6: Regulatory
     reg_data = get_regulatory(state)
     reg_score = score_regulatory(reg_data)
 
-    # Composite: Climate 25% + WQ 25% + Infrastructure 25% + Builder 15% + Regulatory 10%
+    # Composite: Climate 20% + WQ 20% + Infrastructure 20% + Pressure 15% + Builder 15% + Regulatory 10%
     composite = round(
-        climate_score * 0.25 +
-        wq_score * 0.25 +
-        infra_score * 0.25 +
+        climate_score * 0.20 +
+        wq_score * 0.20 +
+        infra_score * 0.20 +
+        pressure_score * 0.15 +
         builder_risk_score * 0.15 +
         reg_score * 0.10,
         1
@@ -397,21 +422,27 @@ def compute_composite_score(zip_code, builder_name=None):
         "layers": {
             "climate": {
                 "score": climate_score,
-                "weight": 0.25,
-                "weighted_contribution": round(climate_score * 0.25, 1),
+                "weight": 0.20,
+                "weighted_contribution": round(climate_score * 0.20, 1),
                 "data": climate_data
             },
             "water_quality": {
                 "score": wq_score,
-                "weight": 0.25,
-                "weighted_contribution": round(wq_score * 0.25, 1),
+                "weight": 0.20,
+                "weighted_contribution": round(wq_score * 0.20, 1),
                 "data": wq_data or {"note": "No state-level data available"}
             },
             "infrastructure": {
                 "score": infra_score,
-                "weight": 0.25,
-                "weighted_contribution": round(infra_score * 0.25, 1),
+                "weight": 0.20,
+                "weighted_contribution": round(infra_score * 0.20, 1),
                 "data": infra_data or {"note": "No state-level data available"}
+            },
+            "pressure": {
+                "score": pressure_score,
+                "weight": 0.15,
+                "weighted_contribution": round(pressure_score * 0.15, 1),
+                "data": pressure_data or {"note": "No state-level data available"}
             },
             "builder_quality": {
                 "score": builder_risk_score,

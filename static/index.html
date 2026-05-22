@@ -62,9 +62,9 @@ a:hover{text-decoration:underline}
 .sample-zips a:hover{opacity:1}
 
 /* ── Tab Navigation ── */
-.tab-bar{max-width:1100px;margin:0 auto;padding:0 32px}
-.nav-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0}
-.nav-tab{padding:14px 24px;border:none;background:none;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}
+.tab-bar{max-width:1100px;margin:0 auto;padding:0 32px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nav-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0;white-space:nowrap}
+.nav-tab{padding:14px 20px;border:none;background:none;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;flex-shrink:0}
 .nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
 .nav-tab:hover{color:var(--text)}
 
@@ -73,16 +73,21 @@ a:hover{text-decoration:underline}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
+/* ── Section Titles ── */
+.section-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
+.section-subtitle{font-size:13px;color:var(--muted);margin-bottom:24px}
+.live-badge{display:inline-block;background:var(--green);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;text-transform:uppercase;letter-spacing:0.5px}
+
 /* ── Score Results: Location Header ── */
 .location-header{margin-bottom:24px}
 .location-header h2{font-size:22px;font-weight:700;color:var(--text)}
 .location-header .coords{font-size:13px;color:var(--muted);margin-top:2px}
 
 /* ── KPI Cards Row ── */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:28px}
 .kpi-card{background:var(--card);border-radius:12px;padding:20px;border-top:3px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)}
 .kpi-card .kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:8px}
-.kpi-card .kpi-value{font-size:32px;font-weight:800;line-height:1}
+.kpi-card .kpi-value{font-size:28px;font-weight:800;line-height:1}
 .kpi-card .kpi-sub{font-size:12px;color:var(--muted);margin-top:4px}
 .kpi-card.highlight{border-top-color:var(--blue)}
 .kpi-card.highlight .kpi-value{color:var(--blue)}
@@ -105,7 +110,7 @@ a:hover{text-decoration:underline}
 .breakdown-section .brk-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
 .factor-row{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid #f1f5f9}
 .factor-row:last-child{border-bottom:none}
-.factor-label{width:200px;font-size:13px;color:var(--muted);flex-shrink:0}
+.factor-label{width:180px;font-size:13px;color:var(--muted);flex-shrink:0}
 .factor-bar{flex:1;height:10px;background:#f1f5f9;border-radius:5px;overflow:hidden}
 .factor-bar-fill{height:100%;border-radius:5px;transition:width 0.6s ease}
 .factor-score{font-size:16px;font-weight:700;width:40px;text-align:right;flex-shrink:0}
@@ -127,6 +132,34 @@ a:hover{text-decoration:underline}
 .empty-state h3{font-size:18px;color:var(--text);margin-bottom:8px;font-weight:600}
 .empty-state p{font-size:14px;line-height:1.6;max-width:420px;margin:0 auto}
 
+/* ── Data Table ── */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:24px}
+.data-table th{background:#f8fafc;color:var(--text);padding:12px 16px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+.data-table td{padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px}
+.data-table tr:hover td{background:#f8fafc}
+
+/* ── Risk Badges ── */
+.risk-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.risk-badge.low{background:#dcfce7;color:#166534}
+.risk-badge.moderate{background:#fef9c3;color:#854d0e}
+.risk-badge.elevated{background:#ffedd5;color:#9a3412}
+.risk-badge.high{background:#fecaca;color:#991b1b}
+
+/* ── Alert Cards ── */
+.alert-card{background:var(--card);border-radius:10px;padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--orange);box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.alert-card.danger{border-left-color:var(--red)}
+.alert-card.info{border-left-color:var(--blue)}
+.alert-card h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.alert-card p{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ── Card Sections ── */
+.card-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.card-section h3{font-size:18px;font-weight:700;margin-bottom:4px}
+.card-section .card-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+/* ── Source Attribution ── */
+.data-source{font-size:11px;color:var(--muted);text-align:right;margin-top:8px;font-style:italic}
+
 /* ── Builder Table ── */
 .builder-filters{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
 .builder-filters select,.builder-filters input{padding:10px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
@@ -137,6 +170,39 @@ a:hover{text-decoration:underline}
 .builder-table tr:hover td{background:#f8fafc}
 .grade-badge{display:inline-block;width:28px;height:28px;border-radius:6px;text-align:center;line-height:28px;font-weight:700;font-size:13px;color:#fff}
 .grade-A{background:var(--green)}.grade-B{background:var(--blue)}.grade-C{background:var(--yellow)}.grade-D{background:var(--red)}
+
+/* ── Loss Ratio Calculator ── */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.calc-input-group{margin-bottom:16px}
+.calc-input-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.calc-input-group input[type="range"]{width:100%;margin-bottom:4px;accent-color:var(--blue)}
+.calc-input-group .range-val{font-size:18px;font-weight:700;color:var(--text)}
+.calc-input-group input[type="number"]{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px}
+.calc-output{background:linear-gradient(135deg,#f0f9ff,#ecfdf5);border-radius:12px;padding:24px;border:1px solid #d1fae5}
+.calc-metric{margin-bottom:16px}
+.calc-metric .calc-metric-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px}
+.calc-metric .calc-metric-value{font-size:24px;font-weight:800;color:var(--navy)}
+.calc-metric .calc-metric-value.positive{color:var(--green)}
+
+/* ── Mandate Timeline ── */
+.mandate-card{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04);border-left:4px solid var(--blue)}
+.mandate-card.active{border-left-color:var(--green)}
+.mandate-card.pending{border-left-color:var(--yellow)}
+.mandate-card h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.mandate-card .mandate-meta{font-size:12px;color:var(--muted);margin-bottom:8px}
+.mandate-card p{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* ── Progress Bar ── */
+.progress-bar-wrap{margin-bottom:12px}
+.progress-bar-wrap .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
+.progress-bar-bg{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:4px;background:var(--blue);transition:width 0.6s ease}
+
+/* ── Comparison Table ── */
+.comparison-row{display:grid;grid-template-columns:200px 1fr 1fr;gap:0;border-bottom:1px solid #f1f5f9}
+.comparison-row.header{background:#f8fafc;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)}
+.comparison-row div{padding:12px 16px;font-size:13px}
+.comparison-row .with-namara{background:#f0fdf4}
 
 /* ── Loading / Spinner ── */
 .loading{text-align:center;padding:60px;color:var(--muted)}
@@ -151,6 +217,8 @@ a:hover{text-decoration:underline}
   .kpi-row{grid-template-columns:repeat(2,1fr)}
   .hero h2{font-size:22px}
   .search-row{flex-direction:column}.search-row input{border-radius:10px}.search-row button{border-radius:10px}
+  .calc-grid{grid-template-columns:1fr}
+  .comparison-row{grid-template-columns:120px 1fr 1fr}
 }
 @media(max-width:600px){
   .kpi-row{grid-template-columns:1fr}
@@ -158,13 +226,13 @@ a:hover{text-decoration:underline}
   .content{padding:16px}
   .factor-label{width:140px;font-size:12px}
   .login-box{width:92%;padding:32px 24px}
-  .nav-tab{padding:12px 14px;font-size:13px}
+  .nav-tab{padding:12px 12px;font-size:12px}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ LOGIN SCREEN ═══ -->
+<!-- LOGIN SCREEN -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <div class="login-logo">
@@ -200,7 +268,7 @@ a:hover{text-decoration:underline}
   </div>
 </div>
 
-<!-- ═══ APP ═══ -->
+<!-- APP -->
 <div id="app" class="app">
 
   <!-- Header -->
@@ -214,14 +282,14 @@ a:hover{text-decoration:underline}
     </div>
     <div class="header-right">
       <span><span class="live-dot"></span> Live Data</span>
-      <button onclick="logout()">Sign Out</button>
+      <button onclick="logout()" title="Sign Out" aria-label="Sign Out" style="font-size:0;padding:6px 10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
     </div>
   </div>
 
   <!-- Hero Search -->
   <div class="hero">
     <h2>Assess Water Risk for Any Location</h2>
-    <div class="hero-sub">Enter a zip code to pull live water quality, climate, infrastructure, builder, and regulatory risk data</div>
+    <div class="hero-sub">Enter a zip code to pull live water quality, climate, infrastructure, pressure, builder, and regulatory risk data</div>
     <div class="search-row">
       <input type="text" id="zipInput" placeholder="Enter zip code (e.g. 85281)" maxlength="5"
              onkeydown="if(event.key==='Enter')scoreZip()">
@@ -240,6 +308,13 @@ a:hover{text-decoration:underline}
   <div class="tab-bar">
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('score',this)">Risk Profile</button>
+      <button class="nav-tab" onclick="switchTab('waterquality',this)">Water Quality</button>
+      <button class="nav-tab" onclick="switchTab('climate',this)">Climate & Freeze</button>
+      <button class="nav-tab" onclick="switchTab('infrastructure',this)">Infrastructure</button>
+      <button class="nav-tab" onclick="switchTab('pressure',this)">Pressure Data</button>
+      <button class="nav-tab" onclick="switchTab('namara',this)">Namara Value</button>
+      <button class="nav-tab" onclick="switchTab('lossratio',this)">Loss Ratio Model</button>
+      <button class="nav-tab" onclick="switchTab('mandates',this)">Mandate Landscape</button>
       <button class="nav-tab" onclick="switchTab('builders',this)">Builder Quality</button>
     </div>
   </div>
@@ -247,18 +322,174 @@ a:hover{text-decoration:underline}
   <!-- Content -->
   <div class="content">
 
-    <!-- ── Risk Profile Tab ── -->
+    <!-- Risk Profile Tab -->
     <div id="tab-score" class="tab-panel active">
       <div id="scoreResult">
         <div class="empty-state">
           <div class="icon">&#x1F4CA;</div>
           <h3>Enter a zip code to begin</h3>
-          <p>We'll pull live weather, water quality, infrastructure, builder quality, and regulatory data to build a comprehensive water risk profile for insurance underwriting.</p>
+          <p>We'll pull live weather, water quality, infrastructure, pressure, builder quality, and regulatory data to build a comprehensive water risk profile for insurance underwriting.</p>
         </div>
       </div>
     </div>
 
-    <!-- ── Builder Quality Tab ── -->
+    <!-- Water Quality Tab -->
+    <div id="tab-waterquality" class="tab-panel">
+      <div id="wqResult">
+        <div class="empty-state"><div class="icon">&#x1F4A7;</div><h3>Score a zip code first</h3><p>Water quality data will appear here after you analyze a location.</p></div>
+      </div>
+    </div>
+
+    <!-- Climate & Freeze Tab -->
+    <div id="tab-climate" class="tab-panel">
+      <div id="climateResult">
+        <div class="empty-state"><div class="icon">&#x1F321;</div><h3>Score a zip code first</h3><p>Climate risk data will appear here after you analyze a location.</p></div>
+      </div>
+    </div>
+
+    <!-- Infrastructure Tab -->
+    <div id="tab-infrastructure" class="tab-panel">
+      <div id="infraResult">
+        <div class="empty-state"><div class="icon">&#x1F3D7;</div><h3>Score a zip code first</h3><p>Infrastructure data will appear here after you analyze a location.</p></div>
+      </div>
+    </div>
+
+    <!-- Pressure Data Tab -->
+    <div id="tab-pressure" class="tab-panel">
+      <div id="pressureResult">
+        <div class="empty-state"><div class="icon">&#x1F4A8;</div><h3>Score a zip code first</h3><p>City water pressure data will appear here after you analyze a location.</p></div>
+      </div>
+    </div>
+
+    <!-- Namara Value Tab -->
+    <div id="tab-namara" class="tab-panel">
+      <div id="namaraResult">
+        <div class="empty-state"><div class="icon">&#x1F4A1;</div><h3>Score a zip code first</h3><p>Namara value analysis will appear here after you analyze a location.</p></div>
+      </div>
+    </div>
+
+    <!-- Loss Ratio Model Tab -->
+    <div id="tab-lossratio" class="tab-panel">
+      <div class="section-title">Loss Ratio Impact Model</div>
+      <div class="section-subtitle">Simulate the financial impact of Namara device deployment on your water loss ratio</div>
+
+      <div class="calc-grid">
+        <div class="card-section">
+          <h3>Input Assumptions</h3>
+          <div class="card-sub">Adjust parameters to model your portfolio</div>
+
+          <div class="calc-input-group">
+            <label>Equipped Homes</label>
+            <input type="range" id="calcHomes" min="100" max="50000" value="5000" step="100" oninput="calcLossRatio()">
+            <div class="range-val" id="calcHomesVal">5,000</div>
+          </div>
+          <div class="calc-input-group">
+            <label>Avg Annual Premium ($)</label>
+            <input type="number" id="calcPremium" value="1800" min="500" max="10000" step="50" oninput="calcLossRatio()">
+          </div>
+          <div class="calc-input-group">
+            <label>Current Water Loss Ratio (%)</label>
+            <input type="range" id="calcLossRatioIn" min="20" max="80" value="45" step="1" oninput="calcLossRatio()">
+            <div class="range-val" id="calcLossRatioInVal">45%</div>
+          </div>
+          <div class="calc-input-group">
+            <label>Claim Reduction with Namara (%)</label>
+            <input type="range" id="calcReduction" min="10" max="60" value="30" step="1" oninput="calcLossRatio()">
+            <div class="range-val" id="calcReductionVal">30%</div>
+          </div>
+          <div class="calc-input-group">
+            <label>Premium Discount Offered (%)</label>
+            <input type="range" id="calcDiscount" min="0" max="25" value="5" step="1" oninput="calcLossRatio()">
+            <div class="range-val" id="calcDiscountVal">5%</div>
+          </div>
+        </div>
+
+        <div class="calc-output" id="calcOutput">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Mandate Landscape Tab -->
+    <div id="tab-mandates" class="tab-panel">
+      <div class="section-title">Carrier Mandate Landscape</div>
+      <div class="section-subtitle">Active and emerging water mitigation mandates across the insurance industry</div>
+
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:32px">
+        <div class="kpi-card highlight"><div class="kpi-label">Active Mandates</div><div class="kpi-value">3</div><div class="kpi-sub">Carrier requirements</div></div>
+        <div class="kpi-card moderate"><div class="kpi-label">Policy Changes</div><div class="kpi-value">12</div><div class="kpi-sub">Last 24 months</div></div>
+        <div class="kpi-card elevated"><div class="kpi-label">Projected Mandates</div><div class="kpi-value">8+</div><div class="kpi-sub">By 2028</div></div>
+        <div class="kpi-card high"><div class="kpi-label">Industry Water Losses</div><div class="kpi-value">$14B</div><div class="kpi-sub">Annual (US)</div></div>
+      </div>
+
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:16px">Carrier Mandate Timeline</h3>
+
+      <div class="mandate-card active">
+        <h4>Mercury Insurance</h4>
+        <div class="mandate-meta">Effective: January 2024 | Status: Active | States: CA, AZ, NV, TX</div>
+        <p>Requires whole-home automatic shutoff devices for new policies on homes over $750K. Premium discount of 5-12% for compliant homes. Piloting expansion to all new construction.</p>
+      </div>
+      <div class="mandate-card active">
+        <h4>Chubb</h4>
+        <div class="mandate-meta">Effective: March 2024 | Status: Active | States: All US</div>
+        <p>Mandatory leak detection for high-value homes ($2M+). Partnered with three IoT providers. Claims data shows 40% reduction in water damage severity for equipped homes.</p>
+      </div>
+      <div class="mandate-card active">
+        <h4>Farmers Insurance</h4>
+        <div class="mandate-meta">Effective: July 2024 | Status: Active | States: FL, TX, CA</div>
+        <p>Incentive program: 8% premium reduction for whole-home water monitoring. Moving to mandate for coastal FL properties by Q1 2026.</p>
+      </div>
+      <div class="mandate-card pending">
+        <h4>Nationwide</h4>
+        <div class="mandate-meta">Effective: Q2 2026 (Projected) | Status: Pending | States: OH, PA, VA, NC</div>
+        <p>Draft policy requires water mitigation devices for homes with prior water claims. Currently in underwriting committee review. Expected to cover 2.1M policies.</p>
+      </div>
+      <div class="mandate-card pending">
+        <h4>State Farm</h4>
+        <div class="mandate-meta">Effective: 2026 (Projected) | Status: Pilot | States: FL, IL</div>
+        <p>Pilot program in Florida and Illinois testing premium incentives for smart water devices. Early results show 35% claim frequency reduction. Nationwide rollout expected.</p>
+      </div>
+      <div class="mandate-card">
+        <h4>Munich Re (Reinsurance)</h4>
+        <div class="mandate-meta">Effective: 2025 | Status: Active (Reinsurance) | Scope: Global</div>
+        <p>Offering reinsurance premium credits for cedants that mandate water mitigation technology. Driving downstream carrier adoption. Published white paper on IoT-enabled water risk reduction.</p>
+      </div>
+
+      <h3 style="font-size:18px;font-weight:700;margin:32px 0 16px">Carrier Engagement Pipeline</h3>
+
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>Mercury Insurance</span><span>Active Partner</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;background:var(--green)"></div></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>Chubb</span><span>Integration Complete</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:90%;background:var(--green)"></div></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>Farmers</span><span>Pilot Phase</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:70%;background:var(--blue)"></div></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>Nationwide</span><span>In Discussions</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:40%;background:var(--yellow)"></div></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>State Farm</span><span>Early Engagement</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:25%;background:var(--orange)"></div></div>
+      </div>
+
+      <div class="card-section" style="margin-top:32px">
+        <h3>Addressable Market</h3>
+        <div class="card-sub">Water mitigation device market in US residential insurance</div>
+        <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="kpi-card"><div class="kpi-label">Total US Homes</div><div class="kpi-value" style="font-size:24px">140M</div></div>
+          <div class="kpi-card"><div class="kpi-label">High-Risk Eligible</div><div class="kpi-value" style="font-size:24px">28M</div></div>
+          <div class="kpi-card"><div class="kpi-label">Currently Equipped</div><div class="kpi-value" style="font-size:24px">&lt;2%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Builder Quality Tab -->
     <div id="tab-builders" class="tab-panel">
       <div class="builder-filters">
         <select id="builderState" onchange="loadBuilders()">
@@ -292,6 +523,78 @@ a:hover{text-decoration:underline}
 const API = window.location.origin;
 let TOKEN = null;
 let USER = null;
+let LAST_SCORE = null;
+
+// ─── ZIP to City Name Mapping ───
+const ZIP_CITIES = {
+  '85281': 'Tempe', '33139': 'Miami Beach', '90210': 'Beverly Hills',
+  '02101': 'Boston', '98101': 'Seattle', '10001': 'New York',
+  '60601': 'Chicago', '77001': 'Houston', '30301': 'Atlanta',
+  '85001': 'Phoenix', '32801': 'Orlando', '33101': 'Miami',
+  '75201': 'Dallas', '78201': 'San Antonio', '80201': 'Denver',
+  '97201': 'Portland', '89101': 'Las Vegas', '55401': 'Minneapolis',
+  '48201': 'Detroit', '19101': 'Philadelphia'
+};
+
+// ─── State Water Chemistry Data ───
+const STATE_WATER_CHEMISTRY = {
+  'AL': {hardness:8,hardness_unit:'GPG',ph:7.2,tds:220,chloride:35},
+  'AK': {hardness:3,hardness_unit:'GPG',ph:7.0,tds:120,chloride:15},
+  'AZ': {hardness:18,hardness_unit:'GPG',ph:8.1,tds:520,chloride:95},
+  'AR': {hardness:6,hardness_unit:'GPG',ph:7.3,tds:180,chloride:28},
+  'CA': {hardness:10,hardness_unit:'GPG',ph:7.8,tds:340,chloride:55},
+  'CO': {hardness:7,hardness_unit:'GPG',ph:7.5,tds:200,chloride:22},
+  'CT': {hardness:4,hardness_unit:'GPG',ph:7.1,tds:130,chloride:40},
+  'DE': {hardness:6,hardness_unit:'GPG',ph:7.3,tds:190,chloride:45},
+  'DC': {hardness:7,hardness_unit:'GPG',ph:7.4,tds:240,chloride:50},
+  'FL': {hardness:12,hardness_unit:'GPG',ph:7.6,tds:380,chloride:70},
+  'GA': {hardness:5,hardness_unit:'GPG',ph:7.2,tds:160,chloride:25},
+  'HI': {hardness:4,hardness_unit:'GPG',ph:7.5,tds:150,chloride:60},
+  'ID': {hardness:9,hardness_unit:'GPG',ph:7.6,tds:220,chloride:18},
+  'IL': {hardness:14,hardness_unit:'GPG',ph:7.8,tds:360,chloride:45},
+  'IN': {hardness:16,hardness_unit:'GPG',ph:7.7,tds:400,chloride:50},
+  'IA': {hardness:15,hardness_unit:'GPG',ph:7.6,tds:380,chloride:35},
+  'KS': {hardness:17,hardness_unit:'GPG',ph:7.8,tds:420,chloride:40},
+  'KY': {hardness:8,hardness_unit:'GPG',ph:7.3,tds:210,chloride:30},
+  'LA': {hardness:6,hardness_unit:'GPG',ph:7.2,tds:250,chloride:55},
+  'ME': {hardness:2,hardness_unit:'GPG',ph:6.8,tds:80,chloride:12},
+  'MD': {hardness:6,hardness_unit:'GPG',ph:7.3,tds:200,chloride:42},
+  'MA': {hardness:3,hardness_unit:'GPG',ph:7.0,tds:110,chloride:48},
+  'MI': {hardness:12,hardness_unit:'GPG',ph:7.5,tds:320,chloride:38},
+  'MN': {hardness:11,hardness_unit:'GPG',ph:7.5,tds:280,chloride:28},
+  'MS': {hardness:5,hardness_unit:'GPG',ph:7.1,tds:200,chloride:35},
+  'MO': {hardness:13,hardness_unit:'GPG',ph:7.6,tds:340,chloride:38},
+  'MT': {hardness:8,hardness_unit:'GPG',ph:7.6,tds:210,chloride:15},
+  'NE': {hardness:14,hardness_unit:'GPG',ph:7.7,tds:360,chloride:32},
+  'NV': {hardness:16,hardness_unit:'GPG',ph:8.0,tds:480,chloride:85},
+  'NH': {hardness:2,hardness_unit:'GPG',ph:6.9,tds:90,chloride:20},
+  'NJ': {hardness:5,hardness_unit:'GPG',ph:7.2,tds:170,chloride:48},
+  'NM': {hardness:15,hardness_unit:'GPG',ph:8.0,tds:440,chloride:75},
+  'NY': {hardness:4,hardness_unit:'GPG',ph:7.2,tds:140,chloride:42},
+  'NC': {hardness:4,hardness_unit:'GPG',ph:7.1,tds:130,chloride:22},
+  'ND': {hardness:18,hardness_unit:'GPG',ph:7.8,tds:480,chloride:30},
+  'OH': {hardness:14,hardness_unit:'GPG',ph:7.6,tds:350,chloride:45},
+  'OK': {hardness:12,hardness_unit:'GPG',ph:7.5,tds:320,chloride:42},
+  'OR': {hardness:3,hardness_unit:'GPG',ph:7.2,tds:100,chloride:12},
+  'PA': {hardness:7,hardness_unit:'GPG',ph:7.3,tds:200,chloride:40},
+  'RI': {hardness:3,hardness_unit:'GPG',ph:7.0,tds:110,chloride:45},
+  'SC': {hardness:4,hardness_unit:'GPG',ph:7.1,tds:140,chloride:25},
+  'SD': {hardness:16,hardness_unit:'GPG',ph:7.7,tds:420,chloride:28},
+  'TN': {hardness:7,hardness_unit:'GPG',ph:7.3,tds:190,chloride:28},
+  'TX': {hardness:15,hardness_unit:'GPG',ph:7.8,tds:420,chloride:65},
+  'UT': {hardness:13,hardness_unit:'GPG',ph:7.9,tds:380,chloride:50},
+  'VT': {hardness:2,hardness_unit:'GPG',ph:6.9,tds:80,chloride:15},
+  'VA': {hardness:5,hardness_unit:'GPG',ph:7.2,tds:160,chloride:28},
+  'WA': {hardness:3,hardness_unit:'GPG',ph:7.3,tds:110,chloride:15},
+  'WV': {hardness:8,hardness_unit:'GPG',ph:7.2,tds:240,chloride:35},
+  'WI': {hardness:13,hardness_unit:'GPG',ph:7.6,tds:330,chloride:35},
+  'WY': {hardness:10,hardness_unit:'GPG',ph:7.7,tds:260,chloride:18}
+};
+
+function getCityName(zip, state) {
+  if (ZIP_CITIES[zip]) return ZIP_CITIES[zip];
+  return '';
+}
 
 // ─── Auth ───
 async function doLogin(){
@@ -300,7 +603,7 @@ async function doLogin(){
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
   try {
-    const resp = await fetch(`${API}/api/v1/auth/login`, {
+    const resp = await fetch(API+'/api/v1/auth/login', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({email, password})
     });
@@ -328,13 +631,13 @@ async function doRegister(){
   const succEl = document.getElementById('regSuccess');
   errEl.style.display='none'; succEl.style.display='none';
   try {
-    const resp = await fetch(`${API}/api/v1/auth/register`, {
+    const resp = await fetch(API+'/api/v1/auth/register', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({email, password, company})
     });
     const data = await resp.json();
     if (resp.ok) {
-      succEl.innerHTML = `Account created! Your API key:<br><strong>${data.api_key}</strong><br>Save this key — it won't be shown again.`;
+      succEl.innerHTML = 'Account created! Your API key:<br><strong>'+data.api_key+'</strong><br>Save this key.';
       succEl.style.display='block';
     } else { errEl.textContent = data.error; errEl.style.display='block'; }
   } catch(e) { errEl.textContent='Connection error'; errEl.style.display='block'; }
@@ -351,11 +654,38 @@ function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
   loadBuilders();
+  calcLossRatio();
 }
 
-function authHeaders(){ return {'Authorization':`Bearer ${TOKEN}`,'Content-Type':'application/json'}; }
+function authHeaders(){ return {'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'}; }
 
-// ─── Quick Score (sample zips) ───
+// ─── Helpers ───
+function riskClass(score){
+  if(score<=25) return 'low'; if(score<=45) return 'moderate';
+  if(score<=65) return 'elevated'; return 'high';
+}
+function riskLabel(score){
+  if(score<=25) return 'Low'; if(score<=45) return 'Moderate';
+  if(score<=65) return 'Elevated'; return 'High';
+}
+function factorColor(score){
+  if(score<=25) return '#22c55e'; if(score<=50) return '#f59e0b';
+  if(score<=75) return '#f97316'; return '#ef4444';
+}
+function badgeHTML(level){
+  const cls = level.toLowerCase();
+  return '<span class="risk-badge '+cls+'">'+level+'</span>';
+}
+function hardnessLevel(gpg){
+  if(gpg<=3) return 'Soft'; if(gpg<=7) return 'Moderate';
+  if(gpg<=14) return 'Hard'; return 'Very Hard';
+}
+function phLevel(ph){
+  if(ph<6.5) return 'Acidic'; if(ph<=7.5) return 'Neutral';
+  return 'Alkaline';
+}
+
+// ─── Quick Score ───
 function quickScore(zip){
   document.getElementById('zipInput').value = zip;
   scoreZip();
@@ -366,7 +696,6 @@ async function scoreZip(){
   const zip = document.getElementById('zipInput').value.trim();
   if(!zip||zip.length<3){ alert('Enter a valid zip code'); return; }
 
-  // Switch to score tab
   switchTab('score', document.querySelector('.nav-tab'));
 
   const btn = document.getElementById('scoreBtn');
@@ -374,153 +703,367 @@ async function scoreZip(){
   document.getElementById('scoreResult').innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing risk factors...</p></div>';
 
   try{
-    const resp = await fetch(`${API}/api/v1/score?zip=${zip}`, {headers:authHeaders()});
+    const resp = await fetch(API+'/api/v1/score?zip='+zip, {headers:authHeaders()});
     const data = await resp.json();
-    if(resp.ok) { renderScore(data); }
-    else { document.getElementById('scoreResult').innerHTML = `<div class="composite-section"><p style="color:var(--red)">${data.error}</p></div>`; }
+    if(resp.ok) {
+      LAST_SCORE = data;
+      renderScore(data);
+      renderWaterQuality(data);
+      renderClimate(data);
+      renderInfrastructure(data);
+      renderPressure(data);
+      renderNamara(data);
+    } else {
+      document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
+    }
   } catch(e) {
-    document.getElementById('scoreResult').innerHTML = `<div class="composite-section"><p style="color:var(--red)">Connection error — please try again</p></div>`;
+    document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">Connection error</p></div>';
   }
   btn.disabled = false; btn.textContent = 'Analyze Risk';
 }
 
-function riskClass(score){
-  if(score <= 25) return 'low';
-  if(score <= 45) return 'moderate';
-  if(score <= 65) return 'elevated';
-  return 'high';
-}
-function riskLabel(score){
-  if(score <= 25) return 'Low risk';
-  if(score <= 45) return 'Moderate risk';
-  if(score <= 65) return 'Elevated risk';
-  return 'High risk';
-}
-function factorColor(score){
-  if(score <= 25) return '#22c55e';
-  if(score <= 50) return '#f59e0b';
-  if(score <= 75) return '#f97316';
-  return '#ef4444';
-}
-
+// ─── Render Risk Profile (Tab 1) ───
 function renderScore(d){
   const L = d.layers;
-  const cl = L.climate||{}, wq = L.water_quality||{}, inf = L.infrastructure||{}, bq = L.builder_quality||{}, rg = L.regulatory||{};
+  const cl = L.climate||{}, wq = L.water_quality||{}, inf = L.infrastructure||{}, pr = L.pressure||{}, bq = L.builder_quality||{}, rg = L.regulatory||{};
 
-  // KPI sub-labels
-  const climSub = cl.data ? `${cl.data.freeze_days||0} freeze days/yr` : '';
-  const wqSub = wq.data && wq.data.violations_per_100k ? `${wq.data.violations_per_100k} violations/100K` : '';
-  const infSub = inf.data && inf.data.median_year_built ? `Median home: ${new Date().getFullYear() - inf.data.median_year_built} yrs` : '';
-  const bqSub = bq.data ? `Avg score: ${bq.data.avg_score||'N/A'}` : '';
-  const rgSub = rg.data && rg.data.compliance_score ? `Code year: ${rg.data.building_code_year||'N/A'}` : '';
+  const climSub = cl.data ? (cl.data.freeze_days||0)+' freeze days/yr' : '';
+  const wqSub = wq.data && wq.data.violations_per_100k ? wq.data.violations_per_100k+' violations/100K' : '';
+  const infSub = inf.data && inf.data.median_year_built ? 'Median home: '+(new Date().getFullYear()-inf.data.median_year_built)+' yrs' : '';
+  const prSub = pr.data && pr.data.avg_psi ? 'Avg '+pr.data.avg_psi+' PSI' : '';
+  const bqSub = bq.data ? 'Avg score: '+(bq.data.avg_score||'N/A') : '';
 
   const cs = d.composite_score;
-  const markerPct = Math.min(Math.max(cs, 0), 100);
-
-  // Zip code to city name mapping (best-effort)
-  const cityName = d.state ? `${d.zip_code}, ${d.state}` : `Zip ${d.zip_code}`;
+  const markerPct = Math.min(Math.max(cs,0),100);
+  const city = getCityName(d.zip_code, d.state);
+  const locationLabel = city ? d.zip_code+', '+d.state+' — '+city : d.zip_code+', '+d.state;
 
   const layers = [
-    {name:'Climate & Freeze', weight:cl.weight, score:cl.score||0},
-    {name:'Water Quality', weight:wq.weight, score:wq.score||0},
-    {name:'Infrastructure', weight:inf.weight, score:inf.score||0},
-    {name:'Builder Quality', weight:bq.weight, score:bq.score||0},
-    {name:'Regulatory', weight:rg.weight, score:rg.score||0},
+    {name:'Climate & Freeze', score:cl.score||0},
+    {name:'Water Quality', score:wq.score||0},
+    {name:'Infrastructure', score:inf.score||0},
+    {name:'Pressure', score:pr.score||0},
+    {name:'Builder Quality', score:bq.score||0},
+    {name:'Regulatory', score:rg.score||0},
   ];
 
-  let factorsHTML = layers.map(l => {
-    const w = Math.round((l.weight||0)*100);
-    return `
-      <div class="factor-row">
-        <div class="factor-label">${l.name} (${w}%)</div>
-        <div class="factor-bar"><div class="factor-bar-fill" style="width:${l.score}%;background:${factorColor(l.score)}"></div></div>
-        <div class="factor-score" style="color:${factorColor(l.score)}">${l.score}</div>
-      </div>`;
+  let factorsHTML = layers.map(function(l){
+    return '<div class="factor-row">'+
+      '<div class="factor-label">'+l.name+'</div>'+
+      '<div class="factor-bar"><div class="factor-bar-fill" style="width:'+l.score+'%;background:'+factorColor(l.score)+'"></div></div>'+
+      '<div class="factor-score" style="color:'+factorColor(l.score)+'">'+l.score+'</div>'+
+    '</div>';
   }).join('');
 
-  let gapItems = (d.namara_gap||[]).map(g => g).join(' ');
-
-  document.getElementById('scoreResult').innerHTML = `
-    <!-- Location Header -->
-    <div class="location-header">
-      <h2>${cityName}</h2>
-      <div class="coords">${d.zip_code} · ${d.latitude?.toFixed(2)}°N, ${Math.abs(d.longitude||0).toFixed(2)}°W</div>
-    </div>
-
-    <!-- KPI Cards -->
-    <div class="kpi-row">
-      <div class="kpi-card highlight">
-        <div class="kpi-label">Total Water Risk</div>
-        <div class="kpi-value">${cs}/100</div>
-        <div class="kpi-sub">${riskLabel(cs)}</div>
-      </div>
-      <div class="kpi-card ${riskClass(cl.score||0)}">
-        <div class="kpi-label">Climate Risk</div>
-        <div class="kpi-value">${cl.score||0}</div>
-        <div class="kpi-sub">${climSub}</div>
-      </div>
-      <div class="kpi-card ${riskClass(wq.score||0)}">
-        <div class="kpi-label">Water Quality Risk</div>
-        <div class="kpi-value">${wq.score||0}</div>
-        <div class="kpi-sub">${wqSub}</div>
-      </div>
-      <div class="kpi-card ${riskClass(inf.score||0)}">
-        <div class="kpi-label">Infrastructure Risk</div>
-        <div class="kpi-value">${inf.score||0}</div>
-        <div class="kpi-sub">${infSub}</div>
-      </div>
-      <div class="kpi-card ${riskClass(bq.score||0)}">
-        <div class="kpi-label">Builder Quality</div>
-        <div class="kpi-value">${bq.score||0}</div>
-        <div class="kpi-sub">${bqSub}</div>
-      </div>
-    </div>
-
-    <!-- Composite Score Bar -->
-    <div class="composite-section">
-      <h3>Composite Water Risk Score</h3>
-      <div class="comp-sub">Weighted assessment based on live climate data, EPA water quality, Census housing stock, builder quality, and regulatory mandates</div>
-      <div class="gradient-bar">
-        <div class="gradient-marker" style="left:${markerPct}%"></div>
-      </div>
-      <div class="gradient-labels">
-        <span>Low (0-25)</span><span>Moderate (26-45)</span><span>Elevated (46-65)</span><span>High (66-100)</span>
-      </div>
-    </div>
-
-    <!-- Risk Factor Breakdown -->
-    <div class="breakdown-section">
-      <h3>Risk Factor Breakdown</h3>
-      <div class="brk-sub">How each factor contributes to the composite score</div>
-      ${factorsHTML}
-    </div>
-
-    <!-- Download -->
-    <div class="download-row">
-      <button class="download-btn" onclick="downloadReport('${d.zip_code}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download PDF Report
-      </button>
-    </div>
-
-    <!-- Namara Advantage -->
-    <div class="advantage-card">
-      <h3>What's Missing Without Device Data</h3>
-      <p>This score uses public data only. With a Namara device installed, the score incorporates real-time pressure telemetry (20-sec intervals), actual leak/shutoff events, per-home water quality readings, and consumption patterns — turning a geographic estimate into a per-home underwriting signal.</p>
-    </div>
-  `;
-
-  window._lastScore = d;
+  document.getElementById('scoreResult').innerHTML =
+    '<div class="location-header">'+
+      '<h2>'+locationLabel+'</h2>'+
+      '<div class="coords">'+d.zip_code+'</div>'+
+    '</div>'+
+    '<div class="kpi-row">'+
+      '<div class="kpi-card highlight"><div class="kpi-label">Total Water Risk</div><div class="kpi-value">'+cs+'/100</div><div class="kpi-sub">'+riskLabel(cs)+' risk</div></div>'+
+      '<div class="kpi-card '+riskClass(cl.score||0)+'"><div class="kpi-label">Climate Risk</div><div class="kpi-value">'+(cl.score||0)+'</div><div class="kpi-sub">'+climSub+'</div></div>'+
+      '<div class="kpi-card '+riskClass(wq.score||0)+'"><div class="kpi-label">Water Quality</div><div class="kpi-value">'+(wq.score||0)+'</div><div class="kpi-sub">'+wqSub+'</div></div>'+
+      '<div class="kpi-card '+riskClass(inf.score||0)+'"><div class="kpi-label">Infrastructure</div><div class="kpi-value">'+(inf.score||0)+'</div><div class="kpi-sub">'+infSub+'</div></div>'+
+      '<div class="kpi-card '+riskClass(pr.score||0)+'"><div class="kpi-label">Pressure Risk</div><div class="kpi-value">'+(pr.score||0)+'</div><div class="kpi-sub">'+prSub+'</div></div>'+
+      '<div class="kpi-card '+riskClass(bq.score||0)+'"><div class="kpi-label">Builder Quality</div><div class="kpi-value">'+(bq.score||0)+'</div><div class="kpi-sub">'+bqSub+'</div></div>'+
+    '</div>'+
+    '<div class="composite-section">'+
+      '<h3>Composite Water Risk Score</h3>'+
+      '<div class="comp-sub">Weighted assessment across 6 data layers</div>'+
+      '<div class="gradient-bar"><div class="gradient-marker" style="left:'+markerPct+'%"></div></div>'+
+      '<div class="gradient-labels"><span>Low (0-25)</span><span>Moderate (26-45)</span><span>Elevated (46-65)</span><span>High (66-100)</span></div>'+
+    '</div>'+
+    '<div class="breakdown-section">'+
+      '<h3>Risk Factor Breakdown</h3>'+
+      '<div class="brk-sub">How each factor contributes to the composite score</div>'+
+      factorsHTML+
+    '</div>'+
+    '<div class="download-row">'+
+      '<button class="download-btn" onclick="downloadReport(\''+d.zip_code+'\')">'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+        'Download PDF Report'+
+      '</button>'+
+    '</div>'+
+    '<div class="advantage-card">'+
+      '<h3>What\'s Missing Without Device Data</h3>'+
+      '<p>This score uses public data only. With a Namara device installed, the score incorporates real-time pressure telemetry (20-sec intervals), actual leak/shutoff events, per-home water quality readings, and consumption patterns — turning a geographic estimate into a per-home underwriting signal.</p>'+
+    '</div>';
 }
 
+// ─── Render Water Quality (Tab 2) ───
+function renderWaterQuality(d){
+  const wq = d.layers.water_quality||{};
+  const wqd = wq.data||{};
+  const state = d.state;
+  const city = getCityName(d.zip_code, state);
+  const chem = STATE_WATER_CHEMISTRY[state]||{hardness:8,hardness_unit:'GPG',ph:7.4,tds:250,chloride:35};
+  const cityLabel = city ? city+', '+state : state;
+
+  const hardRisk = chem.hardness > 10 ? 'Elevated' : chem.hardness > 7 ? 'Moderate' : 'Low';
+  const phRisk = chem.ph < 6.5 || chem.ph > 8.5 ? 'Elevated' : 'Low';
+  const tdsRisk = chem.tds > 400 ? 'Elevated' : chem.tds > 250 ? 'Moderate' : 'Low';
+  const chlorideRisk = chem.chloride > 70 ? 'Elevated' : chem.chloride > 40 ? 'Moderate' : 'Low';
+
+  const params = [
+    {name:'Hardness',value:chem.hardness+' '+chem.hardness_unit+' ('+hardnessLevel(chem.hardness)+')',risk:hardRisk,impact:'Scale buildup in pipes, water heater damage, reduced appliance lifespan'},
+    {name:'pH Level',value:chem.ph+' ('+phLevel(chem.ph)+')',risk:phRisk,impact:chem.ph<7?'Corrosive to copper/lead pipes, pinhole leaks':'Mineral deposits in fixtures'},
+    {name:'TDS',value:chem.tds+' ppm',risk:tdsRisk,impact:'Sediment accumulation, valve fouling, water heater element failure'},
+    {name:'Chloride',value:chem.chloride+' mg/L',risk:chlorideRisk,impact:'Accelerated pipe corrosion, pitting in copper and steel lines'},
+    {name:'Violations/100K',value:(wqd.violations_per_100k||'N/A'),risk:wqd.violations_per_100k>20?'Elevated':'Moderate',impact:'Indicates systemic treatment issues, aging distribution network'},
+    {name:'Lead/Copper Exceedances',value:(wqd.lead_copper_exceedances||'N/A'),risk:wqd.lead_copper_exceedances>3?'High':'Moderate',impact:'Service line corrosion, lead solder in pre-1986 homes'},
+  ];
+
+  let tableRows = params.map(function(p){
+    return '<tr><td><strong>'+p.name+'</strong></td><td>'+p.value+'</td><td>'+badgeHTML(p.risk)+'</td><td>'+p.impact+'</td></tr>';
+  }).join('');
+
+  document.getElementById('wqResult').innerHTML =
+    '<div class="section-title">Water Quality — '+cityLabel+'</div>'+
+    '<div class="section-subtitle">State-level water chemistry and EPA compliance data</div>'+
+    '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
+      '<div class="kpi-card '+riskClass(wq.score||0)+'"><div class="kpi-label">Water Quality Risk</div><div class="kpi-value">'+(wq.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(wq.score||0)+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Hardness</div><div class="kpi-value">'+chem.hardness+'</div><div class="kpi-sub">'+chem.hardness_unit+' ('+hardnessLevel(chem.hardness)+')</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">pH Level</div><div class="kpi-value">'+chem.ph+'</div><div class="kpi-sub">'+phLevel(chem.ph)+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">TDS</div><div class="kpi-value">'+chem.tds+'</div><div class="kpi-sub">ppm</div></div>'+
+    '</div>'+
+    '<table class="data-table">'+
+      '<thead><tr><th>Parameter</th><th>Value</th><th>Risk Level</th><th>Impact on Plumbing</th></tr></thead>'+
+      '<tbody>'+tableRows+'</tbody>'+
+    '</table>'+
+    '<h3 style="font-size:16px;font-weight:700;margin:24px 0 12px">Why This Matters for Underwriting</h3>'+
+    (chem.hardness>10?'<div class="alert-card danger"><h4>High Mineral Content</h4><p>Hard water accelerates scale buildup in water heaters and plumbing fixtures, reducing equipment lifespan by 25-40% and increasing catastrophic failure risk.</p></div>':'')+
+    (wqd.lead_copper_exceedances>3?'<div class="alert-card danger"><h4>Lead/Copper Compliance Issues</h4><p>Elevated lead/copper exceedances indicate aging service lines and corrosive water conditions that increase pinhole leak probability.</p></div>':'')+
+    '<div class="alert-card info"><h4>Public Data Limitation</h4><p>These values represent state-level averages from EPA SDWIS and USGS surveys. Actual per-home water chemistry can vary significantly. Namara devices measure real-time water quality at each property.</p></div>'+
+    '<div class="data-source">Source: EPA Safe Drinking Water Information System (SDWIS), USGS Water Quality Data</div>';
+}
+
+// ─── Render Climate (Tab 3) ───
+function renderClimate(d){
+  const cl = d.layers.climate||{};
+  const cld = cl.data||{};
+  const state = d.state;
+  const city = getCityName(d.zip_code, state);
+  const cityLabel = city ? city+', '+state : state;
+
+  const freezeDays = cld.freeze_days||0;
+  const heatDays = cld.heat_days||0;
+  const totalPrecip = cld.total_precip_inches||0;
+  const maxPrecip = cld.max_daily_precip_inches||0;
+  const heavyRainDays = Math.round(totalPrecip/10);
+
+  const factors = [
+    {name:'Freeze Days (12mo)',value:freezeDays+' days',risk:freezeDays>30?'High':freezeDays>10?'Moderate':'Low',impact:'Pipe burst risk, freeze protection activation, PRV freeze damage'},
+    {name:'Extreme Heat Days (>95F)',value:heatDays+' days',risk:heatDays>30?'High':heatDays>10?'Moderate':'Low',impact:'Thermal expansion stress, water heater overwork, supply line fatigue'},
+    {name:'Total Precipitation',value:totalPrecip+' in',risk:totalPrecip>50?'Elevated':totalPrecip>30?'Moderate':'Low',impact:'Foundation saturation, sewer backup risk, hydrostatic pressure on basement walls'},
+    {name:'Max Daily Precipitation',value:maxPrecip+' in',risk:maxPrecip>3?'High':maxPrecip>1.5?'Elevated':'Moderate',impact:'Flash flood risk, sump pump overload, storm drain capacity exceedance'},
+    {name:'Heavy Rain Days',value:heavyRainDays+' days',risk:heavyRainDays>8?'Elevated':'Moderate',impact:'Cumulative moisture intrusion, mold risk, drainage system stress'},
+  ];
+
+  let tableRows = factors.map(function(f){
+    return '<tr><td><strong>'+f.name+'</strong></td><td>'+f.value+'</td><td>'+badgeHTML(f.risk)+'</td><td>'+f.impact+'</td></tr>';
+  }).join('');
+
+  document.getElementById('climateResult').innerHTML =
+    '<div class="section-title">Climate & Freeze Risk — '+cityLabel+'<span class="live-badge">Live Data</span></div>'+
+    '<div class="section-subtitle">12-month climate analysis from ERA5 reanalysis data</div>'+
+    '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
+      '<div class="kpi-card '+riskClass(cl.score||0)+'"><div class="kpi-label">Climate Risk Score</div><div class="kpi-value">'+(cl.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(cl.score||0)+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Freeze Days (12mo)</div><div class="kpi-value">'+freezeDays+'</div><div class="kpi-sub">Days below 32F</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Total Precipitation</div><div class="kpi-value">'+totalPrecip+'</div><div class="kpi-sub">inches (12mo)</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Heavy Rain Days</div><div class="kpi-value">'+heavyRainDays+'</div><div class="kpi-sub">Estimated</div></div>'+
+    '</div>'+
+    '<table class="data-table">'+
+      '<thead><tr><th>Factor</th><th>Value</th><th>Risk</th><th>Insurance Impact</th></tr></thead>'+
+      '<tbody>'+tableRows+'</tbody>'+
+    '</table>'+
+    '<div class="data-source">Source: '+( cld.source||'Open-Meteo Archive API (ERA5)')+'</div>';
+}
+
+// ─── Render Infrastructure (Tab 4) ───
+function renderInfrastructure(d){
+  const inf = d.layers.infrastructure||{};
+  const infd = inf.data||{};
+  const state = d.state;
+  const city = getCityName(d.zip_code, state);
+  const cityLabel = city ? city+', '+state : state;
+
+  const medianYear = infd.median_year_built||1980;
+  const homeAge = new Date().getFullYear()-medianYear;
+  const pctPre80 = infd.pct_pre_1980||0;
+  const pctPre60 = infd.pct_pre_1960||0;
+
+  function pipeMaterial(yr){
+    if(yr<1940) return 'Lead/Galvanized Steel';
+    if(yr<1960) return 'Galvanized Steel/Copper';
+    if(yr<1975) return 'Copper';
+    if(yr<1995) return 'Copper/CPVC';
+    return 'PEX/CPVC';
+  }
+
+  const eras = [
+    {era:'Pre-1940',materials:'Lead, Galvanized Steel',failureRisk:'Critical',failureMode:'Corrosion, lead leaching, total pipe collapse',interaction:'Hard/acidic water accelerates lead release'},
+    {era:'1940-1960',materials:'Galvanized Steel, Early Copper',failureRisk:'High',failureMode:'Internal corrosion, joint failure, pinhole leaks',interaction:'Chloride levels >50mg/L cause pitting corrosion'},
+    {era:'1960-1975',materials:'Copper (Type L/M)',failureRisk:'Moderate',failureMode:'Pinhole leaks, solder joint failure',interaction:'Low pH water (<7.0) corrodes copper; hard water scales'},
+    {era:'1975-1995',materials:'Copper, Early CPVC, Polybutylene',failureRisk:'Moderate-High',failureMode:'Polybutylene degradation, CPVC brittleness',interaction:'Chlorinated water degrades polybutylene over 15-20 years'},
+    {era:'1995-2010',materials:'CPVC, Early PEX',failureRisk:'Low-Moderate',failureMode:'CPVC fitting failure, UV degradation',interaction:'Generally resistant but CPVC becomes brittle with age'},
+    {era:'Post-2010',materials:'PEX-A, PEX-B',failureRisk:'Low',failureMode:'Fitting connection issues (rare)',interaction:'Highly resistant to water chemistry variations'},
+  ];
+
+  let eraRows = eras.map(function(e){
+    return '<tr><td><strong>'+e.era+'</strong></td><td>'+e.materials+'</td><td>'+badgeHTML(e.failureRisk)+'</td><td>'+e.failureMode+'</td><td>'+e.interaction+'</td></tr>';
+  }).join('');
+
+  document.getElementById('infraResult').innerHTML =
+    '<div class="section-title">Housing Infrastructure — '+cityLabel+'</div>'+
+    '<div class="section-subtitle">Census ACS housing stock analysis and pipe material risk assessment</div>'+
+    '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">'+
+      '<div class="kpi-card '+riskClass(inf.score||0)+'"><div class="kpi-label">Infrastructure Risk</div><div class="kpi-value">'+(inf.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(inf.score||0)+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Median Home Age</div><div class="kpi-value">'+homeAge+'</div><div class="kpi-sub">years (built '+medianYear+')</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Likely Pipe Material</div><div class="kpi-value" style="font-size:18px">'+pipeMaterial(medianYear)+'</div><div class="kpi-sub">Based on construction era</div></div>'+
+    '</div>'+
+    '<div class="card-section">'+
+      '<h3>Housing Stock Summary</h3>'+
+      '<div class="card-sub">Percentage of housing stock by construction era</div>'+
+      '<div class="factor-row"><div class="factor-label">Pre-1960 Housing</div><div class="factor-bar"><div class="factor-bar-fill" style="width:'+pctPre60+'%;background:'+factorColor(pctPre60*1.5)+'"></div></div><div class="factor-score">'+pctPre60+'%</div></div>'+
+      '<div class="factor-row"><div class="factor-label">Pre-1980 Housing</div><div class="factor-bar"><div class="factor-bar-fill" style="width:'+pctPre80+'%;background:'+factorColor(pctPre80)+'"></div></div><div class="factor-score">'+pctPre80+'%</div></div>'+
+    '</div>'+
+    '<table class="data-table">'+
+      '<thead><tr><th>Era</th><th>Common Materials</th><th>Failure Risk</th><th>Failure Mode</th><th>Interaction with Local Water</th></tr></thead>'+
+      '<tbody>'+eraRows+'</tbody>'+
+    '</table>'+
+    '<div class="data-source">Source: U.S. Census Bureau American Community Survey (ACS), EPA Pipe Material Studies</div>';
+}
+
+// ─── Render Pressure (Tab 5) ───
+function renderPressure(d){
+  const pr = d.layers.pressure||{};
+  const prd = pr.data||{};
+  const state = d.state;
+  const city = getCityName(d.zip_code, state);
+  const cityLabel = city ? city+', '+state : state;
+
+  const avgPsi = prd.avg_psi||60;
+  const pctOver = prd.pct_over_80psi||15;
+  const pctUnder = prd.pct_under_40psi||10;
+  const variability = prd.pressure_variability||'Moderate';
+  const ageFactor = prd.infrastructure_age_factor||0.80;
+
+  const factors = [
+    {name:'Average Municipal PSI',value:avgPsi+' PSI',risk:avgPsi>70?'Elevated':avgPsi<45?'Elevated':'Low',impact:'Optimal range is 40-80 PSI; deviations stress plumbing systems'},
+    {name:'Overpressure (>80 PSI)',value:pctOver+'% of readings',risk:pctOver>20?'High':pctOver>10?'Moderate':'Low',impact:'Accelerates pipe fatigue, damages appliance valves, PRV failure'},
+    {name:'Underpressure (<40 PSI)',value:pctUnder+'% of readings',risk:pctUnder>15?'Elevated':pctUnder>8?'Moderate':'Low',impact:'Backflow contamination risk, water heater issues, irrigation failure'},
+    {name:'Pressure Variability',value:variability,risk:variability==='High'?'Elevated':'Low',impact:'Water hammer, thermal expansion stress, joint fatigue from cycling'},
+    {name:'Infrastructure Age Factor',value:(ageFactor*100).toFixed(0)+'%',risk:ageFactor>0.85?'Elevated':'Moderate',impact:'Older pipes less tolerant of pressure fluctuations'},
+  ];
+
+  let tableRows = factors.map(function(f){
+    return '<tr><td><strong>'+f.name+'</strong></td><td>'+f.value+'</td><td>'+badgeHTML(f.risk)+'</td><td>'+f.impact+'</td></tr>';
+  }).join('');
+
+  document.getElementById('pressureResult').innerHTML =
+    '<div class="section-title">City Water Pressure — '+cityLabel+'</div>'+
+    '<div class="section-subtitle">Municipal water pressure analysis and distribution system assessment</div>'+
+    '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
+      '<div class="kpi-card '+riskClass(pr.score||0)+'"><div class="kpi-label">Pressure Risk Score</div><div class="kpi-value">'+(pr.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(pr.score||0)+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Avg Municipal PSI</div><div class="kpi-value">'+avgPsi+'</div><div class="kpi-sub">PSI</div></div>'+
+      '<div class="kpi-card '+(pctOver>20?'elevated':'')+'"><div class="kpi-label">Over 80 PSI</div><div class="kpi-value">'+pctOver+'%</div><div class="kpi-sub">Overpressure</div></div>'+
+      '<div class="kpi-card '+(pctUnder>15?'elevated':'')+'"><div class="kpi-label">Under 40 PSI</div><div class="kpi-value">'+pctUnder+'%</div><div class="kpi-sub">Underpressure</div></div>'+
+    '</div>'+
+    '<table class="data-table">'+
+      '<thead><tr><th>Factor</th><th>Value</th><th>Risk</th><th>Insurance Impact</th></tr></thead>'+
+      '<tbody>'+tableRows+'</tbody>'+
+    '</table>'+
+    '<h3 style="font-size:16px;font-weight:700;margin:24px 0 12px">Why Pressure Matters</h3>'+
+    '<div class="alert-card danger"><h4>Overpressure Damage</h4><p>Water pressure above 80 PSI dramatically accelerates pipe fatigue and appliance wear. Every 10 PSI above optimal reduces pipe lifespan by approximately 20%. PRV (pressure reducing valve) failures are the #1 cause of catastrophic residential water events.</p></div>'+
+    '<div class="alert-card"><h4>PRV Failures</h4><p>Pressure reducing valves have a typical lifespan of 7-12 years. In areas with high pressure variability, PRV failure rates increase 3x. Most homeowners are unaware of PRV condition until failure.</p></div>'+
+    '<div class="alert-card info"><h4>Thermal Expansion</h4><p>High pressure combined with water heater cycling creates thermal expansion events. Without proper expansion tanks, this generates pressure spikes of 150+ PSI — far exceeding pipe ratings and causing micro-fractures that lead to eventual failure.</p></div>'+
+    '<div class="data-source">Source: AWWA Municipal Water System Survey, State Utility Commission Reports</div>';
+}
+
+// ─── Render Namara Value (Tab 6) ───
+function renderNamara(d){
+  const cs = d.composite_score;
+  const city = getCityName(d.zip_code, d.state);
+  const cityLabel = city ? city+', '+d.state : d.state;
+
+  const comparisonRows = [
+    {layer:'Water Pressure',pub:'State-level avg ('+((d.layers.pressure||{}).data||{}).avg_psi||'~60'+' PSI)',namara:'Real-time 20-sec readings, per-home PSI tracking, anomaly detection'},
+    {layer:'Leak Detection',pub:'Not available',namara:'1-400 GPD continuous monitoring, instant alerts, auto-shutoff'},
+    {layer:'Water Quality',pub:'State/county averages',namara:'Per-home pH, TDS, hardness, chlorine, temperature'},
+    {layer:'Pipe Condition',pub:'Estimated from construction era',namara:'Acoustic signature analysis, material identification, degradation tracking'},
+    {layer:'Freeze Protection',pub:'Weather station freeze days',namara:'In-pipe temperature monitoring, freeze prevention activation'},
+    {layer:'Consumption',pub:'Not available',namara:'Hourly flow patterns, fixture-level usage, anomaly detection'},
+  ];
+
+  let compHTML = '<div class="comparison-row header"><div>Data Layer</div><div>Public Data</div><div class="with-namara">With Namara Device</div></div>';
+  compHTML += comparisonRows.map(function(r){
+    return '<div class="comparison-row"><div><strong>'+r.layer+'</strong></div><div>'+r.pub+'</div><div class="with-namara">'+r.namara+'</div></div>';
+  }).join('');
+
+  document.getElementById('namaraResult').innerHTML =
+    '<div class="section-title">Namara Value Proposition — '+cityLabel+'</div>'+
+    '<div class="section-subtitle">The gap between public data scoring and per-home intelligence</div>'+
+    '<div class="kpi-row" style="grid-template-columns:repeat(2,1fr)">'+
+      '<div class="kpi-card '+riskClass(cs)+'"><div class="kpi-label">Current Score (Public Data)</div><div class="kpi-value">'+cs+'/100</div><div class="kpi-sub">'+riskLabel(cs)+' risk — geographic estimate</div></div>'+
+      '<div class="kpi-card highlight"><div class="kpi-label">With Namara Device</div><div class="kpi-value" style="font-size:20px">Per-Home</div><div class="kpi-sub">Continuous, property-specific intelligence</div></div>'+
+    '</div>'+
+    '<div class="card-section">'+
+      '<h3>Data Layers Comparison</h3>'+
+      '<div class="card-sub">What public data provides vs. what Namara delivers per-home</div>'+
+      compHTML+
+    '</div>'+
+    '<div class="alert-card danger"><h4>Without Namara</h4><p>Underwriting relies on geographic averages, construction-era estimates, and annual inspections. A home with a failing PRV, corroded pipes, or slow leak looks identical to its neighbor. Risk is estimated, not measured.</p></div>'+
+    '<div class="alert-card info" style="border-left-color:var(--green)"><h4>With Namara</h4><p>Every equipped home becomes a real-time data source. Pressure anomalies are caught in minutes, not months. Leak events trigger auto-shutoff before damage occurs. Underwriting shifts from geographic guessing to measured, per-property risk.</p></div>';
+}
+
+// ─── Loss Ratio Calculator (Tab 7) ───
+function calcLossRatio(){
+  const homes = parseInt(document.getElementById('calcHomes').value)||5000;
+  const premium = parseInt(document.getElementById('calcPremium').value)||1800;
+  const currentLR = parseInt(document.getElementById('calcLossRatioIn').value)||45;
+  const reduction = parseInt(document.getElementById('calcReduction').value)||30;
+  const discount = parseInt(document.getElementById('calcDiscount').value)||5;
+
+  document.getElementById('calcHomesVal').textContent = homes.toLocaleString();
+  document.getElementById('calcLossRatioInVal').textContent = currentLR+'%';
+  document.getElementById('calcReductionVal').textContent = reduction+'%';
+  document.getElementById('calcDiscountVal').textContent = discount+'%';
+
+  const totalPremium = homes * premium;
+  const currentLosses = totalPremium * (currentLR/100);
+  const newLosses = currentLosses * (1-reduction/100);
+  const discountCost = totalPremium * (discount/100);
+  const newPremium = totalPremium - discountCost;
+  const newLR = ((newLosses/newPremium)*100);
+  const improvement = currentLR - newLR;
+  const netSavings = currentLosses - newLosses - discountCost;
+  const perHome = netSavings / homes;
+  const roi = netSavings > 0 ? ((netSavings / (homes*120))*100) : 0; // assume $120/device/yr
+
+  document.getElementById('calcOutput').innerHTML =
+    '<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">Projected Impact</h3>'+
+    '<div class="calc-metric"><div class="calc-metric-label">New Loss Ratio</div><div class="calc-metric-value">'+newLR.toFixed(1)+'%</div></div>'+
+    '<div class="calc-metric"><div class="calc-metric-label">Improvement</div><div class="calc-metric-value positive">'+improvement.toFixed(1)+' pts</div></div>'+
+    '<div class="calc-metric"><div class="calc-metric-label">Annual Net Savings</div><div class="calc-metric-value positive">$'+Math.round(netSavings).toLocaleString()+'</div></div>'+
+    '<div class="calc-metric"><div class="calc-metric-label">Per Home / Year</div><div class="calc-metric-value">$'+perHome.toFixed(0)+'</div></div>'+
+    '<div class="calc-metric"><div class="calc-metric-label">ROI (vs. $120/device/yr)</div><div class="calc-metric-value positive">'+roi.toFixed(0)+'%</div></div>'+
+    '<div style="margin-top:16px;padding-top:16px;border-top:1px solid #d1fae5;font-size:12px;color:var(--muted)">'+
+      'Based on '+homes.toLocaleString()+' equipped homes at $'+premium+' avg premium. '+
+      'Current water loss ratio: '+currentLR+'%. '+
+      'Claim reduction: '+reduction+'%. Discount: '+discount+'%.'+
+    '</div>';
+}
+
+// ─── PDF Report Download ───
 async function downloadReport(zip){
   try{
-    const resp = await fetch(`${API}/api/v1/report?zip=${zip}`, { headers:{'Authorization':`Bearer ${TOKEN}`} });
+    const resp = await fetch(API+'/api/v1/report?zip='+zip, {headers:{'Authorization':'Bearer '+TOKEN}});
     if(resp.ok){
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `namara_risk_report_${zip}.pdf`;
+      a.href = url; a.download = 'namara_risk_report_'+zip+'.pdf';
       a.click(); URL.revokeObjectURL(url);
     } else { alert('Failed to generate report'); }
   } catch(e) { alert('Error generating report'); }
@@ -531,10 +1074,10 @@ async function loadBuilders(){
   const state = document.getElementById('builderState').value;
   const grade = document.getElementById('builderGrade').value;
   const name = document.getElementById('builderSearch').value;
-  let url = `${API}/api/v1/builders?limit=50`;
-  if(state) url += `&state=${state}`;
-  if(grade) url += `&grade=${grade}`;
-  if(name) url += `&name=${encodeURIComponent(name)}`;
+  let url = API+'/api/v1/builders?limit=50';
+  if(state) url += '&state='+state;
+  if(grade) url += '&grade='+grade;
+  if(name) url += '&name='+encodeURIComponent(name);
   try{
     const resp = await fetch(url, {headers:authHeaders()});
     const data = await resp.json();
@@ -547,38 +1090,39 @@ function renderBuilders(builders){
     document.getElementById('builderResults').innerHTML = '<div class="empty-state" style="padding:40px"><h3>No builders found</h3><p>Try adjusting your filters.</p></div>';
     return;
   }
-  let rows = builders.map(b => `
-    <tr>
-      <td><strong>${b.name}</strong></td>
-      <td>${b.state}</td>
-      <td><span class="grade-badge grade-${b.grade}">${b.grade}</span></td>
-      <td><strong>${b.composite_score}</strong></td>
-      <td>${b.homes_built?.toLocaleString()||'—'}</td>
-      <td>${b.year_established||'—'}</td>
-      <td>${b.specialties||'—'}</td>
-    </tr>`).join('');
+  let rows = builders.map(function(b){
+    return '<tr>'+
+      '<td><strong>'+b.name+'</strong></td>'+
+      '<td>'+b.state+'</td>'+
+      '<td><span class="grade-badge grade-'+b.grade+'">'+b.grade+'</span></td>'+
+      '<td><strong>'+b.composite_score+'</strong></td>'+
+      '<td>'+(b.homes_built?b.homes_built.toLocaleString():'—')+'</td>'+
+      '<td>'+(b.year_established||'—')+'</td>'+
+      '<td>'+(b.specialties||'—')+'</td>'+
+    '</tr>';
+  }).join('');
 
-  document.getElementById('builderResults').innerHTML = `
-    <table class="builder-table">
-      <thead><tr><th>Builder</th><th>State</th><th>Grade</th><th>Score</th><th>Homes Built</th><th>Est.</th><th>Specialties</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+  document.getElementById('builderResults').innerHTML =
+    '<table class="builder-table">'+
+      '<thead><tr><th>Builder</th><th>State</th><th>Grade</th><th>Score</th><th>Homes Built</th><th>Est.</th><th>Specialties</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody>'+
+    '</table>';
 }
 
 // ─── Tab Navigation ───
 function switchTab(tab, el){
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
   if(el) el.classList.add('active');
-  else document.querySelector('.nav-tab').classList.add('active');
-  document.getElementById('tab-'+tab).classList.add('active');
+  var panel = document.getElementById('tab-'+tab);
+  if(panel) panel.classList.add('active');
   if(tab==='builders') loadBuilders();
 }
 
 // ─── Init ───
 (function(){
-  const savedToken = localStorage.getItem('nmr_token');
-  const savedUser = localStorage.getItem('nmr_user');
+  var savedToken = localStorage.getItem('nmr_token');
+  var savedUser = localStorage.getItem('nmr_user');
   if(savedToken && savedUser){
     TOKEN = savedToken;
     USER = JSON.parse(savedUser);
