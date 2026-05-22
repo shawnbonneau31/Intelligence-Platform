@@ -92,6 +92,8 @@ def seed_regulatory(conn):
 
 def seed_builders_fl(conn):
     """Seed sample Florida builder quality data — top 50 builders."""
+    # Clear existing builders to prevent duplicates on re-seed
+    conn.execute("DELETE FROM builders")
     builders = [
         # (name, state, license, callback_rate, plumbing, code_viol, litigation, volume, appliance, drainage, composite, grade, homes, year_est, specialties)
         ("Lennar Homes", "FL", "CBC1261010", 82, 85, 78, 72, 65, 80, 82, 78.4, "B", 48500, 1954, "Production homes, master-planned communities"),

@@ -59,7 +59,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         state TEXT NOT NULL,
-        license_number TEXT,
+        license_number TEXT UNIQUE,
         callback_rate REAL,
         plumbing_material_score REAL,
         code_violation_score REAL,

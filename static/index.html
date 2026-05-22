@@ -6,138 +6,173 @@
 <title>Namara — Water Risk Intelligence Platform</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--navy:#1A234D;--blue:#2E75B6;--teal:#009688;--green:#22c55e;--yellow:#f59e0b;--orange:#f97316;--red:#ef4444;--bg:#f0f2f5;--card:#fff;--text:#333;--muted:#666;--border:#e0e0e0}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+:root{
+  --navy:#1a2332;--navy2:#243447;--blue:#2563eb;--teal:#009688;
+  --green:#22c55e;--yellow:#f59e0b;--orange:#f97316;--red:#ef4444;
+  --bg:#f5f6f8;--card:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;
+  --gradient:linear-gradient(135deg,#0f1923 0%,#1a2b3d 40%,#1e3a5f 100%);
+}
+body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--blue);text-decoration:none;cursor:pointer}
+a:hover{text-decoration:underline}
 
-/* Login Screen */
-.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--navy) 0%,#2a3a7d 50%,var(--blue) 100%)}
-.login-box{background:var(--card);border-radius:12px;padding:48px 40px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-.login-box h1{font-size:32px;color:var(--navy);text-align:center;margin-bottom:4px}
-.login-box .subtitle{color:var(--blue);text-align:center;font-size:14px;margin-bottom:32px}
+/* ── Login Screen ── */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--gradient)}
+.login-box{background:var(--card);border-radius:16px;padding:48px 40px;width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.4)}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px}
+.login-logo .n-mark{width:44px;height:44px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px}
+.login-logo h1{font-size:24px;color:var(--navy);letter-spacing:0.5px}
+.login-subtitle{text-align:center;color:var(--muted);font-size:13px;margin-bottom:32px}
 .form-group{margin-bottom:20px}
-.form-group label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-.form-group input{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:8px;font-size:15px;transition:border-color 0.2s}
-.form-group input:focus{outline:none;border-color:var(--blue)}
-.btn{display:block;width:100%;padding:14px;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s}
-.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{background:#2a3a7d}
-.btn-secondary{background:var(--teal);color:#fff;margin-top:10px}.btn-secondary:hover{background:#00796b}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#f8fafc;transition:all 0.2s}
+.form-group input:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.btn{display:block;width:100%;padding:13px;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:10px}.btn-secondary:hover{background:#f8fafc;color:var(--text)}
 .login-error{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none}
 .login-info{color:var(--muted);font-size:12px;text-align:center;margin-top:16px}
 
-/* App Layout */
+/* ── App Shell ── */
 .app{display:none}
-.topbar{background:var(--navy);color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar h1{font-size:20px;font-weight:700;letter-spacing:1px}
-.topbar .user-info{display:flex;align-items:center;gap:16px;font-size:13px}
-.topbar .user-info span{opacity:0.8}
-.topbar .tier-badge{background:var(--teal);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase}
-.topbar button{background:rgba(255,255,255,0.15);border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px}
-.topbar button:hover{background:rgba(255,255,255,0.25)}
+.header{background:var(--gradient);color:#fff;padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:14px}
+.header .n-mark{width:38px;height:38px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+.header-title h1{font-size:18px;font-weight:700;letter-spacing:0.3px}
+.header-title .sub{font-size:12px;opacity:0.6;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:16px;font-size:13px}
+.header-right .live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;margin-right:4px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.header-right button{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px}
+.header-right button:hover{background:rgba(255,255,255,0.2)}
 
-/* Main Content */
-.main{max-width:1200px;margin:0 auto;padding:24px}
-.nav-tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:0}
-.nav-tab{padding:10px 20px;border:none;background:none;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s}
-.nav-tab.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:600}
-.nav-tab:hover{color:var(--blue)}
+/* ── Hero Section ── */
+.hero{background:var(--gradient);color:#fff;padding:0 32px 48px;text-align:center}
+.hero h2{font-size:28px;font-weight:700;margin-bottom:8px}
+.hero .hero-sub{font-size:14px;opacity:0.7;margin-bottom:28px}
+.search-row{display:flex;gap:0;max-width:680px;margin:0 auto 16px}
+.search-row input{flex:1;padding:16px 24px;border:none;border-radius:10px 0 0 10px;font-size:16px;background:rgba(255,255,255,0.95);color:var(--text)}
+.search-row input:focus{outline:none;background:#fff}
+.search-row input::placeholder{color:#94a3b8}
+.search-row button{padding:16px 32px;background:var(--blue);color:#fff;border:none;border-radius:0 10px 10px 0;font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap}
+.search-row button:hover{background:#1d4ed8}
+.search-row button:disabled{background:#6b7280;cursor:not-allowed}
+.sample-zips{font-size:13px;opacity:0.55}
+.sample-zips a{color:#fff;opacity:0.8;text-decoration:underline;cursor:pointer}
+.sample-zips a:hover{opacity:1}
 
+/* ── Tab Navigation ── */
+.tab-bar{max-width:1100px;margin:0 auto;padding:0 32px}
+.nav-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0}
+.nav-tab{padding:14px 24px;border:none;background:none;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.nav-tab:hover{color:var(--text)}
+
+/* ── Content Area ── */
+.content{max-width:1100px;margin:0 auto;padding:24px 32px 48px}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
-/* Score Panel */
-.search-bar{display:flex;gap:12px;margin-bottom:24px}
-.search-bar input{flex:1;padding:14px 20px;border:2px solid var(--border);border-radius:10px;font-size:16px}
-.search-bar input:focus{outline:none;border-color:var(--blue)}
-.search-bar button{padding:14px 32px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer}
-.search-bar button:hover{background:#2a3a7d}
-.search-bar button:disabled{background:#999;cursor:not-allowed}
+/* ── Score Results: Location Header ── */
+.location-header{margin-bottom:24px}
+.location-header h2{font-size:22px;font-weight:700;color:var(--text)}
+.location-header .coords{font-size:13px;color:var(--muted);margin-top:2px}
 
-/* Score Card */
-.score-card{background:var(--card);border-radius:12px;padding:32px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:24px}
-.score-header{display:flex;align-items:center;gap:24px;margin-bottom:24px}
-.score-circle{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
-.score-circle .number{font-size:42px;font-weight:800;line-height:1}
-.score-circle .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:0.9;margin-top:4px}
-.score-meta h2{font-size:24px;color:var(--navy);margin-bottom:4px}
-.score-meta .risk-level{font-size:18px;font-weight:600}
-.score-meta .details{font-size:13px;color:var(--muted);margin-top:8px}
+/* ── KPI Cards Row ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px}
+.kpi-card{background:var(--card);border-radius:12px;padding:20px;border-top:3px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.kpi-card .kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:8px}
+.kpi-card .kpi-value{font-size:32px;font-weight:800;line-height:1}
+.kpi-card .kpi-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi-card.highlight{border-top-color:var(--blue)}
+.kpi-card.highlight .kpi-value{color:var(--blue)}
+.kpi-card.low .kpi-value{color:var(--green)}
+.kpi-card.moderate .kpi-value{color:var(--yellow)}
+.kpi-card.elevated .kpi-value{color:var(--orange)}
+.kpi-card.high .kpi-value{color:var(--red)}
 
-/* Layer Bars */
-.layers-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.layer-card{background:var(--card);border-radius:10px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,0.04);border-left:4px solid var(--blue)}
-.layer-card h3{font-size:14px;color:var(--navy);margin-bottom:8px;display:flex;justify-content:space-between}
-.layer-card h3 span{font-weight:800;font-size:20px}
-.layer-bar{height:8px;background:#e8e8e8;border-radius:4px;overflow:hidden;margin-bottom:8px}
-.layer-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
-.layer-card .weight{font-size:11px;color:var(--muted)}
-.layer-card .detail{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
+/* ── Composite Score Bar ── */
+.composite-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.composite-section h3{font-size:18px;font-weight:700;margin-bottom:4px}
+.composite-section .comp-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.gradient-bar{height:28px;border-radius:14px;background:linear-gradient(90deg,#22c55e 0%,#86efac 15%,#fde047 30%,#f59e0b 50%,#f97316 70%,#ef4444 100%);position:relative;margin-bottom:8px}
+.gradient-marker{position:absolute;top:-4px;width:3px;height:36px;background:#1e293b;border-radius:2px;transform:translateX(-50%)}
+.gradient-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
 
-/* Actions Row */
-.actions-row{display:flex;gap:12px;margin-bottom:24px}
-.action-btn{padding:10px 20px;border:2px solid var(--border);background:var(--card);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s}
-.action-btn:hover{border-color:var(--blue);color:var(--blue)}
-.action-btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* ── Risk Factor Breakdown ── */
+.breakdown-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.breakdown-section h3{font-size:18px;font-weight:700;margin-bottom:4px}
+.breakdown-section .brk-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.factor-row{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.factor-row:last-child{border-bottom:none}
+.factor-label{width:200px;font-size:13px;color:var(--muted);flex-shrink:0}
+.factor-bar{flex:1;height:10px;background:#f1f5f9;border-radius:5px;overflow:hidden}
+.factor-bar-fill{height:100%;border-radius:5px;transition:width 0.6s ease}
+.factor-score{font-size:16px;font-weight:700;width:40px;text-align:right;flex-shrink:0}
 
-/* Namara Gap */
-.gap-card{background:linear-gradient(135deg,#f0f7ff,#e8f4f8);border-radius:10px;padding:24px;border-left:4px solid var(--teal)}
-.gap-card h3{color:var(--teal);margin-bottom:12px}
-.gap-card ul{list-style:none;padding:0}
-.gap-card li{padding:6px 0;font-size:13px;color:var(--text)}
-.gap-card li::before{content:"→ ";color:var(--teal);font-weight:bold}
-.gap-card .accuracy{margin-top:12px;font-weight:600;color:var(--teal);font-size:14px}
+/* ── Namara Advantage Card ── */
+.advantage-card{background:linear-gradient(135deg,#f0f9ff,#ecfdf5);border-radius:12px;padding:28px;margin-bottom:24px;border:1px solid #d1fae5}
+.advantage-card h3{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.advantage-card p{font-size:13px;color:var(--muted);line-height:1.7}
 
-/* Builders Tab */
+/* ── PDF Download Button ── */
+.download-row{margin-bottom:24px}
+.download-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s}
+.download-btn:hover{background:#1d4ed8}
+.download-btn svg{width:16px;height:16px}
+
+/* ── Empty State ── */
+.empty-state{text-align:center;padding:80px 20px;color:var(--muted)}
+.empty-state .icon{font-size:48px;margin-bottom:16px;opacity:0.4}
+.empty-state h3{font-size:18px;color:var(--text);margin-bottom:8px;font-weight:600}
+.empty-state p{font-size:14px;line-height:1.6;max-width:420px;margin:0 auto}
+
+/* ── Builder Table ── */
 .builder-filters{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.builder-filters select,.builder-filters input{padding:10px 16px;border:2px solid var(--border);border-radius:8px;font-size:14px}
-.builder-filters select:focus,.builder-filters input:focus{outline:none;border-color:var(--blue)}
-.builder-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
-.builder-table th{background:var(--navy);color:#fff;padding:12px 16px;text-align:left;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
-.builder-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px}
-.builder-table tr:nth-child(even){background:#f8f9fa}
-.builder-table tr:hover{background:#edf2f7}
-.grade-badge{display:inline-block;width:28px;height:28px;border-radius:6px;text-align:center;line-height:28px;font-weight:700;font-size:14px;color:#fff}
+.builder-filters select,.builder-filters input{padding:10px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
+.builder-filters select:focus,.builder-filters input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.builder-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.builder-table th{background:#f8fafc;color:var(--text);padding:12px 16px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+.builder-table td{padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px}
+.builder-table tr:hover td{background:#f8fafc}
+.grade-badge{display:inline-block;width:28px;height:28px;border-radius:6px;text-align:center;line-height:28px;font-weight:700;font-size:13px;color:#fff}
 .grade-A{background:var(--green)}.grade-B{background:var(--blue)}.grade-C{background:var(--yellow)}.grade-D{background:var(--red)}
 
-/* API Docs Tab */
-.docs-section{background:var(--card);border-radius:10px;padding:24px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
-.docs-section h3{color:var(--navy);margin-bottom:12px;font-size:16px}
-.endpoint{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-.endpoint:last-child{border-bottom:none}
-.method{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;min-width:50px;text-align:center}
-.method.get{background:#dcfce7;color:#166534}.method.post{background:#dbeafe;color:#1e40af}
-.endpoint .path{font-family:'Consolas','Monaco',monospace;font-size:14px;color:var(--text)}
-.endpoint .desc{font-size:12px;color:var(--muted);margin-left:auto}
-.code-block{background:#1e293b;color:#e2e8f0;padding:16px 20px;border-radius:8px;font-family:'Consolas',monospace;font-size:13px;overflow-x:auto;margin-top:12px;line-height:1.6}
-.api-key-display{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;font-family:monospace;font-size:13px;word-break:break-all;margin:12px 0}
-
-/* Stats Cards */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.stat-card{background:var(--card);border-radius:10px;padding:20px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
-.stat-card .value{font-size:32px;font-weight:800;color:var(--navy)}
-.stat-card .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
-
-/* Loading */
+/* ── Loading / Spinner ── */
 .loading{text-align:center;padding:60px;color:var(--muted)}
-.spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite}
+.spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Responsive */
-@media(max-width:768px){
-  .layers-grid{grid-template-columns:1fr}
-  .stats-row{grid-template-columns:1fr 1fr}
-  .score-header{flex-direction:column;text-align:center}
-  .builder-filters{flex-direction:column}
-  .login-box{width:90%;padding:32px 24px}
+/* ── Footer ── */
+.footer{text-align:center;padding:32px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);margin-top:24px}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .hero h2{font-size:22px}
+  .search-row{flex-direction:column}.search-row input{border-radius:10px}.search-row button{border-radius:10px}
+}
+@media(max-width:600px){
+  .kpi-row{grid-template-columns:1fr}
+  .header{padding:12px 16px}.hero{padding:0 16px 32px}
+  .content{padding:16px}
+  .factor-label{width:140px;font-size:12px}
+  .login-box{width:92%;padding:32px 24px}
+  .nav-tab{padding:12px 14px;font-size:13px}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ═══ LOGIN SCREEN ═══ -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
-    <h1>NAMARA</h1>
-    <div class="subtitle">Water Risk Intelligence Platform</div>
+    <div class="login-logo">
+      <div class="n-mark">N</div>
+      <h1>Namara</h1>
+    </div>
+    <div class="login-subtitle">Water Risk Intelligence Platform</div>
+
     <div id="loginForm">
       <div class="form-group">
         <label>Email</label>
@@ -152,19 +187,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
       <div id="loginError" class="login-error"></div>
       <div class="login-info">Demo: demo@namarawater.ai / demo2026</div>
     </div>
+
     <div id="registerForm" style="display:none">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="regEmail" placeholder="you@company.com">
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="regPassword" placeholder="Choose a password">
-      </div>
-      <div class="form-group">
-        <label>Company</label>
-        <input type="text" id="regCompany" placeholder="Your company name">
-      </div>
+      <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="you@company.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="regPassword" placeholder="Choose a password"></div>
+      <div class="form-group"><label>Company</label><input type="text" id="regCompany" placeholder="Your company name"></div>
       <button class="btn btn-primary" onclick="doRegister()">Create Account</button>
       <button class="btn btn-secondary" onclick="showLogin()">Back to Sign In</button>
       <div id="regError" class="login-error"></div>
@@ -173,36 +200,65 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
   </div>
 </div>
 
-<!-- APP -->
+<!-- ═══ APP ═══ -->
 <div id="app" class="app">
-  <div class="topbar">
-    <h1>NAMARA</h1>
-    <div class="user-info">
-      <span id="userEmail"></span>
-      <span class="tier-badge" id="userTier"></span>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="n-mark">N</div>
+      <div class="header-title">
+        <h1>Water Risk Intelligence Platform</h1>
+        <div class="sub">Namara Water Technologies — Property-Level Risk Assessment</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span><span class="live-dot"></span> Live Data</span>
       <button onclick="logout()">Sign Out</button>
     </div>
   </div>
 
-  <div class="main">
+  <!-- Hero Search -->
+  <div class="hero">
+    <h2>Assess Water Risk for Any Location</h2>
+    <div class="hero-sub">Enter a zip code to pull live water quality, climate, infrastructure, builder, and regulatory risk data</div>
+    <div class="search-row">
+      <input type="text" id="zipInput" placeholder="Enter zip code (e.g. 85281)" maxlength="5"
+             onkeydown="if(event.key==='Enter')scoreZip()">
+      <button id="scoreBtn" onclick="scoreZip()">Analyze Risk</button>
+    </div>
+    <div class="sample-zips">
+      Try: <a onclick="quickScore('85281')">85281</a> (Tempe, AZ) ·
+      <a onclick="quickScore('33139')">33139</a> (Miami Beach, FL) ·
+      <a onclick="quickScore('90210')">90210</a> (Beverly Hills, CA) ·
+      <a onclick="quickScore('02101')">02101</a> (Boston, MA) ·
+      <a onclick="quickScore('98101')">98101</a> (Seattle, WA)
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('score')">Risk Score</button>
-      <button class="nav-tab" onclick="switchTab('builders')">Builder Quality</button>
-      <button class="nav-tab" onclick="switchTab('api')">API Access</button>
-      <button class="nav-tab" onclick="switchTab('usage')">Usage</button>
+      <button class="nav-tab active" onclick="switchTab('score',this)">Risk Profile</button>
+      <button class="nav-tab" onclick="switchTab('builders',this)">Builder Quality</button>
     </div>
+  </div>
 
-    <!-- SCORE TAB -->
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ── Risk Profile Tab ── -->
     <div id="tab-score" class="tab-panel active">
-      <div class="search-bar">
-        <input type="text" id="zipInput" placeholder="Enter zip code (e.g. 33139)" maxlength="5"
-               onkeydown="if(event.key==='Enter')scoreZip()">
-        <button id="scoreBtn" onclick="scoreZip()">Score Property</button>
+      <div id="scoreResult">
+        <div class="empty-state">
+          <div class="icon">&#x1F4CA;</div>
+          <h3>Enter a zip code to begin</h3>
+          <p>We'll pull live weather, water quality, infrastructure, builder quality, and regulatory data to build a comprehensive water risk profile for insurance underwriting.</p>
+        </div>
       </div>
-      <div id="scoreResult"></div>
     </div>
 
-    <!-- BUILDERS TAB -->
+    <!-- ── Builder Quality Tab ── -->
     <div id="tab-builders" class="tab-panel">
       <div class="builder-filters">
         <select id="builderState" onchange="loadBuilders()">
@@ -224,48 +280,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
       <div id="builderResults"><div class="loading"><div class="spinner"></div><p>Loading builders...</p></div></div>
     </div>
 
-    <!-- API TAB -->
-    <div id="tab-api" class="tab-panel">
-      <div class="docs-section">
-        <h3>Your API Key</h3>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:8px">Use this key in the <code>X-API-Key</code> header for all API requests.</p>
-        <div class="api-key-display" id="apiKeyDisplay">Loading...</div>
-      </div>
+  </div>
 
-      <div class="docs-section">
-        <h3>Endpoints</h3>
-        <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/score?zip=33139</span><span class="desc">Score a single zip code</span></div>
-        <div class="endpoint"><span class="method post">POST</span><span class="path">/api/v1/score</span><span class="desc">Batch score (Portfolio+)</span></div>
-        <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/report?zip=33139</span><span class="desc">Generate PDF report</span></div>
-        <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/builders?state=FL</span><span class="desc">Search builders</span></div>
-        <div class="endpoint"><span class="method get">GET</span><span class="path">/api/v1/health</span><span class="desc">Health check (no auth)</span></div>
-      </div>
-
-      <div class="docs-section">
-        <h3>Quick Start</h3>
-        <div class="code-block" id="codeExample">
-# Score a property
-curl -H "X-API-Key: YOUR_KEY" \
-  "http://localhost:8080/api/v1/score?zip=33139"
-
-# Batch score (Portfolio tier)
-curl -X POST -H "X-API-Key: YOUR_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"zip_codes":["33139","77001","85001"]}' \
-  "http://localhost:8080/api/v1/score"
-
-# Download PDF report
-curl -H "X-API-Key: YOUR_KEY" \
-  -o report.pdf \
-  "http://localhost:8080/api/v1/report?zip=33139"
-        </div>
-      </div>
-    </div>
-
-    <!-- USAGE TAB -->
-    <div id="tab-usage" class="tab-panel">
-      <div id="usageContent"><div class="loading"><div class="spinner"></div><p>Loading usage data...</p></div></div>
-    </div>
+  <!-- Footer -->
+  <div class="footer">
+    Namara Water Technologies — Water Risk Intelligence Platform | Live data from NOAA, EPA, Census Bureau | Updated in real-time | &copy; 2026
   </div>
 </div>
 
@@ -280,17 +299,14 @@ async function doLogin(){
   const password = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
-
   try {
     const resp = await fetch(`${API}/api/v1/auth/login`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({email, password})
     });
     const data = await resp.json();
     if (resp.ok) {
-      TOKEN = data.token;
-      USER = data.user;
+      TOKEN = data.token; USER = data.user;
       localStorage.setItem('nmr_token', TOKEN);
       localStorage.setItem('nmr_user', JSON.stringify(USER));
       showApp();
@@ -298,20 +314,11 @@ async function doLogin(){
       errEl.textContent = data.error || 'Login failed';
       errEl.style.display = 'block';
     }
-  } catch(e) {
-    errEl.textContent = 'Connection error';
-    errEl.style.display = 'block';
-  }
+  } catch(e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block'; }
 }
 
-function showRegister(){
-  document.getElementById('loginForm').style.display='none';
-  document.getElementById('registerForm').style.display='block';
-}
-function showLogin(){
-  document.getElementById('registerForm').style.display='none';
-  document.getElementById('loginForm').style.display='block';
-}
+function showRegister(){ document.getElementById('loginForm').style.display='none'; document.getElementById('registerForm').style.display='block'; }
+function showLogin(){ document.getElementById('registerForm').style.display='none'; document.getElementById('loginForm').style.display='block'; }
 
 async function doRegister(){
   const email = document.getElementById('regEmail').value;
@@ -320,7 +327,6 @@ async function doRegister(){
   const errEl = document.getElementById('regError');
   const succEl = document.getElementById('regSuccess');
   errEl.style.display='none'; succEl.style.display='none';
-
   try {
     const resp = await fetch(`${API}/api/v1/auth/register`, {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -328,22 +334,15 @@ async function doRegister(){
     });
     const data = await resp.json();
     if (resp.ok) {
-      succEl.innerHTML = `Account created! Your API key:<br><strong>${data.api_key}</strong><br>Save this — it won't be shown again.`;
+      succEl.innerHTML = `Account created! Your API key:<br><strong>${data.api_key}</strong><br>Save this key — it won't be shown again.`;
       succEl.style.display='block';
-    } else {
-      errEl.textContent = data.error;
-      errEl.style.display='block';
-    }
-  } catch(e) {
-    errEl.textContent='Connection error';
-    errEl.style.display='block';
-  }
+    } else { errEl.textContent = data.error; errEl.style.display='block'; }
+  } catch(e) { errEl.textContent='Connection error'; errEl.style.display='block'; }
 }
 
 function logout(){
   TOKEN=null; USER=null;
-  localStorage.removeItem('nmr_token');
-  localStorage.removeItem('nmr_user');
+  localStorage.removeItem('nmr_token'); localStorage.removeItem('nmr_user');
   document.getElementById('app').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
 }
@@ -351,181 +350,204 @@ function logout(){
 function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
-  document.getElementById('userEmail').textContent=USER.email;
-  document.getElementById('userTier').textContent=USER.tier;
-  loadProfile();
   loadBuilders();
 }
 
-// ─── API helpers ───
-function authHeaders(){
-  return {'Authorization':`Bearer ${TOKEN}`,'Content-Type':'application/json'};
-}
+function authHeaders(){ return {'Authorization':`Bearer ${TOKEN}`,'Content-Type':'application/json'}; }
 
-async function loadProfile(){
-  try{
-    const resp=await fetch(`${API}/api/v1/auth/profile`,{headers:authHeaders()});
-    const data=await resp.json();
-    if(data.api_keys && data.api_keys.length>0){
-      document.getElementById('apiKeyDisplay').textContent=data.api_keys[0].key_prefix+'... (use full key from registration)';
-    }
-  }catch(e){}
+// ─── Quick Score (sample zips) ───
+function quickScore(zip){
+  document.getElementById('zipInput').value = zip;
+  scoreZip();
 }
 
 // ─── Risk Score ───
 async function scoreZip(){
-  const zip=document.getElementById('zipInput').value.trim();
-  if(!zip||zip.length<3){alert('Enter a valid zip code');return}
-  const btn=document.getElementById('scoreBtn');
-  btn.disabled=true; btn.textContent='Scoring...';
-  document.getElementById('scoreResult').innerHTML='<div class="loading"><div class="spinner"></div><p>Fetching live climate data and computing risk score...</p></div>';
+  const zip = document.getElementById('zipInput').value.trim();
+  if(!zip||zip.length<3){ alert('Enter a valid zip code'); return; }
+
+  // Switch to score tab
+  switchTab('score', document.querySelector('.nav-tab'));
+
+  const btn = document.getElementById('scoreBtn');
+  btn.disabled = true; btn.textContent = 'Analyzing...';
+  document.getElementById('scoreResult').innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing risk factors...</p></div>';
 
   try{
-    const resp=await fetch(`${API}/api/v1/score?zip=${zip}`,{headers:authHeaders()});
-    const data=await resp.json();
-    if(resp.ok){
-      renderScore(data);
-    }else{
-      document.getElementById('scoreResult').innerHTML=`<div class="score-card"><p style="color:var(--red)">${data.error}</p></div>`;
-    }
-  }catch(e){
-    document.getElementById('scoreResult').innerHTML=`<div class="score-card"><p style="color:var(--red)">Connection error</p></div>`;
+    const resp = await fetch(`${API}/api/v1/score?zip=${zip}`, {headers:authHeaders()});
+    const data = await resp.json();
+    if(resp.ok) { renderScore(data); }
+    else { document.getElementById('scoreResult').innerHTML = `<div class="composite-section"><p style="color:var(--red)">${data.error}</p></div>`; }
+  } catch(e) {
+    document.getElementById('scoreResult').innerHTML = `<div class="composite-section"><p style="color:var(--red)">Connection error — please try again</p></div>`;
   }
-  btn.disabled=false; btn.textContent='Score Property';
+  btn.disabled = false; btn.textContent = 'Analyze Risk';
 }
 
-function riskColor(level){
-  return {Low:'var(--green)',Moderate:'var(--yellow)',High:'var(--orange)',Critical:'var(--red)'}[level]||'var(--muted)';
+function riskClass(score){
+  if(score <= 25) return 'low';
+  if(score <= 45) return 'moderate';
+  if(score <= 65) return 'elevated';
+  return 'high';
+}
+function riskLabel(score){
+  if(score <= 25) return 'Low risk';
+  if(score <= 45) return 'Moderate risk';
+  if(score <= 65) return 'Elevated risk';
+  return 'High risk';
+}
+function factorColor(score){
+  if(score <= 25) return '#22c55e';
+  if(score <= 50) return '#f59e0b';
+  if(score <= 75) return '#f97316';
+  return '#ef4444';
 }
 
 function renderScore(d){
-  const L=d.layers;
-  const layers=[
-    {key:'climate',name:'Climate & Freeze Risk',icon:'🌡️'},
-    {key:'water_quality',name:'Water Quality',icon:'💧'},
-    {key:'infrastructure',name:'Infrastructure Aging',icon:'🏗️'},
-    {key:'builder_quality',name:'Builder Quality',icon:'🏠'},
-    {key:'regulatory',name:'Regulatory & Mandate',icon:'📋'}
+  const L = d.layers;
+  const cl = L.climate||{}, wq = L.water_quality||{}, inf = L.infrastructure||{}, bq = L.builder_quality||{}, rg = L.regulatory||{};
+
+  // KPI sub-labels
+  const climSub = cl.data ? `${cl.data.freeze_days||0} freeze days/yr` : '';
+  const wqSub = wq.data && wq.data.violations_per_100k ? `${wq.data.violations_per_100k} violations/100K` : '';
+  const infSub = inf.data && inf.data.median_year_built ? `Median home: ${new Date().getFullYear() - inf.data.median_year_built} yrs` : '';
+  const bqSub = bq.data ? `Avg score: ${bq.data.avg_score||'N/A'}` : '';
+  const rgSub = rg.data && rg.data.compliance_score ? `Code year: ${rg.data.building_code_year||'N/A'}` : '';
+
+  const cs = d.composite_score;
+  const markerPct = Math.min(Math.max(cs, 0), 100);
+
+  // Zip code to city name mapping (best-effort)
+  const cityName = d.state ? `${d.zip_code}, ${d.state}` : `Zip ${d.zip_code}`;
+
+  const layers = [
+    {name:'Climate & Freeze', weight:cl.weight, score:cl.score||0},
+    {name:'Water Quality', weight:wq.weight, score:wq.score||0},
+    {name:'Infrastructure', weight:inf.weight, score:inf.score||0},
+    {name:'Builder Quality', weight:bq.weight, score:bq.score||0},
+    {name:'Regulatory', weight:rg.weight, score:rg.score||0},
   ];
 
-  let layerHTML='';
-  layers.forEach(l=>{
-    const ld=L[l.key]||{};
-    const s=ld.score||0;
-    const w=Math.round((ld.weight||0)*100);
-    const c=ld.weighted_contribution||0;
-    const barColor=s<=30?'var(--green)':s<=60?'var(--yellow)':s<=80?'var(--orange)':'var(--red)';
-    let detail='';
-    if(l.key==='climate'&&ld.data){
-      const cd=ld.data;
-      detail=`Freeze days: ${cd.freeze_days||0} | Heat days: ${cd.heat_days||0} | Precip: ${cd.total_precip_inches||0}"`;
-    }else if(l.key==='water_quality'&&ld.data&&ld.data.violations_per_100k){
-      detail=`Violations/100K: ${ld.data.violations_per_100k} | Lead/Cu: ${ld.data.lead_copper_exceedances}`;
-    }else if(l.key==='infrastructure'&&ld.data&&ld.data.median_year_built){
-      detail=`Median built: ${ld.data.median_year_built} | Pre-1980: ${ld.data.pct_pre_1980}%`;
-    }else if(l.key==='builder_quality'&&ld.data){
-      detail=`Avg builder score: ${ld.data.avg_score||'N/A'} | Builders tracked: ${ld.data.builder_count||0}`;
-    }else if(l.key==='regulatory'&&ld.data&&ld.data.compliance_score){
-      detail=`Leak mandate: ${ld.data.leak_detection_mandate?'Yes':'No'} | Code year: ${ld.data.building_code_year||'N/A'}`;
-    }
-
-    layerHTML+=`
-      <div class="layer-card">
-        <h3>${l.icon} ${l.name} <span>${s}</span></h3>
-        <div class="layer-bar"><div class="layer-bar-fill" style="width:${s}%;background:${barColor}"></div></div>
-        <div class="weight">Weight: ${w}% → Contribution: ${c} pts</div>
-        ${detail?`<div class="detail">${detail}</div>`:''}
+  let factorsHTML = layers.map(l => {
+    const w = Math.round((l.weight||0)*100);
+    return `
+      <div class="factor-row">
+        <div class="factor-label">${l.name} (${w}%)</div>
+        <div class="factor-bar"><div class="factor-bar-fill" style="width:${l.score}%;background:${factorColor(l.score)}"></div></div>
+        <div class="factor-score" style="color:${factorColor(l.score)}">${l.score}</div>
       </div>`;
-  });
+  }).join('');
 
-  let gapHTML='';
-  (d.namara_gap||[]).forEach(g=>{gapHTML+=`<li>${g}</li>`});
+  let gapItems = (d.namara_gap||[]).map(g => g).join(' ');
 
-  document.getElementById('scoreResult').innerHTML=`
-    <div class="score-card">
-      <div class="score-header">
-        <div class="score-circle" style="background:${riskColor(d.risk_level)}">
-          <div class="number">${d.composite_score}</div>
-          <div class="label">Risk Score</div>
-        </div>
-        <div class="score-meta">
-          <h2>Zip ${d.zip_code} — ${d.state}</h2>
-          <div class="risk-level" style="color:${riskColor(d.risk_level)}">${d.risk_level} Risk</div>
-          <div class="details">
-            Lat ${d.latitude?.toFixed(4)}, Lon ${d.longitude?.toFixed(4)} |
-            Confidence: ${d.confidence} |
-            ${d.response_time_ms}ms
-          </div>
-        </div>
+  document.getElementById('scoreResult').innerHTML = `
+    <!-- Location Header -->
+    <div class="location-header">
+      <h2>${cityName}</h2>
+      <div class="coords">${d.zip_code} · ${d.latitude?.toFixed(2)}°N, ${Math.abs(d.longitude||0).toFixed(2)}°W</div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi-card highlight">
+        <div class="kpi-label">Total Water Risk</div>
+        <div class="kpi-value">${cs}/100</div>
+        <div class="kpi-sub">${riskLabel(cs)}</div>
+      </div>
+      <div class="kpi-card ${riskClass(cl.score||0)}">
+        <div class="kpi-label">Climate Risk</div>
+        <div class="kpi-value">${cl.score||0}</div>
+        <div class="kpi-sub">${climSub}</div>
+      </div>
+      <div class="kpi-card ${riskClass(wq.score||0)}">
+        <div class="kpi-label">Water Quality Risk</div>
+        <div class="kpi-value">${wq.score||0}</div>
+        <div class="kpi-sub">${wqSub}</div>
+      </div>
+      <div class="kpi-card ${riskClass(inf.score||0)}">
+        <div class="kpi-label">Infrastructure Risk</div>
+        <div class="kpi-value">${inf.score||0}</div>
+        <div class="kpi-sub">${infSub}</div>
+      </div>
+      <div class="kpi-card ${riskClass(bq.score||0)}">
+        <div class="kpi-label">Builder Quality</div>
+        <div class="kpi-value">${bq.score||0}</div>
+        <div class="kpi-sub">${bqSub}</div>
       </div>
     </div>
 
-    <div class="actions-row">
-      <button class="action-btn primary" onclick="downloadReport('${d.zip_code}')">📄 Download PDF Report</button>
-      <button class="action-btn" onclick="copyJson()">📋 Copy JSON</button>
+    <!-- Composite Score Bar -->
+    <div class="composite-section">
+      <h3>Composite Water Risk Score</h3>
+      <div class="comp-sub">Weighted assessment based on live climate data, EPA water quality, Census housing stock, builder quality, and regulatory mandates</div>
+      <div class="gradient-bar">
+        <div class="gradient-marker" style="left:${markerPct}%"></div>
+      </div>
+      <div class="gradient-labels">
+        <span>Low (0-25)</span><span>Moderate (26-45)</span><span>Elevated (46-65)</span><span>High (66-100)</span>
+      </div>
     </div>
 
-    <div class="layers-grid">${layerHTML}</div>
+    <!-- Risk Factor Breakdown -->
+    <div class="breakdown-section">
+      <h3>Risk Factor Breakdown</h3>
+      <div class="brk-sub">How each factor contributes to the composite score</div>
+      ${factorsHTML}
+    </div>
 
-    <div class="gap-card">
-      <h3>The Namara Advantage</h3>
-      <p style="font-size:13px;margin-bottom:12px;color:var(--muted)">This score uses public data only. With a Namara device installed:</p>
-      <ul>${gapHTML}</ul>
-      <div class="accuracy">With Namara: Accuracy improves from 60-65% → 85-90%</div>
+    <!-- Download -->
+    <div class="download-row">
+      <button class="download-btn" onclick="downloadReport('${d.zip_code}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF Report
+      </button>
+    </div>
+
+    <!-- Namara Advantage -->
+    <div class="advantage-card">
+      <h3>What's Missing Without Device Data</h3>
+      <p>This score uses public data only. With a Namara device installed, the score incorporates real-time pressure telemetry (20-sec intervals), actual leak/shutoff events, per-home water quality readings, and consumption patterns — turning a geographic estimate into a per-home underwriting signal.</p>
     </div>
   `;
 
-  window._lastScore=d;
-}
-
-function copyJson(){
-  if(window._lastScore){
-    navigator.clipboard.writeText(JSON.stringify(window._lastScore,null,2));
-    alert('JSON copied to clipboard');
-  }
+  window._lastScore = d;
 }
 
 async function downloadReport(zip){
   try{
-    const resp=await fetch(`${API}/api/v1/report?zip=${zip}`,{
-      headers:{'Authorization':`Bearer ${TOKEN}`}
-    });
+    const resp = await fetch(`${API}/api/v1/report?zip=${zip}`, { headers:{'Authorization':`Bearer ${TOKEN}`} });
     if(resp.ok){
-      const blob=await resp.blob();
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url; a.download=`namara_risk_report_${zip}.pdf`;
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `namara_risk_report_${zip}.pdf`;
       a.click(); URL.revokeObjectURL(url);
-    }else{alert('Failed to generate report')}
-  }catch(e){alert('Error generating report')}
+    } else { alert('Failed to generate report'); }
+  } catch(e) { alert('Error generating report'); }
 }
 
 // ─── Builders ───
 async function loadBuilders(){
-  const state=document.getElementById('builderState').value;
-  const grade=document.getElementById('builderGrade').value;
-  const name=document.getElementById('builderSearch').value;
-
-  let url=`${API}/api/v1/builders?limit=50`;
-  if(state) url+=`&state=${state}`;
-  if(grade) url+=`&grade=${grade}`;
-  if(name) url+=`&name=${encodeURIComponent(name)}`;
-
+  const state = document.getElementById('builderState').value;
+  const grade = document.getElementById('builderGrade').value;
+  const name = document.getElementById('builderSearch').value;
+  let url = `${API}/api/v1/builders?limit=50`;
+  if(state) url += `&state=${state}`;
+  if(grade) url += `&grade=${grade}`;
+  if(name) url += `&name=${encodeURIComponent(name)}`;
   try{
-    const resp=await fetch(url,{headers:authHeaders()});
-    const data=await resp.json();
+    const resp = await fetch(url, {headers:authHeaders()});
+    const data = await resp.json();
     renderBuilders(data.builders||[]);
-  }catch(e){
-    document.getElementById('builderResults').innerHTML='<p>Error loading builders</p>';
-  }
+  } catch(e) { document.getElementById('builderResults').innerHTML = '<p style="padding:20px;color:var(--muted)">Error loading builders</p>'; }
 }
 
 function renderBuilders(builders){
   if(!builders.length){
-    document.getElementById('builderResults').innerHTML='<div class="score-card"><p>No builders found matching your filters.</p></div>';
+    document.getElementById('builderResults').innerHTML = '<div class="empty-state" style="padding:40px"><h3>No builders found</h3><p>Try adjusting your filters.</p></div>';
     return;
   }
-  let rows=builders.map(b=>`
+  let rows = builders.map(b => `
     <tr>
       <td><strong>${b.name}</strong></td>
       <td>${b.state}</td>
@@ -534,71 +556,32 @@ function renderBuilders(builders){
       <td>${b.homes_built?.toLocaleString()||'—'}</td>
       <td>${b.year_established||'—'}</td>
       <td>${b.specialties||'—'}</td>
-    </tr>
-  `).join('');
+    </tr>`).join('');
 
-  document.getElementById('builderResults').innerHTML=`
+  document.getElementById('builderResults').innerHTML = `
     <table class="builder-table">
       <thead><tr><th>Builder</th><th>State</th><th>Grade</th><th>Score</th><th>Homes Built</th><th>Est.</th><th>Specialties</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>
-  `;
-}
-
-// ─── Usage ───
-async function loadUsage(){
-  try{
-    const resp=await fetch(`${API}/api/v1/usage`,{headers:authHeaders()});
-    const data=await resp.json();
-    const totals=data.totals||[];
-    let totalReqs=0;
-    totals.forEach(t=>totalReqs+=t.count);
-
-    let statsHTML=`
-      <div class="stats-row">
-        <div class="stat-card"><div class="value">${totalReqs}</div><div class="label">Total Requests</div></div>
-        <div class="stat-card"><div class="value">${totals.find(t=>t.action==='score')?.count||0}</div><div class="label">Scores Generated</div></div>
-        <div class="stat-card"><div class="value">${totals.find(t=>t.action==='report')?.count||0}</div><div class="label">Reports Downloaded</div></div>
-        <div class="stat-card"><div class="value">${totals.find(t=>t.action==='builders')?.count||0}</div><div class="label">Builder Searches</div></div>
-      </div>
-    `;
-
-    const daily=data.daily||[];
-    if(daily.length){
-      let rows=daily.slice(0,20).map(d=>`<tr><td>${d.date}</td><td>${d.action}</td><td>${d.count}</td></tr>`).join('');
-      statsHTML+=`
-        <div class="docs-section">
-          <h3>Recent Activity</h3>
-          <table class="builder-table">
-            <thead><tr><th>Date</th><th>Action</th><th>Count</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>`;
-    }
-
-    document.getElementById('usageContent').innerHTML=statsHTML;
-  }catch(e){
-    document.getElementById('usageContent').innerHTML='<p>Error loading usage data</p>';
-  }
+    </table>`;
 }
 
 // ─── Tab Navigation ───
-function switchTab(tab){
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  event.target.classList.add('active');
+function switchTab(tab, el){
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else document.querySelector('.nav-tab').classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
-  if(tab==='usage') loadUsage();
   if(tab==='builders') loadBuilders();
 }
 
 // ─── Init ───
 (function(){
-  const savedToken=localStorage.getItem('nmr_token');
-  const savedUser=localStorage.getItem('nmr_user');
+  const savedToken = localStorage.getItem('nmr_token');
+  const savedUser = localStorage.getItem('nmr_user');
   if(savedToken && savedUser){
-    TOKEN=savedToken;
-    USER=JSON.parse(savedUser);
+    TOKEN = savedToken;
+    USER = JSON.parse(savedUser);
     showApp();
   }
 })();
