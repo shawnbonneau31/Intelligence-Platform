@@ -9,9 +9,9 @@
 :root{
   --navy:#0d1b3e;--navy2:#0f2347;--blue:#2563eb;--teal:#2dd4bf;
   --green:#22c55e;--yellow:#f59e0b;--orange:#f97316;--red:#ef4444;
-  --bg:#0a1628;--card:rgba(255,255,255,0.06);--text:#e2e8f0;--muted:#60a5fa;--border:rgba(96,165,250,0.2);
+  --bg:#f5f6f8;--card:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;
   --gradient:linear-gradient(135deg,#0d1b3e 0%,#0f2347 40%,#122a55 100%);
-  --card-solid:#0f2347;--text-bright:#fff;--muted-dim:#94a3b8;
+  --card-solid:#fff;--text-bright:#1e293b;--muted-dim:#64748b;
 }
 body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .header-logo{height:28px}
@@ -34,6 +34,15 @@ a:hover{text-decoration:underline}
 .btn-secondary{background:transparent;color:var(--muted-dim);border:1px solid var(--border);margin-top:10px}.btn-secondary:hover{background:rgba(255,255,255,0.08);color:#fff}
 .login-error{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none}
 .login-info{color:var(--muted-dim);font-size:12px;text-align:center;margin-top:16px}
+
+/* ── Login Dark Overrides (login stays dark) ── */
+.login-screen .login-subtitle{color:#94a3b8}
+.login-screen .form-group label{color:#94a3b8}
+.login-screen .form-group input{background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(96,165,250,0.2)}
+.login-screen .form-group input:focus{border-color:var(--blue);background:rgba(255,255,255,0.12)}
+.login-screen .form-group input::placeholder{color:#64748b}
+.login-screen .btn-secondary{color:#94a3b8;border-color:rgba(96,165,250,0.2)}.login-screen .btn-secondary:hover{background:rgba(255,255,255,0.08);color:#fff}
+.login-screen .login-info{color:#94a3b8}
 
 /* ── App Shell ── */
 .app{display:none}
@@ -62,8 +71,9 @@ a:hover{text-decoration:underline}
 .sample-zips a:hover{opacity:1}
 
 /* ── Tab Navigation ── */
+.tab-bar-wrap{background:var(--navy)}
 .tab-bar{max-width:1100px;margin:0 auto;padding:0 32px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.nav-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0;white-space:nowrap}
+.nav-tabs{display:flex;gap:0;border-bottom:1px solid rgba(96,165,250,0.2);margin-bottom:0;white-space:nowrap}
 .nav-tab{padding:14px 20px;border:none;background:none;font-size:13px;font-weight:500;color:#60a5fa;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;flex-shrink:0}
 .nav-tab.active{color:#fff;border-bottom-color:var(--blue);font-weight:600;background:rgba(37,99,235,0.15)}
 .nav-tab:hover{color:#fff}
@@ -74,18 +84,18 @@ a:hover{text-decoration:underline}
 .tab-panel.active{display:block}
 
 /* ── Section Titles ── */
-.section-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
+.section-title{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:6px}
 .section-subtitle{font-size:13px;color:var(--muted-dim);margin-bottom:24px}
 .live-badge{display:inline-block;background:var(--teal);color:#0d1b3e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;text-transform:uppercase;letter-spacing:0.5px}
 
 /* ── Score Results: Location Header ── */
 .location-header{margin-bottom:24px}
-.location-header h2{font-size:22px;font-weight:700;color:#fff}
+.location-header h2{font-size:22px;font-weight:700;color:#1e293b}
 .location-header .coords{font-size:13px;color:var(--muted-dim);margin-top:2px}
 
 /* ── KPI Cards Row ── */
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:28px}
-.kpi-card{background:var(--card);border-radius:12px;padding:20px;border-top:3px solid var(--border);border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.kpi-card{background:var(--card);border-radius:12px;padding:20px;border-top:3px solid var(--border);border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
 .kpi-card .kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted-dim);margin-bottom:8px}
 .kpi-card .kpi-value{font-size:28px;font-weight:800;line-height:1}
 .kpi-card .kpi-sub{font-size:12px;color:var(--muted-dim);margin-top:4px}
@@ -97,21 +107,21 @@ a:hover{text-decoration:underline}
 .kpi-card.high .kpi-value{color:var(--red)}
 
 /* ── Composite Score Bar ── */
-.composite-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.2);border:1px solid var(--border)}
-.composite-section h3{font-size:18px;font-weight:700;margin-bottom:4px;color:#fff}
+.composite-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid var(--border)}
+.composite-section h3{font-size:18px;font-weight:700;margin-bottom:4px;color:#1e293b}
 .composite-section .comp-sub{font-size:13px;color:var(--muted-dim);margin-bottom:20px}
 .gradient-bar{height:28px;border-radius:14px;background:linear-gradient(90deg,#22c55e 0%,#86efac 15%,#fde047 30%,#f59e0b 50%,#f97316 70%,#ef4444 100%);position:relative;margin-bottom:8px}
 .gradient-marker{position:absolute;top:-4px;width:3px;height:36px;background:#fff;border-radius:2px;transform:translateX(-50%)}
 .gradient-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted-dim)}
 
 /* ── Risk Factor Breakdown ── */
-.breakdown-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.2);border:1px solid var(--border)}
-.breakdown-section h3{font-size:18px;font-weight:700;margin-bottom:4px;color:#fff}
+.breakdown-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid var(--border)}
+.breakdown-section h3{font-size:18px;font-weight:700;margin-bottom:4px;color:#1e293b}
 .breakdown-section .brk-sub{font-size:13px;color:var(--muted-dim);margin-bottom:20px}
-.factor-row{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid rgba(96,165,250,0.1)}
+.factor-row{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid #e2e8f0}
 .factor-row:last-child{border-bottom:none}
 .factor-label{width:180px;font-size:13px;color:var(--muted-dim);flex-shrink:0}
-.factor-bar{flex:1;height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden}
+.factor-bar{flex:1;height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden}
 .factor-bar-fill{height:100%;border-radius:5px;transition:width 0.6s ease}
 .factor-score{font-size:16px;font-weight:700;width:40px;text-align:right;flex-shrink:0}
 
@@ -129,14 +139,14 @@ a:hover{text-decoration:underline}
 /* ── Empty State ── */
 .empty-state{text-align:center;padding:80px 20px;color:var(--muted-dim)}
 .empty-state .icon{font-size:48px;margin-bottom:16px;opacity:0.4}
-.empty-state h3{font-size:18px;color:#fff;margin-bottom:8px;font-weight:600}
+.empty-state h3{font-size:18px;color:#1e293b;margin-bottom:8px;font-weight:600}
 .empty-state p{font-size:14px;line-height:1.6;max-width:420px;margin:0 auto}
 
 /* ── Data Table ── */
-.data-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.2);margin-bottom:24px;border:1px solid var(--border)}
-.data-table th{background:rgba(255,255,255,0.04);color:#60a5fa;padding:12px 16px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
-.data-table td{padding:10px 16px;border-bottom:1px solid rgba(96,165,250,0.1);font-size:13px;color:#e2e8f0}
-.data-table tr:hover td{background:rgba(255,255,255,0.04)}
+.data-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:24px;border:1px solid var(--border)}
+.data-table th{background:#f8fafc;color:#64748b;padding:12px 16px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+.data-table td{padding:10px 16px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#1e293b}
+.data-table tr:hover td{background:#f8fafc}
 
 /* ── Risk Badges ── */
 .risk-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
@@ -146,15 +156,15 @@ a:hover{text-decoration:underline}
 .risk-badge.high{background:#fecaca;color:#991b1b}
 
 /* ── Alert Cards ── */
-.alert-card{background:var(--card);border-radius:10px;padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--orange);box-shadow:0 2px 8px rgba(0,0,0,0.2);border:1px solid var(--border);border-left:4px solid var(--orange)}
+.alert-card{background:var(--card);border-radius:10px;padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--orange);box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid var(--border);border-left:4px solid var(--orange)}
 .alert-card.danger{border-left-color:var(--red)}
 .alert-card.info{border-left-color:var(--blue)}
-.alert-card h4{font-size:14px;font-weight:700;margin-bottom:4px;color:#fff}
+.alert-card h4{font-size:14px;font-weight:700;margin-bottom:4px;color:#1e293b}
 .alert-card p{font-size:13px;color:var(--muted-dim);line-height:1.6}
 
 /* ── Card Sections ── */
-.card-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.2);border:1px solid var(--border)}
-.card-section h3{font-size:18px;font-weight:700;margin-bottom:4px;color:#fff}
+.card-section{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid var(--border)}
+.card-section h3{font-size:18px;font-weight:700;margin-bottom:4px;color:#1e293b}
 .card-section .card-sub{font-size:13px;color:var(--muted-dim);margin-bottom:20px}
 
 /* ── Source Attribution ── */
@@ -162,13 +172,13 @@ a:hover{text-decoration:underline}
 
 /* ── Builder Table ── */
 .builder-filters{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.builder-filters select,.builder-filters input{padding:10px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:rgba(255,255,255,0.08);color:#e2e8f0}
+.builder-filters select,.builder-filters input{padding:10px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:#1e293b}
 .builder-filters select:focus,.builder-filters input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.2)}
-.builder-filters select option{background:#0f2347;color:#e2e8f0}
-.builder-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.2);border:1px solid var(--border)}
-.builder-table th{background:rgba(255,255,255,0.04);color:#60a5fa;padding:12px 16px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
-.builder-table td{padding:10px 16px;border-bottom:1px solid rgba(96,165,250,0.1);font-size:13px;color:#e2e8f0}
-.builder-table tr:hover td{background:rgba(255,255,255,0.04)}
+.builder-filters select option{background:#fff;color:#1e293b}
+.builder-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid var(--border)}
+.builder-table th{background:#f8fafc;color:#64748b;padding:12px 16px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+.builder-table td{padding:10px 16px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#1e293b}
+.builder-table tr:hover td{background:#f8fafc}
 .grade-badge{display:inline-block;width:28px;height:28px;border-radius:6px;text-align:center;line-height:28px;font-weight:700;font-size:13px;color:#fff}
 .grade-A{background:var(--green)}.grade-B{background:var(--blue)}.grade-C{background:var(--yellow)}.grade-D{background:var(--red)}
 
@@ -177,33 +187,33 @@ a:hover{text-decoration:underline}
 .calc-input-group{margin-bottom:16px}
 .calc-input-group label{display:block;font-size:12px;font-weight:600;color:var(--muted-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
 .calc-input-group input[type="range"]{width:100%;margin-bottom:4px;accent-color:var(--blue)}
-.calc-input-group .range-val{font-size:18px;font-weight:700;color:#fff}
-.calc-input-group input[type="number"]{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:rgba(255,255,255,0.08);color:#fff}
+.calc-input-group .range-val{font-size:18px;font-weight:700;color:#1e293b}
+.calc-input-group input[type="number"]{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fff;color:#1e293b}
 .calc-output{background:linear-gradient(135deg,rgba(37,99,235,0.1),rgba(45,212,191,0.1));border-radius:12px;padding:24px;border:1px solid rgba(45,212,191,0.25)}
 .calc-metric{margin-bottom:16px}
 .calc-metric .calc-metric-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted-dim);margin-bottom:4px}
-.calc-metric .calc-metric-value{font-size:24px;font-weight:800;color:#fff}
+.calc-metric .calc-metric-value{font-size:24px;font-weight:800;color:#1e293b}
 .calc-metric .calc-metric-value.positive{color:var(--green)}
 
 /* ── Mandate Timeline ── */
-.mandate-card{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);border-left:4px solid var(--blue);border:1px solid var(--border);border-left:4px solid var(--blue)}
+.mandate-card{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid var(--blue);border:1px solid var(--border);border-left:4px solid var(--blue)}
 .mandate-card.active{border-left-color:var(--green)}
 .mandate-card.pending{border-left-color:var(--yellow)}
-.mandate-card h4{font-size:15px;font-weight:700;margin-bottom:4px;color:#fff}
+.mandate-card h4{font-size:15px;font-weight:700;margin-bottom:4px;color:#1e293b}
 .mandate-card .mandate-meta{font-size:12px;color:var(--muted-dim);margin-bottom:8px}
 .mandate-card p{font-size:13px;color:var(--muted-dim);line-height:1.5}
 
 /* ── Progress Bar ── */
 .progress-bar-wrap{margin-bottom:12px}
 .progress-bar-wrap .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted-dim);margin-bottom:4px}
-.progress-bar-bg{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
+.progress-bar-bg{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
 .progress-bar-fill{height:100%;border-radius:4px;background:var(--blue);transition:width 0.6s ease}
 
 /* ── Comparison Table ── */
-.comparison-row{display:grid;grid-template-columns:200px 1fr 1fr;gap:0;border-bottom:1px solid rgba(96,165,250,0.1)}
-.comparison-row.header{background:rgba(255,255,255,0.04);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#60a5fa}
-.comparison-row div{padding:12px 16px;font-size:13px;color:#e2e8f0}
-.comparison-row .with-namara{background:rgba(45,212,191,0.08)}
+.comparison-row{display:grid;grid-template-columns:200px 1fr 1fr;gap:0;border-bottom:1px solid #e2e8f0}
+.comparison-row.header{background:#f8fafc;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b}
+.comparison-row div{padding:12px 16px;font-size:13px;color:#1e293b}
+.comparison-row .with-namara{background:rgba(45,212,191,0.06)}
 
 /* ── Loading / Spinner ── */
 .loading{text-align:center;padding:60px;color:var(--muted-dim)}
@@ -304,6 +314,7 @@ a:hover{text-decoration:underline}
   </div>
 
   <!-- Tabs -->
+  <div class="tab-bar-wrap">
   <div class="tab-bar">
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('score',this)">Risk Profile</button>
@@ -316,6 +327,7 @@ a:hover{text-decoration:underline}
       <button class="nav-tab" onclick="switchTab('mandates',this)">Mandate Landscape</button>
       <button class="nav-tab" onclick="switchTab('builders',this)">Builder Quality</button>
     </div>
+  </div>
   </div>
 
   <!-- Content -->
@@ -786,7 +798,7 @@ function renderScore(d){
     '</div>'+
     '<div class="advantage-card">'+
       '<h3>What\'s Missing Without Device Data</h3>'+
-      '<p>This score uses public data only. With a Namara device installed, the score incorporates real-time pressure telemetry (20-sec intervals), actual leak/shutoff events, per-home water quality readings, and consumption patterns — turning a geographic estimate into a per-home underwriting signal.</p>'+
+      '<p>This score uses public data only. With a Namara device installed, the score incorporates real-time water pressure monitoring (20-sec intervals), small and large leak detection with automatic shut-off, freeze protection, thermal expansion relief, and supply-side pressure optimization — turning a geographic estimate into a per-home underwriting signal.</p>'+
     '</div>';
 }
 
@@ -833,7 +845,7 @@ function renderWaterQuality(d){
     '<h3 style="font-size:16px;font-weight:700;margin:24px 0 12px">Why This Matters for Underwriting</h3>'+
     (chem.hardness>10?'<div class="alert-card danger"><h4>High Mineral Content</h4><p>Hard water accelerates scale buildup in water heaters and plumbing fixtures, reducing equipment lifespan by 25-40% and increasing catastrophic failure risk.</p></div>':'')+
     (wqd.lead_copper_exceedances>3?'<div class="alert-card danger"><h4>Lead/Copper Compliance Issues</h4><p>Elevated lead/copper exceedances indicate aging service lines and corrosive water conditions that increase pinhole leak probability.</p></div>':'')+
-    '<div class="alert-card info"><h4>Public Data Limitation</h4><p>These values represent state-level averages from EPA SDWIS and USGS surveys. Actual per-home water chemistry can vary significantly. Namara devices measure real-time water quality at each property.</p></div>'+
+    '<div class="alert-card info"><h4>Public Data Limitation</h4><p>These values represent state-level averages from EPA SDWIS and USGS surveys. Actual per-home water chemistry can vary significantly based on local conditions and home plumbing age.</p></div>'+
     '<div class="data-source">Source: EPA Safe Drinking Water Information System (SDWIS), USGS Water Quality Data</div>';
 }
 
@@ -987,12 +999,12 @@ function renderNamara(d){
   const cityLabel = city ? city+', '+d.state : d.state;
 
   const comparisonRows = [
-    {layer:'Water Pressure',pub:'State-level avg ('+((d.layers.pressure||{}).data||{}).avg_psi||'~60'+' PSI)',namara:'Real-time 20-sec readings, per-home PSI tracking, anomaly detection'},
-    {layer:'Leak Detection',pub:'Not available',namara:'1-400 GPD continuous monitoring, instant alerts, auto-shutoff'},
-    {layer:'Water Quality',pub:'State/county averages',namara:'Per-home pH, TDS, hardness, chlorine, temperature'},
-    {layer:'Pipe Condition',pub:'Estimated from construction era',namara:'Acoustic signature analysis, material identification, degradation tracking'},
-    {layer:'Freeze Protection',pub:'Weather station freeze days',namara:'In-pipe temperature monitoring, freeze prevention activation'},
-    {layer:'Consumption',pub:'Not available',namara:'Hourly flow patterns, fixture-level usage, anomaly detection'},
+    {layer:'Water Pressure',pub:'State-level avg ('+((d.layers.pressure||{}).data||{}).avg_psi||'~60'+' PSI)',namara:'Real-time 20-sec pressure monitoring, per-home PSI tracking, anomaly detection'},
+    {layer:'Leak Detection',pub:'Not available',namara:'Small leak (1-5 GPD) and large leak (>5 GPD) continuous monitoring with instant alerts'},
+    {layer:'Auto Shut-Off',pub:'Not available',namara:'Automatic water shut-off on large leak detection, preventing catastrophic water damage'},
+    {layer:'Freeze Protection',pub:'Weather station freeze days',namara:'In-pipe temperature monitoring, automatic freeze prevention activation'},
+    {layer:'Thermal Expansion',pub:'Not monitored',namara:'Thermal expansion relief protecting water heaters, pipes, and fixtures from pressure spikes'},
+    {layer:'Pressure Optimization',pub:'Not available',namara:'Supply-side pressure relief, optimized pressure for experience, safety, and savings'},
   ];
 
   let compHTML = '<div class="comparison-row header"><div>Data Layer</div><div>Public Data</div><div class="with-namara">With Namara Device</div></div>';
@@ -1012,8 +1024,8 @@ function renderNamara(d){
       '<div class="card-sub">What public data provides vs. what Namara delivers per-home</div>'+
       compHTML+
     '</div>'+
-    '<div class="alert-card danger"><h4>Without Namara</h4><p>Underwriting relies on geographic averages, construction-era estimates, and annual inspections. A home with a failing PRV, corroded pipes, or slow leak looks identical to its neighbor. Risk is estimated, not measured.</p></div>'+
-    '<div class="alert-card info" style="border-left-color:var(--green)"><h4>With Namara</h4><p>Every equipped home becomes a real-time data source. Pressure anomalies are caught in minutes, not months. Leak events trigger auto-shutoff before damage occurs. Underwriting shifts from geographic guessing to measured, per-property risk.</p></div>';
+    '<div class="alert-card danger"><h4>Without Namara</h4><p>Underwriting relies on geographic averages, construction-era estimates, and annual inspections. A home with a failing PRV, slow leak, or dangerous pressure levels looks identical to its neighbor. Risk is estimated, not measured.</p></div>'+
+    '<div class="alert-card info" style="border-left-color:var(--green)"><h4>With Namara</h4><p>Every equipped home becomes a real-time data source. Pressure anomalies are caught in minutes, not months. Small and large leaks are detected with automatic shut-off preventing damage. Freeze protection, thermal expansion relief, and pressure optimization keep the home safe. Underwriting shifts from geographic guessing to measured, per-property risk.</p></div>';
 }
 
 // ─── Loss Ratio Calculator (Tab 7) ───
