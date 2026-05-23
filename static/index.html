@@ -318,17 +318,13 @@ a:hover{text-decoration:underline}
   <div class="tab-bar">
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('score',this)">Risk Profile</button>
-      <button class="nav-tab" onclick="switchTab('waterquality',this)">Water Quality</button>
-      <button class="nav-tab" onclick="switchTab('climate',this)">Climate & Freeze</button>
-      <button class="nav-tab" onclick="switchTab('infrastructure',this)">Infrastructure</button>
-      <button class="nav-tab" onclick="switchTab('pressure',this)">Pressure Data</button>
       <button class="nav-tab" onclick="switchTab('claims',this)">Claims Intelligence</button>
-      <button class="nav-tab" onclick="switchTab('namara',this)">Namara Value</button>
       <button class="nav-tab" onclick="switchTab('device',this)">Device Intelligence</button>
-      <button class="nav-tab" onclick="switchTab('deployment',this)">Deployment</button>
-      <button class="nav-tab" onclick="switchTab('lossratio',this)">Loss Ratio Model</button>
+      <button class="nav-tab" onclick="switchTab('deployment',this)">Deployment & ROI</button>
       <button class="nav-tab" onclick="switchTab('mandates',this)">Mandate Landscape</button>
       <button class="nav-tab" onclick="switchTab('builders',this)">Builder Quality</button>
+      <button class="nav-tab" onclick="switchTab('environmental',this)">Environmental Risk</button>
+      <button class="nav-tab" onclick="switchTab('property',this)">Property Risk</button>
     </div>
   </div>
   </div>
@@ -347,45 +343,10 @@ a:hover{text-decoration:underline}
       </div>
     </div>
 
-    <!-- Water Quality Tab -->
-    <div id="tab-waterquality" class="tab-panel">
-      <div id="wqResult">
-        <div class="empty-state"><div class="icon">&#x1F4A7;</div><h3>Score a zip code first</h3><p>Water quality data will appear here after you analyze a location.</p></div>
-      </div>
-    </div>
-
-    <!-- Climate & Freeze Tab -->
-    <div id="tab-climate" class="tab-panel">
-      <div id="climateResult">
-        <div class="empty-state"><div class="icon">&#x1F321;</div><h3>Score a zip code first</h3><p>Climate risk data will appear here after you analyze a location.</p></div>
-      </div>
-    </div>
-
-    <!-- Infrastructure Tab -->
-    <div id="tab-infrastructure" class="tab-panel">
-      <div id="infraResult">
-        <div class="empty-state"><div class="icon">&#x1F3D7;</div><h3>Score a zip code first</h3><p>Infrastructure data will appear here after you analyze a location.</p></div>
-      </div>
-    </div>
-
-    <!-- Pressure Data Tab -->
-    <div id="tab-pressure" class="tab-panel">
-      <div id="pressureResult">
-        <div class="empty-state"><div class="icon">&#x1F4A8;</div><h3>Score a zip code first</h3><p>City water pressure data will appear here after you analyze a location.</p></div>
-      </div>
-    </div>
-
     <!-- Claims Intelligence Tab -->
     <div id="tab-claims" class="tab-panel">
       <div id="claimsResult">
         <div class="empty-state"><div class="icon">&#x1F4C9;</div><h3>Score a zip code first</h3><p>Supply-side water damage claims intelligence will appear here after you analyze a location.</p></div>
-      </div>
-    </div>
-
-    <!-- Namara Value Tab -->
-    <div id="tab-namara" class="tab-panel">
-      <div id="namaraResult">
-        <div class="empty-state"><div class="icon">&#x1F4A1;</div><h3>Score a zip code first</h3><p>Namara value analysis will appear here after you analyze a location.</p></div>
       </div>
     </div>
 
@@ -403,47 +364,7 @@ a:hover{text-decoration:underline}
       </div>
     </div>
 
-    <!-- Loss Ratio Model Tab -->
-    <div id="tab-lossratio" class="tab-panel">
-      <div class="section-title">Loss Ratio Impact Model</div>
-      <div class="section-subtitle">Simulate the financial impact of Namara device deployment on your water loss ratio</div>
-
-      <div class="calc-grid">
-        <div class="card-section">
-          <h3>Input Assumptions</h3>
-          <div class="card-sub">Adjust parameters to model your portfolio</div>
-
-          <div class="calc-input-group">
-            <label>Equipped Homes</label>
-            <input type="range" id="calcHomes" min="100" max="50000" value="5000" step="100" oninput="calcLossRatio()">
-            <div class="range-val" id="calcHomesVal">5,000</div>
-          </div>
-          <div class="calc-input-group">
-            <label>Avg Annual Premium ($)</label>
-            <input type="number" id="calcPremium" value="1800" min="500" max="10000" step="50" oninput="calcLossRatio()">
-          </div>
-          <div class="calc-input-group">
-            <label>Current Water Loss Ratio (%)</label>
-            <input type="range" id="calcLossRatioIn" min="20" max="80" value="45" step="1" oninput="calcLossRatio()">
-            <div class="range-val" id="calcLossRatioInVal">45%</div>
-          </div>
-          <div class="calc-input-group">
-            <label>Claim Reduction with Namara (%)</label>
-            <input type="range" id="calcReduction" min="10" max="60" value="30" step="1" oninput="calcLossRatio()">
-            <div class="range-val" id="calcReductionVal">30%</div>
-          </div>
-          <div class="calc-input-group">
-            <label>Premium Discount Offered (%)</label>
-            <input type="range" id="calcDiscount" min="0" max="25" value="5" step="1" oninput="calcLossRatio()">
-            <div class="range-val" id="calcDiscountVal">5%</div>
-          </div>
-        </div>
-
-        <div class="calc-output" id="calcOutput">
-          <!-- filled by JS -->
-        </div>
-      </div>
-    </div>
+    <!-- Loss Ratio section is now inside Deployment tab -->
 
     <!-- Mandate Landscape Tab -->
     <div id="tab-mandates" class="tab-panel">
@@ -465,29 +386,29 @@ a:hover{text-decoration:underline}
         <p>Requires whole-home automatic shutoff devices for new policies on homes over $750K. Premium discount of 5-12% for compliant homes. Piloting expansion to all new construction.</p>
       </div>
       <div class="mandate-card active">
-        <h4>Chubb</h4>
-        <div class="mandate-meta">Effective: March 2024 | Status: Active | States: All US</div>
-        <p>Mandatory leak detection for high-value homes ($2M+). Partnered with three IoT providers. Claims data shows 40% reduction in water damage severity for equipped homes.</p>
+        <h4>Chubb / StreamLabs</h4>
+        <div class="mandate-meta">Status: Active Program | Scope: All US | Subsidiary: StreamLabs (wholly-owned)</div>
+        <p>Chubb owns StreamLabs, an IoT subsidiary offering the StreamLabs Control automatic shutoff valve. Policyholders receive 3-10% premium discounts for installing qualified leak detection with automatic shutoff. StreamLabs devices use patented ultrasonic technology and shut off water within 15 seconds of detecting a leak. HSB (Munich Re subsidiary) Meshify sensors expanding to residential via Amazon Sidewalk in 2025.</p>
       </div>
       <div class="mandate-card active">
-        <h4>Farmers Insurance</h4>
-        <div class="mandate-meta">Effective: July 2024 | Status: Active | States: FL, TX, CA</div>
-        <p>Incentive program: 8% premium reduction for whole-home water monitoring. Moving to mandate for coastal FL properties by Q1 2026.</p>
+        <h4>Farmers Insurance / Moen</h4>
+        <div class="mandate-meta">Status: Active Partnership (2024) | States: CA, TX, FL</div>
+        <p>Strategic partnership with Moen targeting Flo Smart Water Monitor and Shutoff system to policyholders in high-risk homes and areas. Premium incentive program for whole-home water monitoring. Moen data shows up to 96% reduction in water damage claim frequency for equipped homes.</p>
       </div>
       <div class="mandate-card pending">
-        <h4>Nationwide</h4>
-        <div class="mandate-meta">Effective: Q2 2026 (Projected) | Status: Pending | States: OH, PA, VA, NC</div>
-        <p>Draft policy requires water mitigation devices for homes with prior water claims. Currently in underwriting committee review. Expected to cover 2.1M policies.</p>
+        <h4>California State Mandate</h4>
+        <div class="mandate-meta">Status: Active Regulation | States: CA</div>
+        <p>New California requirements mandate water leak detection valves on water mains for homeowners insurance eligibility. Southern California insurers increasingly requiring automatic water shutoff valves as a condition of coverage, particularly in high-risk wildfire and flood zones.</p>
       </div>
       <div class="mandate-card pending">
         <h4>State Farm</h4>
-        <div class="mandate-meta">Effective: 2026 (Projected) | Status: Pilot | States: FL, IL</div>
-        <p>Pilot program in Florida and Illinois testing premium incentives for smart water devices. Early results show 35% claim frequency reduction. Nationwide rollout expected.</p>
+        <div class="mandate-meta">Status: Active Initiative | States: All US</div>
+        <p>Water Initiative launched to reduce water loss claims. Premier Service Program for water mitigation providers. Recommends whole-house water leak detection systems. Moving toward premium incentives for smart water shutoff devices in high-risk states.</p>
       </div>
       <div class="mandate-card">
-        <h4>Munich Re (Reinsurance)</h4>
-        <div class="mandate-meta">Effective: 2025 | Status: Active (Reinsurance) | Scope: Global</div>
-        <p>Offering reinsurance premium credits for cedants that mandate water mitigation technology. Driving downstream carrier adoption. Published white paper on IoT-enabled water risk reduction.</p>
+        <h4>Munich Re / HSB</h4>
+        <div class="mandate-meta">Status: Active (Reinsurance + IoT) | Scope: Global</div>
+        <p>HSB (Munich Re subsidiary) operates Sensor Solutions, an insurance-focused IoT program powered by AWS using Meshify technology. WINT partnership showed 73% fewer insurance claims and 90% less payouts at equipped sites. New Meshify Defender Slim sensors (2025) expanding residential coverage via Amazon Sidewalk network.</p>
       </div>
 
       <h3 style="font-size:18px;font-weight:700;margin:32px 0 16px">Carrier Engagement Pipeline</h3>
@@ -497,20 +418,20 @@ a:hover{text-decoration:underline}
         <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;background:var(--green)"></div></div>
       </div>
       <div class="progress-bar-wrap">
-        <div class="progress-label"><span>Chubb</span><span>Integration Complete</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:90%;background:var(--green)"></div></div>
+        <div class="progress-label"><span>Farmers / Moen</span><span>Active Partnership</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:85%;background:var(--green)"></div></div>
       </div>
       <div class="progress-bar-wrap">
-        <div class="progress-label"><span>Farmers</span><span>Pilot Phase</span></div>
+        <div class="progress-label"><span>Chubb / StreamLabs</span><span>Discount Program Active</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:80%;background:var(--green)"></div></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>State Farm</span><span>Water Initiative Active</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%;background:var(--blue)"></div></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>Munich Re / HSB</span><span>IoT Program Expanding</span></div>
         <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:70%;background:var(--blue)"></div></div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-label"><span>Nationwide</span><span>In Discussions</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:40%;background:var(--yellow)"></div></div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-label"><span>State Farm</span><span>Early Engagement</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:25%;background:var(--orange)"></div></div>
       </div>
 
       <div class="card-section" style="margin-top:32px">
@@ -544,6 +465,20 @@ a:hover{text-decoration:underline}
         <input type="text" id="builderSearch" placeholder="Search by name..." oninput="loadBuilders()">
       </div>
       <div id="builderResults"><div class="loading"><div class="spinner"></div><p>Loading builders...</p></div></div>
+    </div>
+
+    <!-- Environmental Risk Tab (merged Water Quality + Climate) -->
+    <div id="tab-environmental" class="tab-panel">
+      <div id="environmentalResult">
+        <div class="empty-state"><div class="icon">&#x1F30A;</div><h3>Score a zip code first</h3><p>Water quality and climate risk data will appear here after you analyze a location.</p></div>
+      </div>
+    </div>
+
+    <!-- Property Risk Tab (merged Infrastructure + Pressure) -->
+    <div id="tab-property" class="tab-panel">
+      <div id="propertyResult">
+        <div class="empty-state"><div class="icon">&#x1F3E0;</div><h3>Score a zip code first</h3><p>Infrastructure and pressure risk data will appear here after you analyze a location.</p></div>
+      </div>
     </div>
 
   </div>
@@ -743,14 +678,11 @@ async function scoreZip(){
     if(resp.ok) {
       LAST_SCORE = data;
       renderScore(data);
-      renderWaterQuality(data);
-      renderClimate(data);
-      renderInfrastructure(data);
-      renderPressure(data);
-      renderNamara(data);
       renderClaims(data);
       renderDevice(data);
       renderDeployment(data);
+      renderEnvironmental(data);
+      renderProperty(data);
     } else {
       document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
     }
@@ -826,26 +758,32 @@ function renderScore(d){
         'Download PDF Report'+
       '</button>'+
     '</div>'+
-    '<div class="advantage-card">'+
-      '<h3>What\'s Missing Without Device Data</h3>'+
-      '<p>This score uses public data only. With a Namara device installed, the score incorporates real-time water pressure monitoring (20-sec intervals), small and large leak detection with automatic shut-off, freeze protection, thermal expansion relief, and supply-side pressure optimization — turning a geographic estimate into a per-home underwriting signal.</p>'+
-    '</div>';
+    '';
 }
 
-// ─── Render Water Quality (Tab 2) ───
-function renderWaterQuality(d){
+// ─── Render Environmental Risk (merged Water Quality + Climate) ───
+function renderEnvironmental(d){
   const wq = d.layers.water_quality||{};
   const wqd = wq.data||{};
+  const cl = d.layers.climate||{};
+  const cld = cl.data||{};
   const state = d.state;
   const city = getCityName(d.zip_code, state);
   const chem = STATE_WATER_CHEMISTRY[state]||{hardness:8,hardness_unit:'GPG',ph:7.4,tds:250,chloride:35};
   const cityLabel = city ? city+', '+state : state;
+
+  const freezeDays = cld.freeze_days||0;
+  const heatDays = cld.heat_days||0;
+  const totalPrecip = cld.total_precip_inches||0;
+  const maxPrecip = cld.max_daily_precip_inches||0;
+  const heavyRainDays = Math.round(totalPrecip/10);
 
   const hardRisk = chem.hardness > 10 ? 'Elevated' : chem.hardness > 7 ? 'Moderate' : 'Low';
   const phRisk = chem.ph < 6.5 || chem.ph > 8.5 ? 'Elevated' : 'Low';
   const tdsRisk = chem.tds > 400 ? 'Elevated' : chem.tds > 250 ? 'Moderate' : 'Low';
   const chlorideRisk = chem.chloride > 70 ? 'Elevated' : chem.chloride > 40 ? 'Moderate' : 'Low';
 
+  // Water quality parameters table
   const params = [
     {name:'Hardness',value:chem.hardness+' '+chem.hardness_unit+' ('+hardnessLevel(chem.hardness)+')',risk:hardRisk,impact:'Scale buildup in pipes, water heater damage, reduced appliance lifespan'},
     {name:'pH Level',value:chem.ph+' ('+phLevel(chem.ph)+')',risk:phRisk,impact:chem.ph<7?'Corrosive to copper/lead pipes, pinhole leaks':'Mineral deposits in fixtures'},
@@ -855,44 +793,12 @@ function renderWaterQuality(d){
     {name:'Lead/Copper Exceedances',value:(wqd.lead_copper_exceedances||'N/A'),risk:wqd.lead_copper_exceedances>3?'High':'Moderate',impact:'Service line corrosion, lead solder in pre-1986 homes'},
   ];
 
-  let tableRows = params.map(function(p){
+  let wqTableRows = params.map(function(p){
     return '<tr><td><strong>'+p.name+'</strong></td><td>'+p.value+'</td><td>'+badgeHTML(p.risk)+'</td><td>'+p.impact+'</td></tr>';
   }).join('');
 
-  document.getElementById('wqResult').innerHTML =
-    '<div class="section-title">Water Quality — '+cityLabel+'</div>'+
-    '<div class="section-subtitle">State-level water chemistry and compliance data</div>'+
-    '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
-      '<div class="kpi-card '+riskClass(wq.score||0)+'"><div class="kpi-label">Water Quality Risk</div><div class="kpi-value">'+(wq.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(wq.score||0)+'</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Hardness</div><div class="kpi-value">'+chem.hardness+'</div><div class="kpi-sub">'+chem.hardness_unit+' ('+hardnessLevel(chem.hardness)+')</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">pH Level</div><div class="kpi-value">'+chem.ph+'</div><div class="kpi-sub">'+phLevel(chem.ph)+'</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">TDS</div><div class="kpi-value">'+chem.tds+'</div><div class="kpi-sub">ppm</div></div>'+
-    '</div>'+
-    '<table class="data-table">'+
-      '<thead><tr><th>Parameter</th><th>Value</th><th>Risk Level</th><th>Impact on Plumbing</th></tr></thead>'+
-      '<tbody>'+tableRows+'</tbody>'+
-    '</table>'+
-    '<h3 style="font-size:16px;font-weight:700;margin:24px 0 12px">Why This Matters for Underwriting</h3>'+
-    (chem.hardness>10?'<div class="alert-card danger"><h4>High Mineral Content</h4><p>Hard water accelerates scale buildup in water heaters and plumbing fixtures, reducing equipment lifespan by 25-40% and increasing catastrophic failure risk.</p></div>':'')+
-    (wqd.lead_copper_exceedances>3?'<div class="alert-card danger"><h4>Lead/Copper Compliance Issues</h4><p>Elevated lead/copper exceedances indicate aging service lines and corrosive water conditions that increase pinhole leak probability.</p></div>':'')+
-    '<div class="alert-card info"><h4>Public Data Limitation</h4><p>These values represent state-level averages. Actual per-home water chemistry can vary significantly based on local conditions and home plumbing age.</p></div>';
-}
-
-// ─── Render Climate (Tab 3) ───
-function renderClimate(d){
-  const cl = d.layers.climate||{};
-  const cld = cl.data||{};
-  const state = d.state;
-  const city = getCityName(d.zip_code, state);
-  const cityLabel = city ? city+', '+state : state;
-
-  const freezeDays = cld.freeze_days||0;
-  const heatDays = cld.heat_days||0;
-  const totalPrecip = cld.total_precip_inches||0;
-  const maxPrecip = cld.max_daily_precip_inches||0;
-  const heavyRainDays = Math.round(totalPrecip/10);
-
-  const factors = [
+  // Climate factors table
+  const climateFactors = [
     {name:'Freeze Days (12mo)',value:freezeDays+' days',risk:freezeDays>30?'High':freezeDays>10?'Moderate':'Low',impact:'Pipe burst risk, freeze protection activation, PRV freeze damage'},
     {name:'Extreme Heat Days (>95F)',value:heatDays+' days',risk:heatDays>30?'High':heatDays>10?'Moderate':'Low',impact:'Thermal expansion stress, water heater overwork, supply line fatigue'},
     {name:'Total Precipitation',value:totalPrecip+' in',risk:totalPrecip>50?'Elevated':totalPrecip>30?'Moderate':'Low',impact:'Foundation saturation, sewer backup risk, hydrostatic pressure on basement walls'},
@@ -900,30 +806,53 @@ function renderClimate(d){
     {name:'Heavy Rain Days',value:heavyRainDays+' days',risk:heavyRainDays>8?'Elevated':'Moderate',impact:'Cumulative moisture intrusion, mold risk, drainage system stress'},
   ];
 
-  let tableRows = factors.map(function(f){
+  let climateTableRows = climateFactors.map(function(f){
     return '<tr><td><strong>'+f.name+'</strong></td><td>'+f.value+'</td><td>'+badgeHTML(f.risk)+'</td><td>'+f.impact+'</td></tr>';
   }).join('');
 
-  document.getElementById('climateResult').innerHTML =
-    '<div class="section-title">Climate & Freeze Risk — '+cityLabel+'<span class="live-badge">Live Data</span></div>'+
-    '<div class="section-subtitle">12-month climate and freeze risk analysis</div>'+
+  document.getElementById('environmentalResult').innerHTML =
+    '<div class="section-title">Environmental Risk — '+cityLabel+'</div>'+
+    '<div class="section-subtitle">Water quality chemistry and climate risk factors combined</div>'+
     '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
-      '<div class="kpi-card '+riskClass(cl.score||0)+'"><div class="kpi-label">Climate Risk Score</div><div class="kpi-value">'+(cl.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(cl.score||0)+'</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Freeze Days (12mo)</div><div class="kpi-value">'+freezeDays+'</div><div class="kpi-sub">Days below 32F</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Total Precipitation</div><div class="kpi-value">'+totalPrecip+'</div><div class="kpi-sub">inches (12mo)</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Heavy Rain Days</div><div class="kpi-value">'+heavyRainDays+'</div><div class="kpi-sub">Estimated</div></div>'+
+      '<div class="kpi-card '+riskClass(wq.score||0)+'"><div class="kpi-label">Water Quality Risk</div><div class="kpi-value">'+(wq.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(wq.score||0)+'</div></div>'+
+      '<div class="kpi-card '+riskClass(cl.score||0)+'"><div class="kpi-label">Climate Risk</div><div class="kpi-value">'+(cl.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(cl.score||0)+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Freeze Days</div><div class="kpi-value">'+freezeDays+'</div><div class="kpi-sub">Days below 32F (12mo)</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Hardness</div><div class="kpi-value">'+chem.hardness+'</div><div class="kpi-sub">'+chem.hardness_unit+' ('+hardnessLevel(chem.hardness)+')</div></div>'+
     '</div>'+
-    '<table class="data-table">'+
-      '<thead><tr><th>Factor</th><th>Value</th><th>Risk</th><th>Insurance Impact</th></tr></thead>'+
-      '<tbody>'+tableRows+'</tbody>'+
-    '</table>'+
-    '';
+    '<div class="card-section">'+
+      '<h3>Water Chemistry Analysis</h3>'+
+      '<div class="card-sub">State-level water chemistry and compliance data for '+state+'</div>'+
+      '<table class="data-table">'+
+        '<thead><tr><th>Parameter</th><th>Value</th><th>Risk Level</th><th>Impact on Plumbing</th></tr></thead>'+
+        '<tbody>'+wqTableRows+'</tbody>'+
+      '</table>'+
+    '</div>'+
+    '<div class="card-section">'+
+      '<h3>Climate & Freeze Risk<span class="live-badge" style="margin-left:8px">Live Data</span></h3>'+
+      '<div class="card-sub">12-month climate and precipitation analysis</div>'+
+      '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">'+
+        '<div class="kpi-card"><div class="kpi-label">Total Precipitation</div><div class="kpi-value">'+totalPrecip+'</div><div class="kpi-sub">inches (12mo)</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Max Daily Precip</div><div class="kpi-value">'+maxPrecip+'</div><div class="kpi-sub">inches</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Heavy Rain Days</div><div class="kpi-value">'+heavyRainDays+'</div><div class="kpi-sub">Estimated</div></div>'+
+      '</div>'+
+      '<table class="data-table">'+
+        '<thead><tr><th>Factor</th><th>Value</th><th>Risk</th><th>Insurance Impact</th></tr></thead>'+
+        '<tbody>'+climateTableRows+'</tbody>'+
+      '</table>'+
+    '</div>'+
+    '<h3 style="font-size:16px;font-weight:700;margin:24px 0 12px">Why This Matters for Underwriting</h3>'+
+    (chem.hardness>10?'<div class="alert-card danger"><h4>High Mineral Content</h4><p>Hard water accelerates scale buildup in water heaters and plumbing fixtures, reducing equipment lifespan by 25-40% and increasing catastrophic failure risk.</p></div>':'')+
+    (wqd.lead_copper_exceedances>3?'<div class="alert-card danger"><h4>Lead/Copper Compliance Issues</h4><p>Elevated lead/copper exceedances indicate aging service lines and corrosive water conditions that increase pinhole leak probability.</p></div>':'')+
+    (freezeDays>20?'<div class="alert-card danger"><h4>Significant Freeze Exposure</h4><p>'+freezeDays+' freeze days significantly increase pipe burst risk. Without freeze protection, unoccupied homes during cold snaps face catastrophic frozen pipe events averaging $18,000+ per claim.</p></div>':'')+
+    '<div class="alert-card info"><h4>Public Data Limitation</h4><p>Water chemistry values represent state-level averages and climate data is from the nearest weather station. Actual conditions vary by home. A Namara device provides in-pipe temperature and real-time freeze protection.</p></div>';
 }
 
-// ─── Render Infrastructure (Tab 4) ───
-function renderInfrastructure(d){
+// ─── Render Property Risk (merged Infrastructure + Pressure) ───
+function renderProperty(d){
   const inf = d.layers.infrastructure||{};
   const infd = inf.data||{};
+  const pr = d.layers.pressure||{};
+  const prd = pr.data||{};
   const state = d.state;
   const city = getCityName(d.zip_code, state);
   const cityLabel = city ? city+', '+state : state;
@@ -932,6 +861,12 @@ function renderInfrastructure(d){
   const homeAge = new Date().getFullYear()-medianYear;
   const pctPre80 = infd.pct_pre_1980||0;
   const pctPre60 = infd.pct_pre_1960||0;
+
+  const avgPsi = prd.avg_psi||60;
+  const pctOver = prd.pct_over_80psi||15;
+  const pctUnder = prd.pct_under_40psi||10;
+  const variability = prd.pressure_variability||'Moderate';
+  const ageFactor = prd.infrastructure_age_factor||0.80;
 
   function pipeMaterial(yr){
     if(yr<1940) return 'Lead/Galvanized Steel';
@@ -954,42 +889,8 @@ function renderInfrastructure(d){
     return '<tr><td><strong>'+e.era+'</strong></td><td>'+e.materials+'</td><td>'+badgeHTML(e.failureRisk)+'</td><td>'+e.failureMode+'</td><td>'+e.interaction+'</td></tr>';
   }).join('');
 
-  document.getElementById('infraResult').innerHTML =
-    '<div class="section-title">Housing Infrastructure — '+cityLabel+'</div>'+
-    '<div class="section-subtitle">Housing stock analysis and pipe material risk assessment</div>'+
-    '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">'+
-      '<div class="kpi-card '+riskClass(inf.score||0)+'"><div class="kpi-label">Infrastructure Risk</div><div class="kpi-value">'+(inf.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(inf.score||0)+'</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Median Home Age</div><div class="kpi-value">'+homeAge+'</div><div class="kpi-sub">years (built '+medianYear+')</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Likely Pipe Material</div><div class="kpi-value" style="font-size:18px">'+pipeMaterial(medianYear)+'</div><div class="kpi-sub">Based on construction era</div></div>'+
-    '</div>'+
-    '<div class="card-section">'+
-      '<h3>Housing Stock Summary</h3>'+
-      '<div class="card-sub">Percentage of housing stock by construction era</div>'+
-      '<div class="factor-row"><div class="factor-label">Pre-1960 Housing</div><div class="factor-bar"><div class="factor-bar-fill" style="width:'+pctPre60+'%;background:'+factorColor(pctPre60*1.5)+'"></div></div><div class="factor-score">'+pctPre60+'%</div></div>'+
-      '<div class="factor-row"><div class="factor-label">Pre-1980 Housing</div><div class="factor-bar"><div class="factor-bar-fill" style="width:'+pctPre80+'%;background:'+factorColor(pctPre80)+'"></div></div><div class="factor-score">'+pctPre80+'%</div></div>'+
-    '</div>'+
-    '<table class="data-table">'+
-      '<thead><tr><th>Era</th><th>Common Materials</th><th>Failure Risk</th><th>Failure Mode</th><th>Interaction with Local Water</th></tr></thead>'+
-      '<tbody>'+eraRows+'</tbody>'+
-    '</table>'+
-    '';
-}
-
-// ─── Render Pressure (Tab 5) ───
-function renderPressure(d){
-  const pr = d.layers.pressure||{};
-  const prd = pr.data||{};
-  const state = d.state;
-  const city = getCityName(d.zip_code, state);
-  const cityLabel = city ? city+', '+state : state;
-
-  const avgPsi = prd.avg_psi||60;
-  const pctOver = prd.pct_over_80psi||15;
-  const pctUnder = prd.pct_under_40psi||10;
-  const variability = prd.pressure_variability||'Moderate';
-  const ageFactor = prd.infrastructure_age_factor||0.80;
-
-  const factors = [
+  // Pressure factors table
+  const pressureFactors = [
     {name:'Average Municipal PSI',value:avgPsi+' PSI',risk:avgPsi>70?'Elevated':avgPsi<45?'Elevated':'Low',impact:'Optimal range is 40-80 PSI; deviations stress plumbing systems'},
     {name:'Overpressure (>80 PSI)',value:pctOver+'% of readings',risk:pctOver>20?'High':pctOver>10?'Moderate':'Low',impact:'Accelerates pipe fatigue, damages appliance valves, PRV failure'},
     {name:'Underpressure (<40 PSI)',value:pctUnder+'% of readings',risk:pctUnder>15?'Elevated':pctUnder>8?'Moderate':'Low',impact:'Backflow contamination risk, water heater issues, irrigation failure'},
@@ -997,64 +898,50 @@ function renderPressure(d){
     {name:'Infrastructure Age Factor',value:(ageFactor*100).toFixed(0)+'%',risk:ageFactor>0.85?'Elevated':'Moderate',impact:'Older pipes less tolerant of pressure fluctuations'},
   ];
 
-  let tableRows = factors.map(function(f){
+  let pressureTableRows = pressureFactors.map(function(f){
     return '<tr><td><strong>'+f.name+'</strong></td><td>'+f.value+'</td><td>'+badgeHTML(f.risk)+'</td><td>'+f.impact+'</td></tr>';
   }).join('');
 
-  document.getElementById('pressureResult').innerHTML =
-    '<div class="section-title">City Water Pressure — '+cityLabel+'</div>'+
-    '<div class="section-subtitle">Municipal water pressure analysis and distribution system assessment</div>'+
+  document.getElementById('propertyResult').innerHTML =
+    '<div class="section-title">Property Risk — '+cityLabel+'</div>'+
+    '<div class="section-subtitle">Infrastructure age, pipe materials, and water pressure analysis</div>'+
     '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
-      '<div class="kpi-card '+riskClass(pr.score||0)+'"><div class="kpi-label">Pressure Risk Score</div><div class="kpi-value">'+(pr.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(pr.score||0)+'</div></div>'+
+      '<div class="kpi-card '+riskClass(inf.score||0)+'"><div class="kpi-label">Infrastructure Risk</div><div class="kpi-value">'+(inf.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(inf.score||0)+'</div></div>'+
+      '<div class="kpi-card '+riskClass(pr.score||0)+'"><div class="kpi-label">Pressure Risk</div><div class="kpi-value">'+(pr.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(pr.score||0)+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Median Home Age</div><div class="kpi-value">'+homeAge+'</div><div class="kpi-sub">years (built '+medianYear+')</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Avg Municipal PSI</div><div class="kpi-value">'+avgPsi+'</div><div class="kpi-sub">PSI</div></div>'+
-      '<div class="kpi-card '+(pctOver>20?'elevated':'')+'"><div class="kpi-label">Over 80 PSI</div><div class="kpi-value">'+pctOver+'%</div><div class="kpi-sub">Overpressure</div></div>'+
-      '<div class="kpi-card '+(pctUnder>15?'elevated':'')+'"><div class="kpi-label">Under 40 PSI</div><div class="kpi-value">'+pctUnder+'%</div><div class="kpi-sub">Underpressure</div></div>'+
-    '</div>'+
-    '<table class="data-table">'+
-      '<thead><tr><th>Factor</th><th>Value</th><th>Risk</th><th>Insurance Impact</th></tr></thead>'+
-      '<tbody>'+tableRows+'</tbody>'+
-    '</table>'+
-    '<h3 style="font-size:16px;font-weight:700;margin:24px 0 12px">Why Pressure Matters</h3>'+
-    '<div class="alert-card danger"><h4>Overpressure Damage</h4><p>Water pressure above 80 PSI dramatically accelerates pipe fatigue and appliance wear. Every 10 PSI above optimal reduces pipe lifespan by approximately 20%. PRV (pressure reducing valve) failures are the #1 cause of catastrophic residential water events.</p></div>'+
-    '<div class="alert-card"><h4>PRV Failures</h4><p>Pressure reducing valves have a typical lifespan of 7-12 years. In areas with high pressure variability, PRV failure rates increase 3x. Most homeowners are unaware of PRV condition until failure.</p></div>'+
-    '<div class="alert-card info"><h4>Thermal Expansion</h4><p>High pressure combined with water heater cycling creates thermal expansion events. Without proper expansion tanks, this generates pressure spikes of 150+ PSI — far exceeding pipe ratings and causing micro-fractures that lead to eventual failure.</p></div>'+
-    '';
-}
-
-// ─── Render Namara Value (Tab 6) ───
-function renderNamara(d){
-  const cs = d.composite_score;
-  const city = getCityName(d.zip_code, d.state);
-  const cityLabel = city ? city+', '+d.state : d.state;
-
-  const comparisonRows = [
-    {layer:'Water Pressure',pub:'State-level avg ('+((d.layers.pressure||{}).data||{}).avg_psi||'~60'+' PSI)',namara:'Real-time 20-sec pressure monitoring, per-home PSI tracking, anomaly detection'},
-    {layer:'Leak Detection',pub:'Not available',namara:'Small leak (1-5 GPD) and large leak (>5 GPD) continuous monitoring with instant alerts'},
-    {layer:'Auto Shut-Off',pub:'Not available',namara:'Automatic water shut-off on large leak detection, preventing catastrophic water damage'},
-    {layer:'Freeze Protection',pub:'Weather station freeze days',namara:'In-pipe temperature monitoring, automatic freeze prevention activation'},
-    {layer:'Thermal Expansion',pub:'Not monitored',namara:'Thermal expansion relief protecting water heaters, pipes, and fixtures from pressure spikes'},
-    {layer:'Pressure Optimization',pub:'Not available',namara:'Supply-side pressure relief, optimized pressure for experience, safety, and savings'},
-  ];
-
-  let compHTML = '<div class="comparison-row header"><div>Data Layer</div><div>Public Data</div><div class="with-namara">With Namara Device</div></div>';
-  compHTML += comparisonRows.map(function(r){
-    return '<div class="comparison-row"><div><strong>'+r.layer+'</strong></div><div>'+r.pub+'</div><div class="with-namara">'+r.namara+'</div></div>';
-  }).join('');
-
-  document.getElementById('namaraResult').innerHTML =
-    '<div class="section-title">Namara Value Proposition — '+cityLabel+'</div>'+
-    '<div class="section-subtitle">The gap between public data scoring and per-home intelligence</div>'+
-    '<div class="kpi-row" style="grid-template-columns:repeat(2,1fr)">'+
-      '<div class="kpi-card '+riskClass(cs)+'"><div class="kpi-label">Current Score (Public Data)</div><div class="kpi-value">'+cs+'/100</div><div class="kpi-sub">'+riskLabel(cs)+' risk — geographic estimate</div></div>'+
-      '<div class="kpi-card highlight"><div class="kpi-label">With Namara Device</div><div class="kpi-value" style="font-size:20px">Per-Home</div><div class="kpi-sub">Continuous, property-specific intelligence</div></div>'+
     '</div>'+
     '<div class="card-section">'+
-      '<h3>Data Layers Comparison</h3>'+
-      '<div class="card-sub">What public data provides vs. what Namara delivers per-home</div>'+
-      compHTML+
+      '<h3>Housing Infrastructure</h3>'+
+      '<div class="card-sub">Housing stock analysis and pipe material risk assessment</div>'+
+      '<div class="kpi-row" style="grid-template-columns:repeat(2,1fr)">'+
+        '<div class="kpi-card"><div class="kpi-label">Likely Pipe Material</div><div class="kpi-value" style="font-size:18px">'+pipeMaterial(medianYear)+'</div><div class="kpi-sub">Based on construction era</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Pre-1980 Housing</div><div class="kpi-value">'+pctPre80+'%</div><div class="kpi-sub">Higher failure risk</div></div>'+
+      '</div>'+
+      '<div class="factor-row"><div class="factor-label">Pre-1960 Housing</div><div class="factor-bar"><div class="factor-bar-fill" style="width:'+pctPre60+'%;background:'+factorColor(pctPre60*1.5)+'"></div></div><div class="factor-score">'+pctPre60+'%</div></div>'+
+      '<div class="factor-row"><div class="factor-label">Pre-1980 Housing</div><div class="factor-bar"><div class="factor-bar-fill" style="width:'+pctPre80+'%;background:'+factorColor(pctPre80)+'"></div></div><div class="factor-score">'+pctPre80+'%</div></div>'+
+      '<table class="data-table" style="margin-top:16px">'+
+        '<thead><tr><th>Era</th><th>Common Materials</th><th>Failure Risk</th><th>Failure Mode</th><th>Interaction with Local Water</th></tr></thead>'+
+        '<tbody>'+eraRows+'</tbody>'+
+      '</table>'+
     '</div>'+
-    '<div class="alert-card danger"><h4>Without Namara</h4><p>Underwriting relies on geographic averages, construction-era estimates, and annual inspections. A home with a failing PRV, slow leak, or dangerous pressure levels looks identical to its neighbor. Risk is estimated, not measured.</p></div>'+
-    '<div class="alert-card info" style="border-left-color:var(--green)"><h4>With Namara</h4><p>Every equipped home becomes a real-time data source. Pressure anomalies are caught in minutes, not months. Small and large leaks are detected with automatic shut-off preventing damage. Freeze protection, thermal expansion relief, and pressure optimization keep the home safe. Underwriting shifts from geographic guessing to measured, per-property risk.</p></div>';
+    '<div class="card-section">'+
+      '<h3>Water Pressure Analysis</h3>'+
+      '<div class="card-sub">Municipal water pressure distribution and risk factors</div>'+
+      '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">'+
+        '<div class="kpi-card '+(pctOver>20?'elevated':'')+'"><div class="kpi-label">Over 80 PSI</div><div class="kpi-value">'+pctOver+'%</div><div class="kpi-sub">Overpressure</div></div>'+
+        '<div class="kpi-card '+(pctUnder>15?'elevated':'')+'"><div class="kpi-label">Under 40 PSI</div><div class="kpi-value">'+pctUnder+'%</div><div class="kpi-sub">Underpressure</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Variability</div><div class="kpi-value" style="font-size:18px">'+variability+'</div><div class="kpi-sub">Pressure consistency</div></div>'+
+      '</div>'+
+      '<table class="data-table">'+
+        '<thead><tr><th>Factor</th><th>Value</th><th>Risk</th><th>Insurance Impact</th></tr></thead>'+
+        '<tbody>'+pressureTableRows+'</tbody>'+
+      '</table>'+
+    '</div>'+
+    '<h3 style="font-size:16px;font-weight:700;margin:24px 0 12px">Why This Matters</h3>'+
+    '<div class="alert-card danger"><h4>Overpressure + Aging Pipes</h4><p>Water pressure above 80 PSI combined with aging infrastructure dramatically accelerates failure. Every 10 PSI above optimal reduces pipe lifespan by approximately 20%. Pre-1980 plumbing is especially vulnerable to pressure cycling and thermal expansion stress.</p></div>'+
+    '<div class="alert-card"><h4>PRV Failures</h4><p>Pressure reducing valves have a typical lifespan of 7-12 years. In areas with high pressure variability, PRV failure rates increase 3x. Most homeowners are unaware of PRV condition until failure — the #1 cause of catastrophic residential water events.</p></div>'+
+    '<div class="alert-card info"><h4>Namara Device Impact</h4><p>The Namara VFC provides real-time pressure monitoring, supply-side pressure relief, and thermal expansion protection — addressing both the infrastructure age risk and the pressure risk at the point of entry.</p></div>';
 }
 
 // ─── Render Claims Intelligence (Tab 6) ───
@@ -1122,6 +1009,17 @@ function renderClaims(d){
     '<div class="advantage-card">'+
       '<h3>Claims Reduction Potential</h3>'+
       '<p>Every claim type above maps directly to a Namara device capability. Pipe burst claims are prevented by freeze protection. Supply line and PRV failures are caught by continuous pressure monitoring. Slow leaks are detected at 1-5 GPD — weeks before they cause visible damage. Auto shut-off prevents catastrophic flooding from large leaks. Carriers deploying Namara can expect measurable claims reduction across all five categories.</p>'+
+    '</div>'+
+    '<div class="card-section" style="margin-top:24px">'+
+      '<h3>Public Data vs. Namara Device</h3>'+
+      '<div class="card-sub">The gap between geographic estimates and per-home intelligence</div>'+
+      '<div class="comparison-row header"><div>Data Layer</div><div>Public Data Only</div><div class="with-namara">With Namara Device</div></div>'+
+      '<div class="comparison-row"><div><strong>Water Pressure</strong></div><div>State-level avg ('+((d.layers.pressure||{}).data||{}).avg_psi+' PSI)</div><div class="with-namara">Real-time 20-sec pressure monitoring, per-home PSI tracking, anomaly detection</div></div>'+
+      '<div class="comparison-row"><div><strong>Leak Detection</strong></div><div>Not available</div><div class="with-namara">Small leak (1-5 GPD) and large leak (>5 GPD) continuous monitoring with instant alerts</div></div>'+
+      '<div class="comparison-row"><div><strong>Auto Shut-Off</strong></div><div>Not available</div><div class="with-namara">Automatic water shut-off on large leak detection, preventing catastrophic damage</div></div>'+
+      '<div class="comparison-row"><div><strong>Freeze Protection</strong></div><div>Weather station freeze days</div><div class="with-namara">In-pipe temperature monitoring, automatic freeze prevention activation</div></div>'+
+      '<div class="comparison-row"><div><strong>Thermal Expansion</strong></div><div>Not monitored</div><div class="with-namara">Thermal expansion relief protecting water heaters, pipes, and fixtures from pressure spikes</div></div>'+
+      '<div class="comparison-row"><div><strong>Pressure Optimization</strong></div><div>Not available</div><div class="with-namara">Supply-side pressure relief, optimized pressure for experience, safety, and savings</div></div>'+
     '</div>';
 }
 
@@ -1323,7 +1221,26 @@ function renderDeployment(d){
           '<tr><td><strong>Service Model</strong></td><td>Professional Install</td><td>Licensed plumber installs at point of entry</td></tr>'+
         '</tbody>'+
       '</table>'+
+    '</div>'+
+    '<div class="card-section">'+
+      '<h3>Loss Ratio Calculator</h3>'+
+      '<div class="card-sub">Model the impact of Namara deployment on your book\'s water loss ratio</div>'+
+      '<div class="calc-grid">'+
+        '<div>'+
+          '<div class="calc-input-group"><label>Equipped Homes <span id="calcHomesVal" class="range-val">5,000</span></label><input type="range" id="calcHomes" min="500" max="50000" step="500" value="5000" oninput="calcLossRatio()"></div>'+
+          '<div class="calc-input-group"><label>Avg Annual Premium ($)</label><input type="number" id="calcPremium" value="1800" oninput="calcLossRatio()"></div>'+
+          '<div class="calc-input-group"><label>Current Water Loss Ratio <span id="calcLossRatioInVal" class="range-val">45%</span></label><input type="range" id="calcLossRatioIn" min="20" max="80" value="45" oninput="calcLossRatio()"></div>'+
+          '<div class="calc-input-group"><label>Expected Claim Reduction <span id="calcReductionVal" class="range-val">30%</span></label><input type="range" id="calcReduction" min="10" max="60" value="30" oninput="calcLossRatio()"></div>'+
+          '<div class="calc-input-group"><label>Premium Discount Offered <span id="calcDiscountVal" class="range-val">5%</span></label><input type="range" id="calcDiscount" min="0" max="15" value="5" oninput="calcLossRatio()"></div>'+
+        '</div>'+
+        '<div class="calc-output" id="calcOutput">'+
+          '<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">Projected Impact</h3>'+
+          '<p style="color:var(--muted-dim);font-size:13px">Adjust the sliders to model different scenarios</p>'+
+        '</div>'+
+      '</div>'+
     '</div>';
+  // Auto-calculate on first render
+  setTimeout(calcLossRatio, 100);
 }
 
 // ─── Loss Ratio Calculator (Tab 7) ───
