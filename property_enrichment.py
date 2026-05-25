@@ -372,6 +372,26 @@ def enrich_property(address, city, state, zip_code):
     return None
 
 
+def clear_enrichment_cache(address=None, city=None, state=None, zip_code=None):
+    """
+    Clear enrichment cache entries.
+    If address components provided, clear only that property.
+    If no args, clear ALL cached entries.
+    Returns number of entries deleted.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    if address:
+        key = _cache_key(address, city, state, zip_code)
+        cursor = conn.execute("DELETE FROM property_enrichment_cache WHERE cache_key = ?", (key,))
+    else:
+        cursor = conn.execute("DELETE FROM property_enrichment_cache")
+    deleted = cursor.rowcount
+    conn.commit()
+    conn.close()
+    logger.info(f"Cleared {deleted} enrichment cache entries")
+    return deleted
+
+
 def get_enrichment_status():
     """Return status info about the enrichment system for the admin panel."""
     has_attom = bool(ATTOM_API_KEY)

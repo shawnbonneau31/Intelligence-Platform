@@ -673,6 +673,37 @@ class AdminUsersHandler(BaseHandler):
         self.write({"users": [dict(u) for u in users]})
 
 
+class AdminCacheClearHandler(BaseHandler):
+    def post(self):
+        user = self.require_auth()
+        if not user or not user.get("is_admin"):
+            self.set_status(403)
+            return self.write({"error": "Admin access required"})
+
+        try:
+            body = tornado.escape.json_decode(self.request.body) if self.request.body else {}
+        except:
+            body = {}
+
+        try:
+            from property_enrichment import clear_enrichment_cache
+            address = body.get("address")
+            if address:
+                deleted = clear_enrichment_cache(
+                    address=address,
+                    city=body.get("city", ""),
+                    state=body.get("state", ""),
+                    zip_code=body.get("zip_code", "")
+                )
+                self.write({"cleared": deleted, "scope": "single_property", "address": address})
+            else:
+                deleted = clear_enrichment_cache()
+                self.write({"cleared": deleted, "scope": "all"})
+        except Exception as e:
+            self.set_status(500)
+            self.write({"error": str(e)})
+
+
 # ─── Health & Info ───
 
 class HealthHandler(BaseHandler):
@@ -821,6 +852,7 @@ def make_app():
 
         # Admin
         (r"/api/v1/admin/users", AdminUsersHandler),
+        (r"/api/v1/admin/cache/clear", AdminCacheClearHandler),
 
         # Static files
         (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": os.path.join(BASE_DIR, "static")}),
