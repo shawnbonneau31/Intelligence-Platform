@@ -877,7 +877,7 @@ function renderPropertyScore(d) {
     '<div class="kpi-row">'+
       '<div class="kpi-card highlight"><div class="kpi-label">Property Risk Score</div><div class="kpi-value">'+cs+'/100</div><div class="kpi-sub">'+d.risk_level+'</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Property Factors</div><div class="kpi-value">'+(pf.subtotal||0)+'</div><div class="kpi-sub">Property-specific</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Environmental</div><div class="kpi-value">'+(ef.subtotal||0)+'</div><div class="kpi-sub">Environmental context</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Environmental</div><div class="kpi-value">'+(ef.subtotal||0)+'</div><div class="kpi-sub">Zip code area average</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Year Built</div><div class="kpi-value">'+(pd.year_built||'Unknown')+'</div><div class="kpi-sub">'+(pd.pipe_material||'est.')+' pipes</div></div>'+
       builderHTML+
     '</div>'+
@@ -1114,7 +1114,7 @@ function renderEnvironmental(d){
 
   document.getElementById('environmentalResult').innerHTML =
     '<div class="section-title">Environmental Risk — '+cityLabel+'</div>'+
-    '<div class="section-subtitle">Water quality chemistry and climate risk factors combined</div>'+
+    '<div class="section-subtitle">Water quality chemistry and climate risk factors for this zip code area</div>'+
     '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
       '<div class="kpi-card '+riskClass(wq.score||0)+'"><div class="kpi-label">Water Quality Risk</div><div class="kpi-value">'+(wq.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(wq.score||0)+'</div></div>'+
       '<div class="kpi-card '+riskClass(cl.score||0)+'"><div class="kpi-label">Climate Risk</div><div class="kpi-value">'+(cl.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(cl.score||0)+'</div></div>'+
@@ -1311,8 +1311,9 @@ function renderClaims(d){
   document.getElementById('claimsResult').innerHTML =
     '<div class="section-title">Supply-Side Claims Intelligence — '+cityLabel+'</div>'+
     '<div class="section-subtitle">Water damage claims frequency, severity, and Namara prevention mapping</div>'+
+    '<div style="margin:8px 0 12px;font-size:12px;color:var(--muted);font-style:italic">These scores reflect the average for zip code '+d.zip_code+', not a specific property.</div>'+
     '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
-      '<div class="kpi-card '+riskClass(clm.score||0)+'"><div class="kpi-label">Claims Risk Score</div><div class="kpi-value">'+(clm.score||0)+'/100</div><div class="kpi-sub">'+riskLabel(clm.score||0)+'</div></div>'+
+      '<div class="kpi-card '+riskClass(clm.score||0)+'"><div class="kpi-label">Claims Risk Score</div><div class="kpi-value">'+(clm.score||0)+'/100</div><div class="kpi-sub">Zip code avg — '+riskLabel(clm.score||0)+'</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Claims per 1,000 Homes</div><div class="kpi-value">'+freq+'</div><div class="kpi-sub">'+(freqVsNat>=0?'+':'')+freqVsNat+'% vs national avg</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Avg Claim Cost</div><div class="kpi-value">$'+avgCost.toLocaleString()+'</div><div class="kpi-sub">'+(costVsNat>=0?'+':'')+costVsNat+'% vs national avg</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Annual Exposure / 1K Homes</div><div class="kpi-value">$'+annualExposure.toLocaleString()+'K</div><div class="kpi-sub">Estimated annual loss</div></div>'+
