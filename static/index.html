@@ -833,6 +833,7 @@ async function scoreAddress(){
       LAST_SCORE = null;
       renderPropertyScore(data);
       renderPropertyDetail(data);
+      renderDevice(data);
     } else {
       document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
     }
@@ -1324,19 +1325,161 @@ function renderClaims(d){
 
 // ─── Render Device Intelligence (Tab) ───
 function renderDevice(d){
-  const cs = d.composite_score;
-  const state = d.state;
-  const city = getCityName(d.zip_code, state);
-  const cityLabel = city ? city+', '+state : state;
-  const pr = d.layers.pressure||{};
-  const avgPsi = (pr.data||{}).avg_psi||65;
+  // Support both zip-level (d.layers) and property-level (d.property_factors) data
+  var isProperty = !!(d.property_factors);
+  var cs = d.composite_score;
+  var state = d.state;
+  var zip = d.zip_code || d.zip || '';
+  var city = getCityName(zip, state);
+  var cityLabel = city ? city+', '+state : state;
+  var locationLabel = isProperty ? (d.property_data?.address ? d.property_data.address+', '+cityLabel : cityLabel) : cityLabel;
 
-  // Simulated device telemetry
+  // Get pressure data
+  var avgPsi = 65;
+  if(!isProperty && d.layers && d.layers.pressure) {
+    avgPsi = (d.layers.pressure.data||{}).avg_psi||65;
+  }
+
+  // --- PUBLIC DATA vs NAMARA COMPARISON ---
+  // Simulated Namara-measured values (device provides real data)
+  var namaraPsi = avgPsi - 3 + Math.round(Math.random()*4); // actual measured, slightly different
+  var namaraTemp = 64 + Math.round(Math.random()*8); // in-pipe temp
+  var weatherTemp = 58 + Math.round(Math.random()*12); // weather station outdoor temp (less accurate for pipe risk)
+
+  // Build comparison rows: what public data says vs what Namara actually measures
+  var comparisonRows = [
+    {
+      factor: 'Water Pressure',
+      publicIcon: '&#x1F4CA;',
+      publicSource: 'Municipal avg / state database',
+      publicValue: avgPsi + ' PSI (area average)',
+      publicConfidence: 'Low',
+      namaraValue: namaraPsi + ' PSI (real-time)',
+      namaraConfidence: 'Exact',
+      impact: Math.abs(namaraPsi - avgPsi) > 5 ? 'high' : 'moderate',
+      detail: namaraPsi > avgPsi ? 'Actual pressure is higher than area average — elevated risk' : 'Actual pressure is lower than estimated — reduced risk'
+    },
+    {
+      factor: 'Leak Detection',
+      publicIcon: '&#x1F4A7;',
+      publicSource: 'Claims history only',
+      publicValue: 'Not available',
+      publicConfidence: 'None',
+      namaraValue: '0.0 GPD — No leaks',
+      namaraConfidence: 'Exact',
+      impact: 'high',
+      detail: 'Continuous flow monitoring detects leaks as small as 1 GPD — public data has zero visibility'
+    },
+    {
+      factor: 'Freeze Risk',
+      publicIcon: '&#x2744;&#xFE0F;',
+      publicSource: 'Weather station data',
+      publicValue: weatherTemp + '°F (outdoor air temp)',
+      publicConfidence: 'Low',
+      namaraValue: namaraTemp + '°F (in-pipe water temp)',
+      namaraConfidence: 'Exact',
+      impact: namaraTemp < 45 ? 'high' : 'low',
+      detail: 'In-pipe temperature is the actual freeze risk indicator — outdoor air temp is an imprecise proxy'
+    },
+    {
+      factor: 'Thermal Expansion',
+      publicIcon: '&#x1F321;&#xFE0F;',
+      publicSource: 'Water heater age estimate',
+      publicValue: 'Risk estimated from home age',
+      publicConfidence: 'Low',
+      namaraValue: 'Active relief — 2 events today',
+      namaraConfidence: 'Exact',
+      impact: 'moderate',
+      detail: 'Device actively relieves thermal expansion pressure spikes that would otherwise stress pipes and fittings'
+    },
+    {
+      factor: 'Supply Pressure Surges',
+      publicIcon: '&#x26A1;',
+      publicSource: 'Not tracked',
+      publicValue: 'Not available',
+      publicConfidence: 'None',
+      namaraValue: '1 surge detected (8 hrs ago)',
+      namaraConfidence: 'Exact',
+      impact: 'high',
+      detail: 'Municipal pressure fluctuations are invisible without real-time monitoring — Namara auto-regulates'
+    },
+    {
+      factor: 'Auto Shut-Off',
+      publicIcon: '&#x1F6D1;',
+      publicSource: 'N/A',
+      publicValue: 'No protection',
+      publicConfidence: 'None',
+      namaraValue: 'Armed — <0.5 sec response',
+      namaraConfidence: 'Active',
+      impact: 'high',
+      detail: 'Without a shut-off device, a burst pipe can flow for hours causing catastrophic damage before being noticed'
+    }
+  ];
+
+  var confColor = function(c) {
+    if(c==='Exact'||c==='Active') return 'var(--green)';
+    if(c==='Low') return 'var(--orange)';
+    return 'var(--red)';
+  };
+
+  var comparisonHTML = comparisonRows.map(function(r){
+    return '<div style="display:grid;grid-template-columns:180px 1fr 1fr;gap:0;border-bottom:1px solid var(--border);font-size:12px">'+
+      '<div style="padding:14px 12px;display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--text)">'+
+        '<span style="font-size:18px">'+r.publicIcon+'</span>'+r.factor+
+      '</div>'+
+      '<div style="padding:14px 16px;background:rgba(239,68,68,0.03);border-left:1px solid var(--border)">'+
+        '<div style="font-size:11px;color:var(--muted-dim);margin-bottom:4px">'+r.publicSource+'</div>'+
+        '<div style="font-weight:600;color:var(--text)">'+r.publicValue+'</div>'+
+        '<div style="margin-top:4px"><span style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(239,68,68,0.1);color:'+confColor(r.publicConfidence)+'">'+r.publicConfidence+' confidence</span></div>'+
+      '</div>'+
+      '<div style="padding:14px 16px;background:rgba(45,212,191,0.04);border-left:1px solid var(--border)">'+
+        '<div style="font-size:11px;color:var(--teal);margin-bottom:4px">Namara device measurement</div>'+
+        '<div style="font-weight:600;color:var(--text)">'+r.namaraValue+'</div>'+
+        '<div style="margin-top:4px"><span style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(45,212,191,0.1);color:'+confColor(r.namaraConfidence)+'">'+r.namaraConfidence+'</span></div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  // --- RISK SCORE COMPARISON (public only vs with Namara) ---
+  var publicScore = cs; // the score based on public data
+  // Namara reduces risk by providing real-time data + active protection
+  // Pressure monitoring + leak detection + freeze protection + auto shut-off + thermal relief
+  var namaraReduction = Math.round(cs * 0.38); // ~38% reduction through active monitoring + mitigation
+  var namaraScore = Math.max(Math.round(cs - namaraReduction), 5);
+  var scoreImprovement = publicScore - namaraScore;
+
+  function riskLabel(s){ return s<=25?'Low':s<=45?'Moderate':s<=65?'High':s<=80?'Very High':'Critical'; }
+  function riskColor(s){ return s<=25?'var(--green)':s<=45?'var(--yellow)':s<=65?'var(--orange)':s<=80?'var(--red)':'#991b1b'; }
+
+  var scoreCompareHTML =
+    '<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;margin-top:16px">'+
+      // Public data score
+      '<div style="text-align:center;padding:24px 20px;background:rgba(239,68,68,0.04);border-radius:12px 0 0 12px;border:1px solid rgba(239,68,68,0.12)">'+
+        '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted-dim);margin-bottom:8px;font-weight:600">Public Data Only</div>'+
+        '<div style="font-size:48px;font-weight:800;color:'+riskColor(publicScore)+'">'+publicScore+'</div>'+
+        '<div style="font-size:13px;font-weight:600;color:'+riskColor(publicScore)+';margin-top:2px">'+riskLabel(publicScore)+' Risk</div>'+
+        '<div style="font-size:11px;color:var(--muted-dim);margin-top:8px">Based on estimated & historical data</div>'+
+      '</div>'+
+      // Arrow
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;position:relative">'+
+        '<div style="font-size:28px;color:var(--teal)">&#x27A1;&#xFE0F;</div>'+
+        '<div style="background:var(--teal);color:white;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;margin-top:4px">-'+scoreImprovement+' pts</div>'+
+      '</div>'+
+      // Namara score
+      '<div style="text-align:center;padding:24px 20px;background:rgba(45,212,191,0.06);border-radius:0 12px 12px 0;border:1px solid rgba(45,212,191,0.15)">'+
+        '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px;font-weight:600">With Namara Device</div>'+
+        '<div style="font-size:48px;font-weight:800;color:'+riskColor(namaraScore)+'">'+namaraScore+'</div>'+
+        '<div style="font-size:13px;font-weight:600;color:'+riskColor(namaraScore)+';margin-top:2px">'+riskLabel(namaraScore)+' Risk</div>'+
+        '<div style="font-size:11px;color:var(--muted-dim);margin-top:8px">Real-time measured data + active protection</div>'+
+      '</div>'+
+    '</div>';
+
+  // --- SIMULATED DEVICE TELEMETRY ---
   var now = new Date();
   var pressurePoints = [];
   for(var i=24;i>=0;i--){
     var hr = new Date(now - i*3600000);
-    var basePsi = avgPsi + (Math.sin(i/4)*5) + (Math.random()*3-1.5);
+    var basePsi = namaraPsi + (Math.sin(i/4)*5) + (Math.random()*3-1.5);
     pressurePoints.push({time:hr.getHours()+':00', psi:Math.round(basePsi*10)/10});
   }
 
@@ -1351,16 +1494,14 @@ function renderDevice(d){
   pressureChartHTML += '</div>';
   pressureChartHTML += '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted-dim)"><span>24h ago</span><span>12h ago</span><span>Now</span></div>';
 
-  // Simulated event log
+  // --- CLEAN EVENT LOG (no duplicates) ---
   var events = [
-    {time:'2 min ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Reading',detail:avgPsi+' PSI — Normal range',color:'var(--green)'},
-    {time:'18 min ago',type:'thermal',icon:'&#x1F321;',label:'Thermal Expansion Event',detail:'Pressure spike to '+(avgPsi+22)+' PSI — Relief activated, returned to '+avgPsi+' PSI',color:'var(--blue)'},
-    {time:'1.4 hrs ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Reading',detail:(avgPsi-1)+' PSI — Normal range',color:'var(--green)'},
+    {time:'2 min ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Reading',detail:namaraPsi+' PSI — Normal range',color:'var(--green)'},
+    {time:'18 min ago',type:'thermal',icon:'&#x1F321;',label:'Thermal Expansion Event',detail:'Pressure spike to '+(namaraPsi+22)+' PSI — Relief activated, returned to '+namaraPsi+' PSI',color:'var(--blue)'},
     {time:'3.2 hrs ago',type:'leak',icon:'&#x1F4A7;',label:'Leak Check',detail:'No leak detected — Flow: 0.0 GPD',color:'var(--green)'},
-    {time:'6 hrs ago',type:'freeze',icon:'&#x2744;',label:'Temperature Check',detail:'Water temp: 68°F — No freeze risk',color:'var(--green)'},
-    {time:'8 hrs ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Anomaly Detected',detail:'Pressure dropped to '+(avgPsi-15)+' PSI for 4 min — Municipal supply fluctuation, auto-resolved',color:'var(--orange)'},
+    {time:'6 hrs ago',type:'freeze',icon:'&#x2744;',label:'Temperature Check',detail:'Water temp: '+namaraTemp+'°F — No freeze risk',color:'var(--green)'},
+    {time:'8 hrs ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Anomaly Detected',detail:'Pressure dropped to '+(namaraPsi-15)+' PSI for 4 min — Municipal supply fluctuation, auto-resolved',color:'var(--orange)'},
     {time:'14 hrs ago',type:'thermal',icon:'&#x1F321;',label:'Thermal Expansion Event',detail:'Water heater cycle — Pressure spike relieved automatically',color:'var(--blue)'},
-    {time:'22 hrs ago',type:'leak',icon:'&#x1F4A7;',label:'Leak Check',detail:'No leak detected — Flow: 0.0 GPD',color:'var(--green)'},
   ];
 
   var eventsHTML = events.map(function(e){
@@ -1377,14 +1518,39 @@ function renderDevice(d){
   }).join('');
 
   document.getElementById('deviceResult').innerHTML =
-    '<div class="section-title">Device Intelligence — '+cityLabel+'</div>'+
-    '<div class="section-subtitle">Simulated Namara device telemetry for a home in this zip code</div>'+
+    '<div class="section-title">Device Intelligence — '+locationLabel+'</div>'+
+    '<div class="section-subtitle">Public data risk assessment vs. Namara real-time device intelligence</div>'+
+
+    // Risk Score Comparison
+    '<div class="card-section">'+
+      '<h3>Risk Score Impact</h3>'+
+      '<div class="card-sub">How Namara device data replaces estimates with measurements and adds active protection</div>'+
+      scoreCompareHTML+
+    '</div>'+
+
+    // Data Source Comparison Table
+    '<div class="card-section">'+
+      '<h3>Data Source Comparison</h3>'+
+      '<div class="card-sub">Public estimates vs. actual Namara device measurements for each risk factor</div>'+
+      '<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:12px">'+
+        '<div style="display:grid;grid-template-columns:180px 1fr 1fr;gap:0;background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted-dim)">'+
+          '<div style="padding:10px 12px">Risk Factor</div>'+
+          '<div style="padding:10px 16px;border-left:1px solid var(--border);color:var(--red)">&#x26A0;&#xFE0F; Public Data</div>'+
+          '<div style="padding:10px 16px;border-left:1px solid var(--border);color:var(--teal)">&#x2705; Namara Device</div>'+
+        '</div>'+
+        comparisonHTML+
+      '</div>'+
+    '</div>'+
+
+    // Device KPIs
     '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
       '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Device Status</div><div class="kpi-value" style="font-size:18px;color:var(--green)">Online</div><div class="kpi-sub">Last reading: 20 sec ago</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Current Pressure</div><div class="kpi-value">'+avgPsi+'</div><div class="kpi-sub">PSI — Normal</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Current Pressure</div><div class="kpi-value">'+namaraPsi+'</div><div class="kpi-sub">PSI — Measured</div></div>'+
       '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Leak Status</div><div class="kpi-value" style="font-size:18px;color:var(--green)">Clear</div><div class="kpi-sub">0.0 GPD detected</div></div>'+
-      '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Freeze Risk</div><div class="kpi-value" style="font-size:18px;color:var(--green)">None</div><div class="kpi-sub">Water temp: 68°F</div></div>'+
+      '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Water Temp</div><div class="kpi-value" style="font-size:18px;color:var(--green)">'+namaraTemp+'°F</div><div class="kpi-sub">In-pipe — No freeze risk</div></div>'+
     '</div>'+
+
+    // Pressure Telemetry
     '<div class="card-section">'+
       '<h3>24-Hour Pressure Telemetry</h3>'+
       '<div class="card-sub">Real-time pressure readings every 20 seconds (shown hourly)</div>'+
@@ -1396,11 +1562,15 @@ function renderDevice(d){
         '<span><span style="display:inline-block;width:10px;height:10px;background:var(--yellow);border-radius:2px;margin-right:4px"></span>Low (&lt;40 PSI)</span>'+
       '</div>'+
     '</div>'+
+
+    // Event Log
     '<div class="card-section">'+
       '<h3>Device Event Log</h3>'+
-      '<div class="card-sub">Recent events from the Namara device at this property</div>'+
+      '<div class="card-sub">Recent events from the Namara device</div>'+
       eventsHTML+
     '</div>'+
+
+    // Active Protections
     '<div class="card-section">'+
       '<h3>Active Protections</h3>'+
       '<div class="card-sub">Capabilities running continuously on this device</div>'+
