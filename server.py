@@ -361,8 +361,8 @@ class PropertyScoreHandler(BaseHandler):
             total_permits=int(self.get_argument("total_permits", "0")),
             last_permit_year=int(self.get_argument("last_permit_year", "0")) or None,
             sqft=int(self.get_argument("sqft", "0")) or None,
-            stories=int(self.get_argument("stories", "1")),
-            bathrooms=float(self.get_argument("bathrooms", "2.0")),
+            stories=int(self.get_argument("stories", "0")) or None,
+            bathrooms=float(self.get_argument("bathrooms", "0")) or None,
         )
         elapsed = round((time.time() - start) * 1000, 1)
         result["response_time_ms"] = elapsed
@@ -411,8 +411,8 @@ class PropertyScoreHandler(BaseHandler):
             total_permits=body.get("total_permits", 0),
             last_permit_year=body.get("last_permit_year"),
             sqft=body.get("sqft"),
-            stories=body.get("stories", 1),
-            bathrooms=body.get("bathrooms", 2.0),
+            stories=body.get("stories"),
+            bathrooms=body.get("bathrooms"),
         )
         elapsed = round((time.time() - start) * 1000, 1)
         result["response_time_ms"] = elapsed

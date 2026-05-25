@@ -845,7 +845,7 @@ def compute_property_score(address, city, state, zip_code,
                             has_prv=False, has_expansion_tank=False,
                             prior_claims=0, prior_claim_cost=0,
                             total_permits=0, last_permit_year=None,
-                            sqft=None, stories=1, bathrooms=2.0):
+                            sqft=None, stories=None, bathrooms=None):
     """
     Compute address-level property risk score.
     Combines property-specific factors (~60%) with environmental context (~40%).
@@ -860,14 +860,24 @@ def compute_property_score(address, city, state, zip_code,
 
     # Tier 1: User-provided values are already in function params (highest priority)
 
-    # Tier 2: Local database lookup
+    # Track data source for each field: "user" > "db" > "attom" > "default"
+    data_sources = {}
+
+    # Tier 2: Local database lookup — fills gaps left by user input
     db_property = lookup_property(address, city, state, zip_code)
     if db_property:
-        year_built = year_built or db_property.get("year_built")
-        pipe_material = pipe_material or db_property.get("pipe_material")
-        builder_id = builder_id or db_property.get("builder_id")
-        builder_name = builder_name or db_property.get("builder_name")
-        water_heater_age = water_heater_age if water_heater_age is not None else db_property.get("water_heater_age_years")
+        if year_built is None and db_property.get("year_built"):
+            year_built = db_property["year_built"]
+            data_sources["year_built"] = "db"
+        if not pipe_material and db_property.get("pipe_material"):
+            pipe_material = db_property["pipe_material"]
+            data_sources["pipe_material"] = "db"
+        if not builder_id and db_property.get("builder_id"):
+            builder_id = db_property["builder_id"]
+        if not builder_name and db_property.get("builder_name"):
+            builder_name = db_property["builder_name"]
+        if water_heater_age is None and db_property.get("water_heater_age_years") is not None:
+            water_heater_age = db_property["water_heater_age_years"]
         water_heater_type = water_heater_type or db_property.get("water_heater_type", "tank")
         has_prv = has_prv or bool(db_property.get("has_prv"))
         has_expansion_tank = has_expansion_tank or bool(db_property.get("has_expansion_tank"))
@@ -875,11 +885,27 @@ def compute_property_score(address, city, state, zip_code,
         prior_claim_cost = prior_claim_cost or db_property.get("prior_claim_total_cost", 0)
         total_permits = total_permits or db_property.get("total_plumbing_permits", 0)
         last_permit_year = last_permit_year or db_property.get("last_plumbing_permit_year")
-        sqft = sqft or db_property.get("sqft")
-        stories = stories or db_property.get("stories", 1)
-        bathrooms = bathrooms or db_property.get("bathrooms", 2.0)
+        if sqft is None and db_property.get("sqft"):
+            sqft = db_property["sqft"]
+            data_sources["sqft"] = "db"
+        if stories is None and db_property.get("stories") is not None:
+            stories = db_property["stories"]
+            data_sources["stories"] = "db"
+        if bathrooms is None and db_property.get("bathrooms") is not None:
+            bathrooms = db_property["bathrooms"]
+            data_sources["bathrooms"] = "db"
 
-    # Tier 3: External property data API (ATTOM) — fills remaining gaps
+    # Mark user-provided fields (anything set before DB lookup)
+    if year_built is not None and "year_built" not in data_sources:
+        data_sources["year_built"] = "user"
+    if sqft is not None and "sqft" not in data_sources:
+        data_sources["sqft"] = "user"
+    if stories is not None and "stories" not in data_sources:
+        data_sources["stories"] = "user"
+    if bathrooms is not None and "bathrooms" not in data_sources:
+        data_sources["bathrooms"] = "user"
+
+    # Tier 3: External property data API (ATTOM) — fills remaining gaps ONLY
     enrichment_data = None
     enrichment_source = None
     try:
@@ -888,19 +914,29 @@ def compute_property_score(address, city, state, zip_code,
         if enrichment_data:
             enrichment_source = enrichment_data.get("provider", "external")
             logger.info(f"Property enrichment from {enrichment_source}: {list(enrichment_data.keys())}")
-            # Only fill in fields that are still missing after user input + DB
-            if not year_built and enrichment_data.get("year_built"):
+            # Only fill in fields that are still None after user input + DB
+            if year_built is None and enrichment_data.get("year_built"):
                 year_built = enrichment_data["year_built"]
-            if not sqft and enrichment_data.get("sqft"):
+                data_sources["year_built"] = "attom"
+            if sqft is None and enrichment_data.get("sqft"):
                 sqft = enrichment_data["sqft"]
-            if (not stories or stories == 1) and enrichment_data.get("stories"):
+                data_sources["sqft"] = "attom"
+            if stories is None and enrichment_data.get("stories") is not None:
                 stories = enrichment_data["stories"]
-            if (not bathrooms or bathrooms == 2.0) and enrichment_data.get("bathrooms"):
+                data_sources["stories"] = "attom"
+            if bathrooms is None and enrichment_data.get("bathrooms") is not None:
                 bathrooms = enrichment_data["bathrooms"]
+                data_sources["bathrooms"] = "attom"
     except ImportError:
         logger.debug("Property enrichment module not available")
     except Exception as e:
         logger.warning(f"Property enrichment failed: {e}")
+
+    # Apply defaults for any fields still None (display only, not used in scoring)
+    if stories is None:
+        stories = 1
+    if bathrooms is None:
+        bathrooms = 2.0
 
     # Estimate pipe material if not provided
     pipe_source = "provided"
@@ -1090,6 +1126,7 @@ def compute_property_score(address, city, state, zip_code,
             "from_database": bool(db_property),
             "enrichment_source": enrichment_source,
             "enrichment_data": enrichment_data if enrichment_data else None,
+            "data_sources": data_sources,
         },
         "property_factors": {
             "home_age": {"score": age_score},
