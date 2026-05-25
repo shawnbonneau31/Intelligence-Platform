@@ -557,6 +557,18 @@ const API = window.location.origin;
 let TOKEN = null;
 let USER = null;
 let LAST_SCORE = null;
+let LAST_PROPERTY_SCORE = null;
+
+// ─── Auto-logout on auth failure ───
+function handleAuthError(resp) {
+  if (resp.status === 401 || resp.status === 403) {
+    logout();
+    document.getElementById('loginError').textContent = 'Session expired. Please log in again.';
+    document.getElementById('loginError').style.display = 'block';
+    return true;
+  }
+  return false;
+}
 
 // ─── ZIP to City Name Mapping ───
 const ZIP_CITIES = {
@@ -688,7 +700,6 @@ function showApp(){
   document.getElementById('app').style.display='block';
   loadStates();
   loadBuilders();
-  calcLossRatio();
 }
 
 function authHeaders(){ return {'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'}; }
@@ -721,7 +732,6 @@ function phLevel(ph){
 
 // ─── Search Mode ───
 let SEARCH_MODE = 'zip';
-let LAST_PROPERTY_SCORE = null;
 
 function setSearchMode(mode) {
   SEARCH_MODE = mode;
@@ -767,6 +777,7 @@ async function scoreZip(){
 
   try{
     const resp = await fetch(API+'/api/v1/score?zip='+zip, {headers:authHeaders()});
+    if(handleAuthError(resp)) return;
     const data = await resp.json();
     if(resp.ok) {
       LAST_SCORE = data;
@@ -815,6 +826,7 @@ async function scoreAddress(){
     const resp = await fetch(API+'/api/v1/property/score', {
       method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
     });
+    if(handleAuthError(resp)) return;
     const data = await resp.json();
     if(resp.ok) {
       LAST_PROPERTY_SCORE = data;
@@ -901,6 +913,13 @@ function renderPropertyScore(d) {
       '<div class="comp-sub">60% property-specific factors <span style="color:var(--blue)">&#9679;</span> + 40% environmental context <span style="color:var(--teal)">&#9679;</span></div>'+
       '<div class="gradient-bar"><div class="gradient-marker" style="left:'+markerPct+'%"></div></div>'+
       '<div class="gradient-labels"><span>Low (0-25)</span><span>Moderate (26-45)</span><span>High (46-65)</span><span>Very High (66-80)</span><span>Critical (81+)</span></div>'+
+      '<div style="margin-top:16px;padding:16px 20px;background:rgba(37,99,235,0.06);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;font-size:13px;color:var(--muted);line-height:1.6">'+
+        '<strong style="color:var(--text)">Understanding This Score</strong><br>'+
+        'A <strong style="color:var(--green)">lower score means lower risk</strong> — the property has fewer factors that contribute to water damage claims. '+
+        'A <strong style="color:var(--red)">higher score indicates elevated risk</strong> — compounding factors like aging pipes, prior claims, or lack of protection devices increase the likelihood of a water loss event. '+
+        'The score combines property-specific factors (60%) such as pipe material, home age, and claims history with environmental context (40%) including water quality, climate, and area-wide claims data. '+
+        'Properties scoring above 45 benefit most from Namara device deployment, which actively mitigates the specific risk factors identified.'+
+      '</div>'+
     '</div>'+
     '<div class="breakdown-section">'+
       '<h3>Risk Factor Breakdown</h3>'+
@@ -1019,6 +1038,13 @@ function renderScore(d){
       '<div class="comp-sub">Weighted assessment across 7 data layers including claims intelligence</div>'+
       '<div class="gradient-bar"><div class="gradient-marker" style="left:'+markerPct+'%"></div></div>'+
       '<div class="gradient-labels"><span>Low (0-25)</span><span>Moderate (26-45)</span><span>Elevated (46-65)</span><span>High (66-100)</span></div>'+
+      '<div style="margin-top:16px;padding:16px 20px;background:rgba(37,99,235,0.06);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;font-size:13px;color:var(--muted);line-height:1.6">'+
+        '<strong style="color:var(--text)">Understanding This Score</strong><br>'+
+        'A <strong style="color:var(--green)">lower score means lower risk</strong> — this zip code has fewer factors contributing to water damage claims. '+
+        'A <strong style="color:var(--red)">higher score indicates elevated risk</strong> — compounding factors like aging infrastructure, water quality issues, or high claims frequency increase the likelihood of water loss events in this area. '+
+        'The composite score weighs 7 data layers: claims history (20%), climate &amp; freeze risk (15%), water quality (15%), infrastructure age (15%), water pressure (15%), builder quality (10%), and regulatory environment (10%). '+
+        'For property-specific scoring, switch to Full Address mode above.'+
+      '</div>'+
     '</div>'+
     '<div class="breakdown-section">'+
       '<h3>Risk Factor Breakdown</h3>'+
@@ -1518,6 +1544,7 @@ function renderDeployment(d){
 
 // ─── Loss Ratio Calculator (Tab 7) ───
 function calcLossRatio(){
+  if(!document.getElementById('calcHomes')) return;
   const homes = parseInt(document.getElementById('calcHomes').value)||5000;
   const premium = parseInt(document.getElementById('calcPremium').value)||1800;
   const currentLR = parseInt(document.getElementById('calcLossRatioIn').value)||45;
@@ -1712,13 +1739,26 @@ function switchTab(tab, el){
 }
 
 // ─── Init ───
-(function(){
+(async function(){
   var savedToken = localStorage.getItem('nmr_token');
   var savedUser = localStorage.getItem('nmr_user');
   if(savedToken && savedUser){
     TOKEN = savedToken;
     USER = JSON.parse(savedUser);
-    showApp();
+    // Verify token is still valid
+    try {
+      var resp = await fetch(API+'/api/v1/auth/profile', {headers:{'Authorization':'Bearer '+TOKEN}});
+      if(resp.ok) {
+        showApp();
+      } else {
+        // Token expired or invalid — force re-login
+        logout();
+        document.getElementById('loginError').textContent = 'Session expired. Please log in again.';
+        document.getElementById('loginError').style.display = 'block';
+      }
+    } catch(e) {
+      showApp(); // offline/error — try anyway
+    }
   }
 })();
 </script>
