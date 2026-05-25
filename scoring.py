@@ -678,10 +678,53 @@ PIPE_RISK_SCORES = {
 }
 
 
-def estimate_pipe_material(year_built):
-    """Estimate pipe material from year built."""
+def estimate_pipe_material(year_built, construction_type=None):
+    """
+    Estimate pipe material from year built, refined by construction type.
+    Construction type from ATTOM helps narrow the estimate:
+    - Wood frame homes from 1950-1980 are more likely to have galvanized pipes
+    - Concrete/masonry homes in the same era more often used copper early
+    - Manufactured/mobile homes have higher risk of polybutylene (1978-1995)
+    """
     if not year_built:
         return "unknown", 50
+
+    ct = (construction_type or "").lower()
+
+    # Manufactured/mobile homes: high polybutylene risk in the PB era
+    if ct and any(k in ct for k in ("manufactured", "mobile", "modular")):
+        if 1978 <= year_built <= 1995:
+            return "polybutylene", 88
+        elif year_built < 1978:
+            return "galvanized", 80
+
+    # Concrete/masonry homes adopted copper earlier than wood frame
+    if ct and any(k in ct for k in ("concrete", "masonry", "block", "brick", "stucco")):
+        if year_built <= 1940:
+            return "lead/galvanized", 95
+        elif year_built <= 1955:
+            return "galvanized", 80
+        elif year_built <= 1985:
+            return "copper", 35        # masonry used copper earlier
+        elif year_built <= 2005:
+            return "copper/cpvc", 25
+        else:
+            return "pex", 10
+
+    # Wood frame: higher chance of galvanized lasting into the 1970s
+    if ct and any(k in ct for k in ("wood", "frame", "timber")):
+        if year_built <= 1940:
+            return "lead/galvanized", 95
+        elif year_built <= 1970:
+            return "galvanized", 80    # wood frame kept galvanized longer
+        elif year_built <= 1990:
+            return "copper/galvanized", 55
+        elif year_built <= 2005:
+            return "copper/cpvc", 25
+        else:
+            return "pex", 10
+
+    # Default: year-only estimation (no construction type available)
     for threshold, material, risk in PIPE_MATERIAL_FROM_YEAR:
         if year_built <= threshold:
             return material, risk
@@ -775,20 +818,101 @@ def score_property_age(year_built):
         return 92.0
 
 
-def score_pipe_material(pipe_material, year_built):
-    """Score pipe material risk 0-100."""
+def score_pipe_material(pipe_material, year_built, construction_type=None, quality_rating=None):
+    """
+    Score pipe material risk 0-100.
+    Uses construction_type to refine pipe estimation when material is unknown.
+    Uses quality_rating as a modifier — higher quality builds correlate with
+    better plumbing materials and installation.
+    """
     if pipe_material and pipe_material.lower() != "unknown":
-        return PIPE_RISK_SCORES.get(pipe_material.lower(), 50)
-    # Estimate from year built
-    _, risk = estimate_pipe_material(year_built)
-    return risk
+        base_risk = PIPE_RISK_SCORES.get(pipe_material.lower(), 50)
+    else:
+        # Estimate from year built + construction type
+        _, base_risk = estimate_pipe_material(year_built, construction_type)
+
+    # Quality rating modifier: high-quality homes get a small risk reduction,
+    # low-quality homes get a small increase. Typical ATTOM values are
+    # letter grades or descriptions like "Excellent", "Good", "Average", "Fair", "Poor"
+    if quality_rating:
+        qr = str(quality_rating).strip().lower()
+        if qr in ("excellent", "a+", "a", "superior", "luxury"):
+            base_risk = max(base_risk - 8, 5)
+        elif qr in ("good", "above average", "b+", "b"):
+            base_risk = max(base_risk - 4, 5)
+        elif qr in ("fair", "below average", "d", "d+"):
+            base_risk = min(base_risk + 4, 98)
+        elif qr in ("poor", "substandard", "f", "e"):
+            base_risk = min(base_risk + 8, 98)
+        # "average", "c", or unrecognized values: no adjustment
+
+    return float(base_risk)
+
+
+def infer_water_heater_from_heating(heating_type):
+    """
+    Infer water heater characteristics from ATTOM heating_type.
+    Homes with hydronic/boiler heating often have indirect water heaters
+    (longer lifespan, different failure profile). Homes with radiant electric
+    may have tankless or heat pump water heaters.
+    Returns (heater_type, age_adjustment) where age_adjustment modifies
+    the effective age for risk scoring.
+    """
+    if not heating_type:
+        return None, 0
+
+    ht = heating_type.lower()
+
+    # Hydronic/boiler systems: indirect water heaters last 20-30 years
+    if any(k in ht for k in ("boiler", "hydronic", "radiant hot water", "baseboard hot water", "steam")):
+        return "indirect_tank", 0  # handled as tankless-like lifespan
+
+    # Heat pump / geothermal: often paired with heat pump water heaters
+    if any(k in ht for k in ("heat pump", "geothermal")):
+        return "heat_pump_tank", 0
+
+    # Standard forced air, wall furnace, etc.: standard tank water heater
+    return None, 0
 
 
 def score_water_heater_risk(age_years, heater_type="tank"):
     """Score water heater failure risk 0-100."""
     if age_years is None:
+        # When age is unknown, heater type still tells us something about
+        # the baseline risk profile
+        if heater_type in ("tankless", "indirect_tank"):
+            return 30.0   # longer-lived heater types = lower baseline
+        elif heater_type == "heat_pump_tank":
+            return 35.0   # heat pump tanks last ~10-15 years
         return 40.0
-    # Tank heaters: avg lifespan 8-12 years, tankless: 15-20 years
+
+    # Indirect tank heaters (boiler-fed): avg lifespan 20-30 years
+    if heater_type == "indirect_tank":
+        if age_years <= 8:
+            return 5.0
+        elif age_years <= 15:
+            return 15.0
+        elif age_years <= 20:
+            return 30.0
+        elif age_years <= 25:
+            return 50.0
+        else:
+            return 75.0
+
+    # Heat pump water heaters: avg lifespan 10-15 years
+    if heater_type == "heat_pump_tank":
+        if age_years <= 4:
+            return 8.0
+        elif age_years <= 8:
+            return 20.0
+        elif age_years <= 12:
+            return 40.0
+        elif age_years <= 15:
+            return 65.0
+        else:
+            return 88.0
+
+    # Tankless: avg lifespan 15-20 years
     if heater_type == "tankless":
         if age_years <= 5:
             return 8.0
@@ -800,19 +924,20 @@ def score_water_heater_risk(age_years, heater_type="tank"):
             return 60.0
         else:
             return 85.0
-    else:  # tank
-        if age_years <= 3:
-            return 8.0
-        elif age_years <= 6:
-            return 18.0
-        elif age_years <= 8:
-            return 35.0
-        elif age_years <= 10:
-            return 55.0
-        elif age_years <= 12:
-            return 75.0
-        else:
-            return 92.0
+
+    # Standard tank: avg lifespan 8-12 years
+    if age_years <= 3:
+        return 8.0
+    elif age_years <= 6:
+        return 18.0
+    elif age_years <= 8:
+        return 35.0
+    elif age_years <= 10:
+        return 55.0
+    elif age_years <= 12:
+        return 75.0
+    else:
+        return 92.0
 
 
 def score_permit_history(total_permits, last_permit_year, year_built):
@@ -1015,6 +1140,9 @@ def compute_property_score(address, city, state, zip_code,
     # Tier 3: External property data API (ATTOM) — fills remaining gaps ONLY
     enrichment_data = None
     enrichment_source = None
+    construction_type = None
+    heating_type = None
+    quality_rating = None
     try:
         from property_enrichment import enrich_property
         enrichment_data = enrich_property(address, city, state, zip_code)
@@ -1034,6 +1162,22 @@ def compute_property_score(address, city, state, zip_code,
             if bathrooms is None and enrichment_data.get("bathrooms") is not None:
                 bathrooms = enrichment_data["bathrooms"]
                 data_sources["bathrooms"] = "attom"
+
+            # Extract fields that refine scoring (not direct score inputs,
+            # but improve pipe material estimation and heater risk assessment)
+            construction_type = enrichment_data.get("construction_type")
+            heating_type = enrichment_data.get("heating_type")
+            quality_rating = enrichment_data.get("quality_rating")
+
+            if construction_type:
+                data_sources["construction_type"] = "attom"
+                logger.info(f"ATTOM construction_type: {construction_type}")
+            if heating_type:
+                data_sources["heating_type"] = "attom"
+                logger.info(f"ATTOM heating_type: {heating_type}")
+            if quality_rating:
+                data_sources["quality_rating"] = "attom"
+                logger.info(f"ATTOM quality_rating: {quality_rating}")
     except ImportError:
         logger.debug("Property enrichment module not available")
     except Exception as e:
@@ -1045,21 +1189,29 @@ def compute_property_score(address, city, state, zip_code,
     if bathrooms is None:
         bathrooms = 2.0
 
-    # Estimate pipe material if not provided
+    # Estimate pipe material if not provided — now uses construction_type for refinement
     pipe_source = "provided"
     if not pipe_material or pipe_material.lower() == "unknown":
-        pipe_material, _ = estimate_pipe_material(year_built)
-        pipe_source = "estimated_from_year"
+        pipe_material, _ = estimate_pipe_material(year_built, construction_type)
+        pipe_source = "estimated_from_year" if not construction_type else "estimated_from_year_and_construction"
+
+    # Infer water heater type from ATTOM heating_type when not user-specified
+    if water_heater_type == "tank" and heating_type:
+        inferred_type, _ = infer_water_heater_from_heating(heating_type)
+        if inferred_type:
+            water_heater_type = inferred_type
+            data_sources["water_heater_type"] = "inferred_from_heating"
+            logger.info(f"Inferred water heater type '{inferred_type}' from heating '{heating_type}'")
 
     # ─── Property-Level Factors (60% of total) ───
 
     # 1. Home age (15%)
     age_score = score_property_age(year_built)
 
-    # 2. Pipe material (15%)
-    pipe_score = score_pipe_material(pipe_material, year_built)
+    # 2. Pipe material (15%) — quality_rating adjusts score ±8 points max
+    pipe_score = score_pipe_material(pipe_material, year_built, construction_type, quality_rating)
 
-    # 3. Water heater (10%)
+    # 3. Water heater (10%) — heater_type may be refined by ATTOM heating_type
     heater_score = score_water_heater_risk(water_heater_age, water_heater_type)
 
     # 4. Plumbing permit/maintenance history (8%)
