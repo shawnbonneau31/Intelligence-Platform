@@ -189,18 +189,39 @@ a:hover{text-decoration:underline}
 .grade-badge{display:inline-block;width:28px;height:28px;border-radius:6px;text-align:center;line-height:28px;font-weight:700;font-size:13px;color:#fff}
 .grade-A{background:var(--green)}.grade-B{background:var(--blue)}.grade-C{background:var(--yellow)}.grade-D{background:var(--red)}
 
-/* ── Loss Ratio Calculator ── */
-.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+/* ── ROI Calculator ── */
+.calc-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0}
+.calc-tab{padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted-dim);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s}
+.calc-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.calc-tab:hover{color:#1e293b}
+.calc-panel{display:none}
+.calc-panel.active{display:block}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:24px}
 .calc-input-group{margin-bottom:16px}
 .calc-input-group label{display:block;font-size:12px;font-weight:600;color:var(--muted-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
 .calc-input-group input[type="range"]{width:100%;margin-bottom:4px;accent-color:var(--blue)}
 .calc-input-group .range-val{font-size:18px;font-weight:700;color:#1e293b}
 .calc-input-group input[type="number"]{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fff;color:#1e293b}
-.calc-output{background:linear-gradient(135deg,rgba(37,99,235,0.1),rgba(45,212,191,0.1));border-radius:12px;padding:24px;border:1px solid rgba(45,212,191,0.25)}
-.calc-metric{margin-bottom:16px}
-.calc-metric .calc-metric-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted-dim);margin-bottom:4px}
-.calc-metric .calc-metric-value{font-size:24px;font-weight:800;color:#1e293b}
-.calc-metric .calc-metric-value.positive{color:var(--green)}
+.calc-help{font-size:11px;color:var(--muted-dim);margin-top:4px;line-height:1.4}
+.calc-output{background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(45,212,191,0.06));border-radius:12px;padding:24px;border:1px solid rgba(45,212,191,0.25)}
+.calc-row{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid rgba(45,212,191,0.15)}
+.calc-row:last-child{border-bottom:none}
+.calc-row-label{font-size:13px;color:var(--muted-dim)}
+.calc-row-value{font-size:15px;font-weight:700;color:#1e293b}
+.calc-row-value.neg{color:#ef4444}
+.calc-row-value.pos{color:var(--green)}
+.calc-separator{text-align:center;font-size:13px;color:var(--muted-dim);padding:8px 0;font-weight:600}
+.calc-bottom{background:#f0fdf4;border:2px solid var(--green);border-radius:12px;padding:20px;margin-top:16px;text-align:center}
+.calc-bottom-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--green)}
+.calc-bottom-val{font-size:28px;font-weight:800;color:var(--green);margin:4px 0}
+.calc-bottom-sub{font-size:12px;color:#16a34a}
+.calc-assumptions{font-size:11px;color:var(--muted-dim);line-height:1.5;margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
+.calc-slider-row{display:flex;align-items:center;gap:12px}
+.calc-slider-row input[type="range"]{flex:1}
+.calc-slider-row .range-val{min-width:80px;text-align:right}
+.calc-pay-btns{display:flex;gap:8px;margin-top:6px}
+.calc-pay-btn{flex:1;padding:8px;font-size:12px;font-weight:600;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted-dim);cursor:pointer;transition:all 0.2s}
+.calc-pay-btn.active{background:rgba(37,99,235,0.1);color:var(--blue);border-color:var(--blue)}
 
 /* ── Mandate Timeline ── */
 .mandate-card{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid var(--blue);border:1px solid var(--border);border-left:4px solid var(--blue)}
@@ -1222,7 +1243,21 @@ function renderProperty(d){
     '</div>'+
     '<h3 style="font-size:16px;font-weight:700;margin:24px 0 12px">Why This Matters</h3>'+
     '<div class="alert-card danger"><h4>Overpressure + Aging Pipes</h4><p>Water pressure above 80 PSI combined with aging infrastructure dramatically accelerates failure. Every 10 PSI above optimal reduces pipe lifespan by approximately 20%. Pre-1980 plumbing is especially vulnerable to pressure cycling and thermal expansion stress.</p></div>'+
-    '<div class="alert-card"><h4>PRV Failures</h4><p>Pressure reducing valves have a typical lifespan of 7-12 years. In areas with high pressure variability, PRV failure rates increase 3x. Most homeowners are unaware of PRV condition until failure — the #1 cause of catastrophic residential water events.</p></div>'+
+    '<div class="alert-card"><h4>PRV Failure — The Hidden Risk</h4><p>Pressure reducing valves (PRVs) are the single most critical — and most neglected — component in residential plumbing. Typical lifespan is 7-15 years, but multiple factors accelerate failure. Most homeowners are completely unaware of PRV condition until catastrophic failure occurs.</p></div>'+
+    '<div class="card-section" style="margin:16px 0">'+
+      '<h4 style="font-size:14px;font-weight:700;margin-bottom:12px">What Causes PRV Failure</h4>'+
+      '<table class="data-table"><thead><tr><th>Failure Mode</th><th>Mechanism</th><th>Lifespan Impact</th></tr></thead><tbody>'+
+        '<tr><td><strong>Hard Water / Scale Buildup</strong></td><td>Mineral deposits accumulate on the valve seat, spring, and diaphragm — restricting flow, preventing full closure, and eventually seizing the valve open</td><td>Reduces lifespan to 3-5 years in areas with hardness &gt;10 gpg</td></tr>'+
+        '<tr><td><strong>Sediment &amp; Debris</strong></td><td>Particulate from aging municipal mains lodges in the valve body, scoring the seat and preventing the diaphragm from sealing properly</td><td>Progressive — accelerates with infrastructure age</td></tr>'+
+        '<tr><td><strong>Chloramine Corrosion</strong></td><td>Chloramine (used in municipal disinfection) attacks brass valve components through dezincification — zinc leaches out, leaving porous, brittle copper that cracks under pressure</td><td>Can cause sudden catastrophic failure in 5-8 years</td></tr>'+
+        '<tr><td><strong>Thermal Expansion Cycling</strong></td><td>In closed-loop systems (homes with backflow preventers), water heater cycling creates repeated pressure spikes of 150+ PSI that fatigue the PRV spring and diaphragm</td><td>2-3x faster wear in homes without expansion tanks</td></tr>'+
+        '<tr><td><strong>Pressure Variability</strong></td><td>Municipal pressure fluctuations force the PRV to constantly adjust. Each cycle wears the spring and seat — high variability zones see 3x the failure rate</td><td>Reduces lifespan by 40-60%</td></tr>'+
+        '<tr><td><strong>Internal Component Degradation</strong></td><td>Rubber seals harden and crack with age. Springs weaken and lose calibration. The diaphragm — a thin rubber membrane — is the first component to fail</td><td>Inevitable — begins at year 7-10 regardless of water quality</td></tr>'+
+        '<tr><td><strong>Improper Sizing / Installation</strong></td><td>Undersized PRVs create excessive velocity through the valve, accelerating cavitation and erosion. Over-tightened fittings stress the valve body</td><td>Can halve expected lifespan</td></tr>'+
+      '</tbody></table>'+
+    '</div>'+
+    '<div class="alert-card danger"><h4>Why Water Quality Is the #1 Accelerator</h4><p>Every failure mode above is worsened by poor water quality. Hard water coats internal surfaces with scale. Corrosive water (low pH, high chloride) attacks brass and rubber. Sediment-heavy supply grinds valve seats. A home with hard water, high pressure, and no expansion tank can destroy a PRV in as little as 3 years — and the homeowner won\'t know until water is flowing through at full municipal pressure (100-150 PSI), blowing out supply lines, water heater T&amp;P valves, and fixture connections.</p></div>'+
+    '<div class="alert-card info"><h4>Namara Eliminates the PRV Blind Spot</h4><p>The Namara VFC provides continuous pressure monitoring at the point of entry — the only way to detect PRV degradation before catastrophic failure. When a PRV begins to fail, pressure creeps up gradually over days or weeks. Namara detects this drift in real-time, alerts the homeowner, and provides supply-side pressure relief and thermal expansion protection as a secondary safety layer.</p></div>'+
     '<div class="alert-card info"><h4>Namara Device Impact</h4><p>The Namara VFC provides real-time pressure monitoring, supply-side pressure relief, and thermal expansion protection — addressing both the infrastructure age risk and the pressure risk at the point of entry.</p></div>';
 }
 
@@ -1673,24 +1708,64 @@ function renderDeployment(d){
       '</table>'+
     '</div>'+
     '<div class="card-section">'+
-      '<h3>Loss Ratio Calculator</h3>'+
-      '<div class="card-sub">Model the impact of Namara deployment on your book\'s water loss ratio</div>'+
-      '<div class="calc-grid">'+
-        '<div>'+
-          '<div class="calc-input-group"><label>Equipped Homes <span id="calcHomesVal" class="range-val">5,000</span></label><input type="range" id="calcHomes" min="500" max="50000" step="500" value="5000" oninput="calcLossRatio()"></div>'+
-          '<div class="calc-input-group"><label>Avg Annual Premium ($)</label><input type="number" id="calcPremium" value="1800" oninput="calcLossRatio()"></div>'+
-          '<div class="calc-input-group"><label>Current Water Loss Ratio <span id="calcLossRatioInVal" class="range-val">45%</span></label><input type="range" id="calcLossRatioIn" min="20" max="80" value="45" oninput="calcLossRatio()"></div>'+
-          '<div class="calc-input-group"><label>Expected Claim Reduction <span id="calcReductionVal" class="range-val">30%</span></label><input type="range" id="calcReduction" min="10" max="60" value="30" oninput="calcLossRatio()"></div>'+
-          '<div class="calc-input-group"><label>Premium Discount Offered <span id="calcDiscountVal" class="range-val">5%</span></label><input type="range" id="calcDiscount" min="0" max="15" value="5" oninput="calcLossRatio()"></div>'+
-        '</div>'+
-        '<div class="calc-output" id="calcOutput">'+
-          '<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">Projected Impact</h3>'+
-          '<p style="color:var(--muted-dim);font-size:13px">Adjust the sliders to model different scenarios</p>'+
-        '</div>'+
+      '<h3>Water Claims ROI Calculator</h3>'+
+      '<div class="card-sub">See how Namara-equipped homes impact your water damage claims and bottom line</div>'+
+      '<div class="calc-tabs">'+
+        '<button class="calc-tab active" onclick="showCalcTab(0)">Claims Math</button>'+
+        '<button class="calc-tab" onclick="showCalcTab(1)">Carrier Subsidy</button>'+
+        '<button class="calc-tab" onclick="showCalcTab(2)">Build Your Own</button>'+
       '</div>'+
+
+      '<div class="calc-panel active" id="calcPanel0">'+
+        '<div style="margin:16px 0 8px"><div style="font-size:14px;font-weight:700;margin-bottom:4px">How many claims would Namara have prevented?</div><div style="font-size:12px;color:var(--muted-dim)">Start with your book of business. See what water claims cost you and what changes with Namara.</div></div>'+
+        '<div class="calc-grid">'+
+          '<div>'+
+            '<div class="calc-input-group"><label>Homes in book <span id="aHomesV" class="range-val">10,000</span></label><div class="calc-slider-row"><input type="range" min="1000" max="100000" step="1000" value="10000" id="aHomes" oninput="calcA()"></div></div>'+
+            '<div class="calc-input-group"><label>Water claim frequency (per 100 homes/yr) <span id="aFreqV" class="range-val">1.6</span></label><div class="calc-slider-row"><input type="range" min="0.5" max="5" step="0.1" value="1.6" id="aFreq" oninput="calcA()"></div><div class="calc-help">National avg is 1.6 per 100 homes. Freeze-prone states run 2.5-4.0.</div></div>'+
+            '<div class="calc-input-group"><label>Average claim cost ($) <span id="aCostV" class="range-val">$14,000</span></label><div class="calc-slider-row"><input type="range" min="5000" max="30000" step="500" value="14000" id="aCost" oninput="calcA()"></div><div class="calc-help">Industry avg is $13,954. Pipe bursts average $18,000+.</div></div>'+
+            '<div class="calc-input-group"><label>% of claims Namara could prevent <span id="aPreventV" class="range-val">40%</span></label><div class="calc-slider-row"><input type="range" min="10" max="70" step="5" value="40" id="aPrevent" oninput="calcA()"></div><div class="calc-help">LexisNexis/Moen study: up to 96% reduction. 40% is conservative for pipe bursts, leaks, pressure, and heater events.</div></div>'+
+          '</div>'+
+          '<div class="calc-output" id="aOutput"></div>'+
+        '</div>'+
+        '<div class="calc-assumptions" id="aAssumptions"></div>'+
+      '</div>'+
+
+      '<div class="calc-panel" id="calcPanel1">'+
+        '<div style="margin:16px 0 8px"><div style="font-size:14px;font-weight:700;margin-bottom:4px">Carrier subsidy: what does it cost vs. what does it save?</div><div style="font-size:12px;color:var(--muted-dim)">Model a program where the carrier subsidizes Namara devices and offers a premium discount.</div></div>'+
+        '<div class="calc-grid">'+
+          '<div>'+
+            '<div class="calc-input-group"><label>Homes equipped <span id="bHomesV" class="range-val">5,000</span></label><div class="calc-slider-row"><input type="range" min="500" max="50000" step="500" value="5000" id="bHomes" oninput="calcB()"></div></div>'+
+            '<div class="calc-input-group"><label>Carrier device subsidy per home ($) <span id="bSubsidyV" class="range-val">$500</span></label><div class="calc-slider-row"><input type="range" min="0" max="1250" step="50" value="500" id="bSubsidy" oninput="calcB()"></div><div class="calc-help">Mercury covers $400 for Moen Flo. Device is $1,250 — homeowner covers remainder + $1,000 install.</div></div>'+
+            '<div class="calc-input-group"><label>Premium discount offered (%) <span id="bDiscountV" class="range-val">5%</span></label><div class="calc-slider-row"><input type="range" min="0" max="15" step="1" value="5" id="bDiscount" oninput="calcB()"></div><div class="calc-help">Mercury: 10%. Chubb: 3-8%. Industry range: 3-12%.</div></div>'+
+            '<div class="calc-input-group"><label>Avg annual premium ($) <span id="bPremiumV" class="range-val">$1,800</span></label><div class="calc-slider-row"><input type="range" min="800" max="5000" step="100" value="1800" id="bPremium" oninput="calcB()"></div></div>'+
+            '<div class="calc-input-group"><label>Expected claim reduction (%) <span id="bReductionV" class="range-val">35%</span></label><div class="calc-slider-row"><input type="range" min="10" max="60" step="5" value="35" id="bReduction" oninput="calcB()"></div></div>'+
+            '<div class="calc-input-group"><label>Subsidy amortization (years) <span id="bAmortV" class="range-val">3 yrs</span></label><div class="calc-slider-row"><input type="range" min="1" max="5" step="1" value="3" id="bAmort" oninput="calcB()"></div><div class="calc-help">How many years to spread the one-time device subsidy over.</div></div>'+
+          '</div>'+
+          '<div class="calc-output" id="bOutput"></div>'+
+        '</div>'+
+        '<div class="calc-assumptions" id="bAssumptions"></div>'+
+      '</div>'+
+
+      '<div class="calc-panel" id="calcPanel2">'+
+        '<div style="margin:16px 0 8px"><div style="font-size:14px;font-weight:700;margin-bottom:4px">Build your own scenario</div><div style="font-size:12px;color:var(--muted-dim)">Full control. Model carrier-funded, homeowner subscription ($49/mo), or hybrid.</div></div>'+
+        '<div class="calc-grid">'+
+          '<div>'+
+            '<div class="calc-input-group"><label>Homes equipped <span id="cHomesV" class="range-val">5,000</span></label><div class="calc-slider-row"><input type="range" min="500" max="50000" step="500" value="5000" id="cHomes" oninput="calcC()"></div></div>'+
+            '<div class="calc-input-group"><label>Avg annual premium ($) <span id="cPremiumV" class="range-val">$1,800</span></label><div class="calc-slider-row"><input type="range" min="800" max="5000" step="100" value="1800" id="cPremium" oninput="calcC()"></div></div>'+
+            '<div class="calc-input-group"><label>Current water loss ratio (%) <span id="cLrV" class="range-val">45%</span></label><div class="calc-slider-row"><input type="range" min="20" max="80" step="1" value="45" id="cLr" oninput="calcC()"></div><div class="calc-help">% of premium going to water damage claims.</div></div>'+
+            '<div class="calc-input-group"><label>Claim reduction with Namara (%) <span id="cReductionV" class="range-val">35%</span></label><div class="calc-slider-row"><input type="range" min="10" max="60" step="5" value="35" id="cReduction" oninput="calcC()"></div></div>'+
+            '<div class="calc-input-group"><label>Who pays for the device?</label><div class="calc-pay-btns"><button class="calc-pay-btn active" id="cPayCarrier" onclick="setPayModel(\'carrier\')">Carrier subsidizes</button><button class="calc-pay-btn" id="cPayHomeowner" onclick="setPayModel(\'homeowner\')">Homeowner $49/mo</button><button class="calc-pay-btn" id="cPayHybrid" onclick="setPayModel(\'hybrid\')">Hybrid</button></div></div>'+
+            '<div id="cCarrierFields"><div class="calc-input-group"><label>Carrier subsidy per device ($) <span id="cSubsidyV" class="range-val">$500</span></label><div class="calc-slider-row"><input type="range" min="0" max="1250" step="50" value="500" id="cSubsidy" oninput="calcC()"></div></div></div>'+
+            '<div class="calc-input-group"><label>Premium discount (%) <span id="cDiscountV" class="range-val">5%</span></label><div class="calc-slider-row"><input type="range" min="0" max="15" step="1" value="5" id="cDiscount" oninput="calcC()"></div></div>'+
+          '</div>'+
+          '<div class="calc-output" id="cOutput"></div>'+
+        '</div>'+
+        '<div class="calc-assumptions" id="cAssumptions"></div>'+
+      '</div>'+
+
     '</div>';
   // Auto-calculate on first render
-  setTimeout(calcLossRatio, 100);
+  setTimeout(function(){ calcA(); calcB(); calcC(); }, 100);
 }
 
 // ─── Render Mandates (inside Device Intelligence) ───
@@ -1728,43 +1803,172 @@ function renderMandates(){
     '</div>';
 }
 
-// ─── Loss Ratio Calculator ───
-function calcLossRatio(){
-  if(!document.getElementById('calcHomes')) return;
-  const homes = parseInt(document.getElementById('calcHomes').value)||5000;
-  const premium = parseInt(document.getElementById('calcPremium').value)||1800;
-  const currentLR = parseInt(document.getElementById('calcLossRatioIn').value)||45;
-  const reduction = parseInt(document.getElementById('calcReduction').value)||30;
-  const discount = parseInt(document.getElementById('calcDiscount').value)||5;
+// ─── Water Claims ROI Calculator (3 Scenarios) ───
+var calcPayModel = 'carrier';
+function fmtN(n){ return Math.round(n).toLocaleString(); }
+function fmtD(n){ return '$'+fmtN(n); }
 
-  document.getElementById('calcHomesVal').textContent = homes.toLocaleString();
-  document.getElementById('calcLossRatioInVal').textContent = currentLR+'%';
-  document.getElementById('calcReductionVal').textContent = reduction+'%';
-  document.getElementById('calcDiscountVal').textContent = discount+'%';
+function showCalcTab(i){
+  document.querySelectorAll('.calc-tab').forEach(function(t,j){ t.classList.toggle('active',j===i); });
+  document.querySelectorAll('.calc-panel').forEach(function(p,j){ p.classList.toggle('active',j===i); });
+}
 
-  const totalPremium = homes * premium;
-  const currentLosses = totalPremium * (currentLR/100);
-  const newLosses = currentLosses * (1-reduction/100);
-  const discountCost = totalPremium * (discount/100);
-  const newPremium = totalPremium - discountCost;
-  const newLR = ((newLosses/newPremium)*100);
-  const improvement = currentLR - newLR;
-  const netSavings = currentLosses - newLosses - discountCost;
-  const perHome = netSavings / homes;
-  const roi = netSavings > 0 ? ((netSavings / (homes*120))*100) : 0; // assume $120/device/yr
+// Scenario A: Claims Math
+function calcA(){
+  if(!document.getElementById('aHomes')) return;
+  var homes=parseInt(document.getElementById('aHomes').value)||10000;
+  var freq=parseFloat(document.getElementById('aFreq').value)||1.6;
+  var cost=parseInt(document.getElementById('aCost').value)||14000;
+  var prevent=parseInt(document.getElementById('aPrevent').value)||40;
+  document.getElementById('aHomesV').textContent=fmtN(homes);
+  document.getElementById('aFreqV').textContent=freq.toFixed(1);
+  document.getElementById('aCostV').textContent=fmtD(cost);
+  document.getElementById('aPreventV').textContent=prevent+'%';
 
-  document.getElementById('calcOutput').innerHTML =
-    '<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">Projected Impact</h3>'+
-    '<div class="calc-metric"><div class="calc-metric-label">New Loss Ratio</div><div class="calc-metric-value">'+newLR.toFixed(1)+'%</div></div>'+
-    '<div class="calc-metric"><div class="calc-metric-label">Improvement</div><div class="calc-metric-value positive">'+improvement.toFixed(1)+' pts</div></div>'+
-    '<div class="calc-metric"><div class="calc-metric-label">Annual Net Savings</div><div class="calc-metric-value positive">$'+Math.round(netSavings).toLocaleString()+'</div></div>'+
-    '<div class="calc-metric"><div class="calc-metric-label">Per Home / Year</div><div class="calc-metric-value">$'+perHome.toFixed(0)+'</div></div>'+
-    '<div class="calc-metric"><div class="calc-metric-label">ROI (vs. $120/device/yr)</div><div class="calc-metric-value positive">'+roi.toFixed(0)+'%</div></div>'+
-    '<div style="margin-top:16px;padding-top:16px;border-top:1px solid #d1fae5;font-size:12px;color:var(--muted)">'+
-      'Based on '+homes.toLocaleString()+' equipped homes at $'+premium+' avg premium. '+
-      'Current water loss ratio: '+currentLR+'%. '+
-      'Claim reduction: '+reduction+'%. Discount: '+discount+'%.'+
+  var totalClaims=Math.round(homes*freq/100);
+  var totalClaimCost=totalClaims*cost;
+  var preventedClaims=Math.round(totalClaims*prevent/100);
+  var preventedCost=preventedClaims*cost;
+  var remainingClaims=totalClaims-preventedClaims;
+  var remainingCost=remainingClaims*cost;
+  var deviceTotal=1250; // device cost only, homeowner pays $1000 install separately
+  var fullDeployCost=homes*deviceTotal;
+  var paybackYrs=preventedCost>0?(fullDeployCost/preventedCost):0;
+
+  document.getElementById('aOutput').innerHTML=
+    '<h4 style="font-size:16px;font-weight:700;margin-bottom:16px">What happens each year</h4>'+
+    '<div class="calc-row"><div class="calc-row-label">Total water claims</div><div class="calc-row-value neg">'+fmtN(totalClaims)+' claims</div></div>'+
+    '<div class="calc-row"><div class="calc-row-label">Total water claim cost</div><div class="calc-row-value neg">'+fmtD(totalClaimCost)+'</div></div>'+
+    '<div class="calc-separator">&#9660; With Namara deployed</div>'+
+    '<div class="calc-row"><div class="calc-row-label">Claims prevented</div><div class="calc-row-value pos">'+fmtN(preventedClaims)+' claims avoided</div></div>'+
+    '<div class="calc-row"><div class="calc-row-label">Claims cost avoided</div><div class="calc-row-value pos">'+fmtD(preventedCost)+'</div></div>'+
+    '<div class="calc-row"><div class="calc-row-label">Remaining claims</div><div class="calc-row-value">'+fmtN(remainingClaims)+' at '+fmtD(remainingCost)+'</div></div>'+
+    '<div class="calc-bottom">'+
+      '<div class="calc-bottom-label">Claims cost saved per year</div>'+
+      '<div class="calc-bottom-val">'+fmtD(preventedCost)+'</div>'+
+      '<div class="calc-bottom-sub">'+fmtD(Math.round(preventedCost/homes))+' saved per home in your book</div>'+
     '</div>';
+
+  document.getElementById('aAssumptions').innerHTML=
+    '<strong>The question for the carrier:</strong> If equipping '+fmtN(homes)+' homes prevents '+fmtN(preventedClaims)+' claims worth '+fmtD(preventedCost)+'/yr, what would you pay per home to make that happen? '+
+    'At $1,250 per device (homeowner covers $1,000 install), full deployment costs '+fmtD(fullDeployCost)+' &mdash; a one-time investment that saves '+fmtD(preventedCost)+' every year. '+
+    'Payback: '+(paybackYrs>0?paybackYrs.toFixed(1):'&mdash;')+' years.';
+}
+
+// Scenario B: Carrier Subsidy Model
+function calcB(){
+  if(!document.getElementById('bHomes')) return;
+  var homes=parseInt(document.getElementById('bHomes').value)||5000;
+  var subsidy=parseInt(document.getElementById('bSubsidy').value)||500;
+  var discountPct=parseInt(document.getElementById('bDiscount').value)||5;
+  var premium=parseInt(document.getElementById('bPremium').value)||1800;
+  var reduction=parseInt(document.getElementById('bReduction').value)||35;
+  var amort=parseInt(document.getElementById('bAmort').value)||3;
+  document.getElementById('bHomesV').textContent=fmtN(homes);
+  document.getElementById('bSubsidyV').textContent=fmtD(subsidy);
+  document.getElementById('bDiscountV').textContent=discountPct+'%';
+  document.getElementById('bPremiumV').textContent=fmtD(premium);
+  document.getElementById('bReductionV').textContent=reduction+'%';
+  document.getElementById('bAmortV').textContent=amort+' yrs';
+
+  var totalPremium=homes*premium;
+  var waterLR=0.45;
+  var currentWaterLosses=totalPremium*waterLR;
+  var claimsSaved=currentWaterLosses*reduction/100;
+  var subsidyCostPerYear=(homes*subsidy)/amort;
+  var discountCost=totalPremium*discountPct/100;
+  var totalProgramCost=subsidyCostPerYear+discountCost;
+  var netSavings=claimsSaved-totalProgramCost;
+  var roi=totalProgramCost>0?(netSavings/totalProgramCost*100):0;
+  var newWaterLosses=currentWaterLosses-claimsSaved;
+  var newLR=(newWaterLosses/(totalPremium-discountCost)*100);
+  var homeownerCost=1250-subsidy+1000; // remainder of device + install
+
+  document.getElementById('bOutput').innerHTML=
+    '<h4 style="font-size:16px;font-weight:700;margin-bottom:16px">Annual program economics</h4>'+
+    '<div class="calc-row"><div class="calc-row-label">Water claims today (est. 45% LR)</div><div class="calc-row-value neg">'+fmtD(currentWaterLosses)+'/yr</div></div>'+
+    '<div class="calc-row"><div class="calc-row-label">Claims saved ('+reduction+'% reduction)</div><div class="calc-row-value pos">'+fmtD(claimsSaved)+'/yr</div></div>'+
+    '<div class="calc-separator">Program costs</div>'+
+    '<div class="calc-row"><div class="calc-row-label">Device subsidy ('+fmtD(subsidy)+' x '+fmtN(homes)+' over '+amort+' yrs)</div><div class="calc-row-value">'+fmtD(subsidyCostPerYear)+'/yr</div></div>'+
+    '<div class="calc-row"><div class="calc-row-label">Premium discounts ('+discountPct+'%)</div><div class="calc-row-value">'+fmtD(discountCost)+'/yr</div></div>'+
+    '<div class="calc-row"><div class="calc-row-label">Total carrier cost</div><div class="calc-row-value">'+fmtD(totalProgramCost)+'/yr</div></div>'+
+    '<div class="calc-bottom">'+
+      '<div class="calc-bottom-label">Net savings after all costs</div>'+
+      '<div class="calc-bottom-val">'+(netSavings>=0?fmtD(netSavings):'-'+fmtD(Math.abs(netSavings)))+'/yr</div>'+
+      '<div class="calc-bottom-sub">'+Math.round(roi)+'% ROI | Loss ratio: 45% &rarr; '+newLR.toFixed(1)+'% | '+fmtD(Math.round(netSavings/homes))+' per home</div>'+
+    '</div>';
+
+  document.getElementById('bAssumptions').innerHTML=
+    'Assumes 45% of premium goes to water claims (industry avg 30-50%). Carrier subsidy is a one-time cost amortized over '+amort+' year'+(amort>1?'s':'')+'. '+
+    'Mercury Insurance model: $400 subsidy + 10% discount. This scenario: '+fmtD(subsidy)+' subsidy + '+discountPct+'% discount. '+
+    'Device: $1,250. Homeowner covers '+fmtD(homeownerCost)+' (remainder of device + $1,000 install).';
+}
+
+// Scenario C: Build Your Own
+function setPayModel(m){
+  calcPayModel=m;
+  document.querySelectorAll('.calc-pay-btn').forEach(function(b){b.classList.remove('active');});
+  var btn=m==='carrier'?document.getElementById('cPayCarrier'):m==='homeowner'?document.getElementById('cPayHomeowner'):document.getElementById('cPayHybrid');
+  btn.classList.add('active');
+  document.getElementById('cCarrierFields').style.display=m==='homeowner'?'none':'block';
+  calcC();
+}
+function calcC(){
+  if(!document.getElementById('cHomes')) return;
+  var homes=parseInt(document.getElementById('cHomes').value)||5000;
+  var premium=parseInt(document.getElementById('cPremium').value)||1800;
+  var lr=parseInt(document.getElementById('cLr').value)||45;
+  var reduction=parseInt(document.getElementById('cReduction').value)||35;
+  var discountPct=parseInt(document.getElementById('cDiscount').value)||5;
+  var subsidy=calcPayModel==='homeowner'?0:(parseInt(document.getElementById('cSubsidy').value)||500);
+  document.getElementById('cHomesV').textContent=fmtN(homes);
+  document.getElementById('cPremiumV').textContent=fmtD(premium);
+  document.getElementById('cLrV').textContent=lr+'%';
+  document.getElementById('cReductionV').textContent=reduction+'%';
+  document.getElementById('cDiscountV').textContent=discountPct+'%';
+  if(calcPayModel!=='homeowner') document.getElementById('cSubsidyV').textContent=fmtD(subsidy);
+
+  var totalPremium=homes*premium;
+  var currentLosses=totalPremium*lr/100;
+  var claimsSaved=currentLosses*reduction/100;
+  var carrierDeviceCost=0;
+  var carrierLabel='';
+  if(calcPayModel==='carrier'){
+    carrierDeviceCost=homes*subsidy/3;
+    carrierLabel='Device subsidy ('+fmtD(subsidy)+'/home over 3 yrs)';
+  }else if(calcPayModel==='hybrid'){
+    carrierDeviceCost=homes*subsidy/3;
+    carrierLabel='Carrier subsidy ('+fmtD(subsidy)+'/home over 3 yrs, homeowner pays $49/mo)';
+  }else{
+    carrierDeviceCost=0;
+    carrierLabel='Device cost: $0 to carrier (homeowner pays $49/mo + $1,000 install)';
+  }
+  var discountCost=totalPremium*discountPct/100;
+  var totalCost=carrierDeviceCost+discountCost;
+  var netSavings=claimsSaved-totalCost;
+  var roi=totalCost>0?(netSavings/totalCost*100):(claimsSaved>0?999:0);
+  var newLosses=currentLosses-claimsSaved;
+  var newLR=(newLosses/(totalPremium-discountCost)*100);
+  var perHome=netSavings/homes;
+
+  document.getElementById('cOutput').innerHTML=
+    '<h4 style="font-size:16px;font-weight:700;margin-bottom:16px">Your scenario</h4>'+
+    '<div class="calc-row"><div class="calc-row-label">Water claims today</div><div class="calc-row-value neg">'+fmtD(currentLosses)+'/yr</div></div>'+
+    '<div class="calc-row"><div class="calc-row-label">Claims prevented</div><div class="calc-row-value pos">-'+fmtD(claimsSaved)+'/yr</div></div>'+
+    '<div class="calc-separator">Your costs</div>'+
+    '<div class="calc-row"><div class="calc-row-label">'+carrierLabel+'</div><div class="calc-row-value">'+fmtD(carrierDeviceCost)+'/yr</div></div>'+
+    '<div class="calc-row"><div class="calc-row-label">Premium discounts ('+discountPct+'%)</div><div class="calc-row-value">'+fmtD(discountCost)+'/yr</div></div>'+
+    '<div class="calc-bottom">'+
+      '<div class="calc-bottom-label">Net annual savings</div>'+
+      '<div class="calc-bottom-val">'+(netSavings>=0?fmtD(netSavings):'-'+fmtD(Math.abs(netSavings)))+'/yr</div>'+
+      '<div class="calc-bottom-sub">'+fmtD(Math.round(Math.abs(perHome)))+'/home | '+Math.round(roi)+'% ROI | Loss ratio: '+lr+'% &rarr; '+newLR.toFixed(1)+'%</div>'+
+    '</div>';
+
+  document.getElementById('cAssumptions').innerHTML=
+    'Model: '+(calcPayModel==='carrier'?'Carrier subsidizes '+fmtD(subsidy)+' per device (amortized 3 yrs). Homeowner covers remainder of $1,250 device + $1,000 install.':
+    calcPayModel==='homeowner'?'Homeowner pays $49/mo subscription + $1,000 install. Carrier cost is $0 for devices — only the premium discount.':
+    'Hybrid: Carrier subsidizes '+fmtD(subsidy)+' (amortized 3 yrs). Homeowner pays $49/mo subscription + $1,000 install.')+
+    ' Premium discount: '+discountPct+'% = '+fmtD(Math.round(premium*discountPct/100))+'/home/yr.';
 }
 
 // ─── PDF Report Download ───
