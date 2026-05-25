@@ -506,14 +506,14 @@ def compute_builder_score(builder_data):
 
     composite = round(max(0, min(100, composite)), 1)
 
-    # ── Grade assignment ──
-    if composite >= 82:
+    # ── Grade assignment (standard scale) ──
+    if composite >= 90:
         grade = "A"
-    elif composite >= 67:
+    elif composite >= 80:
         grade = "B"
-    elif composite >= 52:
+    elif composite >= 70:
         grade = "C"
-    elif composite >= 38:
+    elif composite >= 60:
         grade = "D"
     else:
         grade = "F"
