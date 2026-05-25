@@ -513,44 +513,30 @@ def compute_composite_score(zip_code, builder_name=None):
         "layers": {
             "climate": {
                 "score": climate_score,
-                "weight": 0.15,
-                "weighted_contribution": round(climate_score * 0.15, 1),
                 "data": climate_data
             },
             "water_quality": {
                 "score": wq_score,
-                "weight": 0.15,
-                "weighted_contribution": round(wq_score * 0.15, 1),
                 "data": wq_data or {"note": "No state-level data available"}
             },
             "infrastructure": {
                 "score": infra_score,
-                "weight": 0.15,
-                "weighted_contribution": round(infra_score * 0.15, 1),
                 "data": infra_data or {"note": "No state-level data available"}
             },
             "pressure": {
                 "score": pressure_score,
-                "weight": 0.15,
-                "weighted_contribution": round(pressure_score * 0.15, 1),
                 "data": pressure_data or {"note": "No state-level data available"}
             },
             "builder_quality": {
                 "score": builder_risk_score,
-                "weight": 0.10,
-                "weighted_contribution": round(builder_risk_score * 0.10, 1),
                 "data": builder_data
             },
             "regulatory": {
                 "score": reg_score,
-                "weight": 0.10,
-                "weighted_contribution": round(reg_score * 0.10, 1),
                 "data": reg_data or {"note": "No state-level data available"}
             },
             "claims": {
                 "score": claims_score,
-                "weight": 0.20,
-                "weighted_contribution": round(claims_score * 0.20, 1),
                 "data": claims_data or {"note": "No state-level data available"}
             }
         },
@@ -1106,20 +1092,20 @@ def compute_property_score(address, city, state, zip_code,
             "enrichment_data": enrichment_data if enrichment_data else None,
         },
         "property_factors": {
-            "home_age": {"score": age_score, "weight": 0.15, "weighted": round(age_score * 0.15, 1)},
-            "pipe_material": {"score": pipe_score, "weight": 0.15, "weighted": round(pipe_score * 0.15, 1)},
-            "water_heater": {"score": heater_score, "weight": 0.10, "weighted": round(heater_score * 0.10, 1)},
-            "permit_history": {"score": permit_score, "weight": 0.08, "weighted": round(permit_score * 0.08, 1)},
-            "prior_claims": {"score": claims_history_score, "weight": 0.07, "weighted": round(claims_history_score * 0.07, 1)},
-            "protection_devices": {"score": protection_score, "weight": 0.05, "weighted": round(protection_score * 0.05, 1)},
+            "home_age": {"score": age_score},
+            "pipe_material": {"score": pipe_score},
+            "water_heater": {"score": heater_score},
+            "permit_history": {"score": permit_score},
+            "prior_claims": {"score": claims_history_score},
+            "protection_devices": {"score": protection_score},
             "subtotal": property_composite,
         },
         "environmental_factors": {
-            "climate": {"score": climate_score, "weight": 0.10, "weighted": round(climate_score * 0.10, 1), "data": climate_data},
-            "water_quality": {"score": wq_score, "weight": 0.08, "weighted": round(wq_score * 0.08, 1), "data": wq_data},
-            "pressure": {"score": pressure_score, "weight": 0.08, "weighted": round(pressure_score * 0.08, 1), "data": pressure_data},
-            "area_claims": {"score": area_claims_score, "weight": 0.08, "weighted": round(area_claims_score * 0.08, 1), "data": claims_data},
-            "regulatory": {"score": reg_score, "weight": 0.06, "weighted": round(reg_score * 0.06, 1), "data": reg_data},
+            "climate": {"score": climate_score, "data": climate_data},
+            "water_quality": {"score": wq_score, "data": wq_data},
+            "pressure": {"score": pressure_score, "data": pressure_data},
+            "area_claims": {"score": area_claims_score, "data": claims_data},
+            "regulatory": {"score": reg_score, "data": reg_data},
             "subtotal": env_composite,
         },
         "layers": {

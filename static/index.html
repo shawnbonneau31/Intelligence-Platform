@@ -855,17 +855,17 @@ function renderPropertyScore(d) {
   const markerPct = Math.min(Math.max(cs,0),100);
 
   const layers = [
-    {name:'Home Age (15%)', score:pf.home_age?.score||0},
-    {name:'Pipe Material (15%)', score:pf.pipe_material?.score||0},
-    {name:'Water Heater (10%)', score:pf.water_heater?.score||0},
-    {name:'Permit History (8%)', score:pf.permit_history?.score||0},
-    {name:'Prior Claims (7%)', score:pf.prior_claims?.score||0},
-    {name:'Protection Devices (5%)', score:pf.protection_devices?.score||0},
-    {name:'Climate (10%)', score:ef.climate?.score||0},
-    {name:'Water Quality (8%)', score:ef.water_quality?.score||0},
-    {name:'Pressure (8%)', score:ef.pressure?.score||0},
-    {name:'Area Claims (8%)', score:ef.area_claims?.score||0},
-    {name:'Regulatory (6%)', score:ef.regulatory?.score||0},
+    {name:'Home Age', score:pf.home_age?.score||0},
+    {name:'Pipe Material', score:pf.pipe_material?.score||0},
+    {name:'Water Heater', score:pf.water_heater?.score||0},
+    {name:'Permit History', score:pf.permit_history?.score||0},
+    {name:'Prior Claims', score:pf.prior_claims?.score||0},
+    {name:'Protection Devices', score:pf.protection_devices?.score||0},
+    {name:'Climate', score:ef.climate?.score||0},
+    {name:'Water Quality', score:ef.water_quality?.score||0},
+    {name:'Pressure', score:ef.pressure?.score||0},
+    {name:'Area Claims', score:ef.area_claims?.score||0},
+    {name:'Regulatory', score:ef.regulatory?.score||0},
   ];
 
   let factorsHTML = layers.map(function(l){
@@ -907,21 +907,21 @@ function renderPropertyScore(d) {
     '</div>'+
     '<div class="kpi-row">'+
       '<div class="kpi-card highlight"><div class="kpi-label">Property Risk Score</div><div class="kpi-value">'+cs+'/100</div><div class="kpi-sub">'+d.risk_level+'</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Property Factors</div><div class="kpi-value">'+(pf.subtotal||0)+'</div><div class="kpi-sub">60% weight</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Environmental</div><div class="kpi-value">'+(ef.subtotal||0)+'</div><div class="kpi-sub">40% weight</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Property Factors</div><div class="kpi-value">'+(pf.subtotal||0)+'</div><div class="kpi-sub">Property-specific</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Environmental</div><div class="kpi-value">'+(ef.subtotal||0)+'</div><div class="kpi-sub">Environmental context</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Year Built</div><div class="kpi-value">'+(pd.year_built||'Unknown')+'</div><div class="kpi-sub">'+(pd.pipe_material||'est.')+' pipes</div></div>'+
       builderHTML+
     '</div>'+
     '<div class="composite-section">'+
       '<h3>Composite Property Risk Score</h3>'+
-      '<div class="comp-sub">60% property-specific factors <span style="color:var(--blue)">&#9679;</span> + 40% environmental context <span style="color:var(--teal)">&#9679;</span></div>'+
+      '<div class="comp-sub">Property-specific factors <span style="color:var(--blue)">&#9679;</span> + Environmental context <span style="color:var(--teal)">&#9679;</span></div>'+
       '<div class="gradient-bar"><div class="gradient-marker" style="left:'+markerPct+'%"></div></div>'+
       '<div class="gradient-labels"><span>Low (0-25)</span><span>Moderate (26-45)</span><span>High (46-65)</span><span>Very High (66-80)</span><span>Critical (81+)</span></div>'+
       '<div style="margin-top:16px;padding:16px 20px;background:rgba(37,99,235,0.06);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;font-size:13px;color:var(--muted);line-height:1.6">'+
         '<strong style="color:var(--text)">Understanding This Score</strong><br>'+
         'A <strong style="color:var(--green)">lower score means lower risk</strong> — the property has fewer factors that contribute to water damage claims. '+
         'A <strong style="color:var(--red)">higher score indicates elevated risk</strong> — compounding factors like aging pipes, prior claims, or lack of protection devices increase the likelihood of a water loss event. '+
-        'The score combines property-specific factors (60%) such as pipe material, home age, and claims history with environmental context (40%) including water quality, climate, and area-wide claims data. '+
+        'The score combines property-specific factors such as pipe material, home age, and claims history with environmental context including water quality, climate, and area-wide claims data. '+
         'Properties scoring above 45 benefit most from Namara device deployment, which actively mitigates the specific risk factors identified.'+
       '</div>'+
     '</div>'+
@@ -1006,7 +1006,7 @@ function renderPropertyDetail(d) {
     sourcesBanner+
     '<div class="card-section">'+
       '<h3>Property-Specific Risk Factors</h3>'+
-      '<div class="card-sub">Factors based on this individual property (60% of total score)</div>'+
+      '<div class="card-sub">Factors based on this individual property</div>'+
       '<table class="data-table"><thead><tr><th>Factor</th><th>Value</th><th>Risk Score</th></tr></thead><tbody>'+detailRows+'</tbody></table>'+
     '</div>'+
     builderDetail;
@@ -1041,13 +1041,13 @@ function renderScore(d){
   const locationLabel = city ? d.zip_code+', '+d.state+' — '+city : d.zip_code+', '+d.state;
 
   const layers = [
-    {name:'Claims History (20%)', score:clm.score||0},
-    {name:'Climate & Freeze (15%)', score:cl.score||0},
-    {name:'Water Quality (15%)', score:wq.score||0},
-    {name:'Infrastructure (15%)', score:inf.score||0},
-    {name:'Pressure (15%)', score:pr.score||0},
-    {name:'Builder Quality (10%)', score:bq.score||0},
-    {name:'Regulatory (10%)', score:rg.score||0},
+    {name:'Claims History', score:clm.score||0},
+    {name:'Climate & Freeze', score:cl.score||0},
+    {name:'Water Quality', score:wq.score||0},
+    {name:'Infrastructure', score:inf.score||0},
+    {name:'Pressure', score:pr.score||0},
+    {name:'Builder Quality', score:bq.score||0},
+    {name:'Regulatory', score:rg.score||0},
   ];
 
   let factorsHTML = layers.map(function(l){
@@ -1081,7 +1081,7 @@ function renderScore(d){
         '<strong style="color:var(--text)">Understanding This Score</strong><br>'+
         'A <strong style="color:var(--green)">lower score means lower risk</strong> — this zip code has fewer factors contributing to water damage claims. '+
         'A <strong style="color:var(--red)">higher score indicates elevated risk</strong> — compounding factors like aging infrastructure, water quality issues, or high claims frequency increase the likelihood of water loss events in this area. '+
-        'The composite score weighs 7 data layers: claims history (20%), climate &amp; freeze risk (15%), water quality (15%), infrastructure age (15%), water pressure (15%), builder quality (10%), and regulatory environment (10%). '+
+        'The composite score weighs 7 proprietary data layers: claims history, climate &amp; freeze risk, water quality, infrastructure age, water pressure, builder quality, and regulatory environment. '+
         'For property-specific scoring, switch to Full Address mode above.'+
       '</div>'+
     '</div>'+
