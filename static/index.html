@@ -298,7 +298,8 @@ a:hover{text-decoration:underline}
     </div>
     <div class="header-right">
       <span style="color:#2dd4bf"><span class="live-dot"></span> Live Data</span>
-      <button onclick="logout()" title="Sign Out" aria-label="Sign Out" style="font-size:0;padding:6px 10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+      <span id="headerUserEmail" style="color:rgba(255,255,255,0.7);font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      <button onclick="logout()" style="display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</button>
     </div>
   </div>
 
@@ -353,12 +354,15 @@ a:hover{text-decoration:underline}
       </div>
     </div>
 
-    <div class="sample-zips" id="sampleLinks">
-      Try: <a onclick="quickScore('85281')">85281</a> (Tempe, AZ) ·
-      <a onclick="quickScore('33139')">33139</a> (Miami Beach, FL) ·
-      <a onclick="quickScore('90210')">90210</a> (Beverly Hills, CA) ·
-      <a onclick="quickAddr('1420 Brickell Bay Dr','Miami','FL','33131')">1420 Brickell Bay Dr, Miami FL</a> ·
-      <a onclick="quickAddr('3215 Bayshore Blvd','Tampa','FL','33629')">3215 Bayshore Blvd, Tampa FL</a>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap">
+      <button id="newSearchBtn" onclick="resetSearch()" style="display:none;padding:8px 20px;border:1px solid rgba(96,165,250,0.4);background:rgba(255,255,255,0.08);color:#60a5fa;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s">New Search</button>
+      <div class="sample-zips" id="sampleLinks">
+        Try: <a onclick="quickScore('85281')">85281</a> (Tempe, AZ) ·
+        <a onclick="quickScore('33139')">33139</a> (Miami Beach, FL) ·
+        <a onclick="quickScore('90210')">90210</a> (Beverly Hills, CA) ·
+        <a onclick="quickAddr('1420 Brickell Bay Dr','Miami','FL','33131')">1420 Brickell Bay Dr, Miami FL</a> ·
+        <a onclick="quickAddr('3215 Bayshore Blvd','Tampa','FL','33629')">3215 Bayshore Blvd, Tampa FL</a>
+      </div>
     </div>
   </div>
 
@@ -369,11 +373,8 @@ a:hover{text-decoration:underline}
       <button class="nav-tab active" onclick="switchTab('score',this)">Risk Profile</button>
       <button class="nav-tab" onclick="switchTab('claims',this)">Claims Intelligence</button>
       <button class="nav-tab" onclick="switchTab('device',this)">Device Intelligence</button>
-      <button class="nav-tab" onclick="switchTab('deployment',this)">Deployment & ROI</button>
-      <button class="nav-tab" onclick="switchTab('mandates',this)">Mandate Landscape</button>
       <button class="nav-tab" onclick="switchTab('builders',this)">Builder Quality</button>
       <button class="nav-tab" onclick="switchTab('environmental',this)">Environmental Risk</button>
-      <button class="nav-tab" onclick="switchTab('property',this)">Property Risk</button>
     </div>
   </div>
   </div>
@@ -381,7 +382,7 @@ a:hover{text-decoration:underline}
   <!-- Content -->
   <div class="content">
 
-    <!-- Risk Profile Tab -->
+    <!-- Risk Profile Tab (includes Property Risk detail) -->
     <div id="tab-score" class="tab-panel active">
       <div id="scoreResult">
         <div class="empty-state">
@@ -390,6 +391,7 @@ a:hover{text-decoration:underline}
           <p>We'll generate a comprehensive water risk profile across 7 data layers — including supply-side claims intelligence — for insurance underwriting.</p>
         </div>
       </div>
+      <div id="propertyResult"></div>
     </div>
 
     <!-- Claims Intelligence Tab -->
@@ -399,100 +401,18 @@ a:hover{text-decoration:underline}
       </div>
     </div>
 
-    <!-- Device Intelligence Tab -->
+    <!-- Device Intelligence Tab (includes Deployment & Mandates) -->
     <div id="tab-device" class="tab-panel">
       <div id="deviceResult">
         <div class="empty-state"><div class="icon">&#x1F4F1;</div><h3>Score a zip code first</h3><p>Device intelligence simulation will appear here after you analyze a location.</p></div>
       </div>
+      <div id="deploymentResult"></div>
+      <div id="mandateResult"></div>
     </div>
 
-    <!-- Deployment Tab -->
-    <div id="tab-deployment" class="tab-panel">
-      <div id="deploymentResult">
-        <div class="empty-state"><div class="icon">&#x1F3E0;</div><h3>Score a zip code first</h3><p>Deployment analysis will appear here after you analyze a location.</p></div>
-      </div>
-    </div>
+    <!-- Deployment content now rendered inside Device Intelligence tab -->
 
-    <!-- Loss Ratio section is now inside Deployment tab -->
-
-    <!-- Mandate Landscape Tab -->
-    <div id="tab-mandates" class="tab-panel">
-      <div class="section-title">Carrier Mandate Landscape</div>
-      <div class="section-subtitle">Active and emerging water mitigation mandates across the insurance industry</div>
-
-      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:32px">
-        <div class="kpi-card highlight"><div class="kpi-label">Active Mandates</div><div class="kpi-value">3</div><div class="kpi-sub">Carrier requirements</div></div>
-        <div class="kpi-card moderate"><div class="kpi-label">Policy Changes</div><div class="kpi-value">12</div><div class="kpi-sub">Last 24 months</div></div>
-        <div class="kpi-card elevated"><div class="kpi-label">Projected Mandates</div><div class="kpi-value">8+</div><div class="kpi-sub">By 2028</div></div>
-        <div class="kpi-card high"><div class="kpi-label">Industry Water Losses</div><div class="kpi-value">$14B</div><div class="kpi-sub">Annual (US)</div></div>
-      </div>
-
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:16px">Carrier Mandate Timeline</h3>
-
-      <div class="mandate-card active">
-        <h4>Mercury Insurance</h4>
-        <div class="mandate-meta">Effective: January 2024 | Status: Active | States: CA, AZ, NV, TX</div>
-        <p>Requires whole-home automatic shutoff devices for new policies on homes over $750K. Premium discount of 5-12% for compliant homes. Piloting expansion to all new construction.</p>
-      </div>
-      <div class="mandate-card active">
-        <h4>Chubb / StreamLabs</h4>
-        <div class="mandate-meta">Status: Active Program | Scope: All US | Subsidiary: StreamLabs (wholly-owned)</div>
-        <p>Chubb owns StreamLabs, an IoT subsidiary offering the StreamLabs Control automatic shutoff valve. Policyholders receive 3-10% premium discounts for installing qualified leak detection with automatic shutoff. StreamLabs devices use patented ultrasonic technology and shut off water within 15 seconds of detecting a leak. HSB (Munich Re subsidiary) Meshify sensors expanding to residential via Amazon Sidewalk in 2025.</p>
-      </div>
-      <div class="mandate-card active">
-        <h4>Farmers Insurance / Moen</h4>
-        <div class="mandate-meta">Status: Active Partnership (2024) | States: CA, TX, FL</div>
-        <p>Strategic partnership with Moen targeting Flo Smart Water Monitor and Shutoff system to policyholders in high-risk homes and areas. Premium incentive program for whole-home water monitoring. Moen data shows up to 96% reduction in water damage claim frequency for equipped homes.</p>
-      </div>
-      <div class="mandate-card pending">
-        <h4>California State Mandate</h4>
-        <div class="mandate-meta">Status: Active Regulation | States: CA</div>
-        <p>New California requirements mandate water leak detection valves on water mains for homeowners insurance eligibility. Southern California insurers increasingly requiring automatic water shutoff valves as a condition of coverage, particularly in high-risk wildfire and flood zones.</p>
-      </div>
-      <div class="mandate-card pending">
-        <h4>State Farm</h4>
-        <div class="mandate-meta">Status: Active Initiative | States: All US</div>
-        <p>Water Initiative launched to reduce water loss claims. Premier Service Program for water mitigation providers. Recommends whole-house water leak detection systems. Moving toward premium incentives for smart water shutoff devices in high-risk states.</p>
-      </div>
-      <div class="mandate-card">
-        <h4>Munich Re / HSB</h4>
-        <div class="mandate-meta">Status: Active (Reinsurance + IoT) | Scope: Global</div>
-        <p>HSB (Munich Re subsidiary) operates Sensor Solutions, an insurance-focused IoT program powered by AWS using Meshify technology. WINT partnership showed 73% fewer insurance claims and 90% less payouts at equipped sites. New Meshify Defender Slim sensors (2025) expanding residential coverage via Amazon Sidewalk network.</p>
-      </div>
-
-      <h3 style="font-size:18px;font-weight:700;margin:32px 0 16px">Carrier Engagement Pipeline</h3>
-
-      <div class="progress-bar-wrap">
-        <div class="progress-label"><span>Mercury Insurance</span><span>Active Partner</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;background:var(--green)"></div></div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-label"><span>Farmers / Moen</span><span>Active Partnership</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:85%;background:var(--green)"></div></div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-label"><span>Chubb / StreamLabs</span><span>Discount Program Active</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:80%;background:var(--green)"></div></div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-label"><span>State Farm</span><span>Water Initiative Active</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%;background:var(--blue)"></div></div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-label"><span>Munich Re / HSB</span><span>IoT Program Expanding</span></div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:70%;background:var(--blue)"></div></div>
-      </div>
-
-      <div class="card-section" style="margin-top:32px">
-        <h3>Addressable Market</h3>
-        <div class="card-sub">Water mitigation device market in US residential insurance</div>
-        <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
-          <div class="kpi-card"><div class="kpi-label">Total US Homes</div><div class="kpi-value" style="font-size:24px">140M</div></div>
-          <div class="kpi-card"><div class="kpi-label">High-Risk Eligible</div><div class="kpi-value" style="font-size:24px">28M</div></div>
-          <div class="kpi-card"><div class="kpi-label">Currently Equipped</div><div class="kpi-value" style="font-size:24px">&lt;2%</div></div>
-        </div>
-      </div>
-    </div>
+    <!-- Mandate content now rendered inside Device Intelligence tab -->
 
     <!-- Builder Quality Tab -->
     <div id="tab-builders" class="tab-panel">
@@ -537,12 +457,7 @@ a:hover{text-decoration:underline}
       </div>
     </div>
 
-    <!-- Property Risk Tab (address-level scoring) -->
-    <div id="tab-property" class="tab-panel">
-      <div id="propertyResult">
-        <div class="empty-state"><div class="icon">&#x1F3E0;</div><h3>Score a property address</h3><p>Switch to "Full Address Score" above and enter a property address to see address-level risk factors including home age, pipe material, water heater risk, and builder quality.</p></div>
-      </div>
-    </div>
+    <!-- Property Risk content now rendered inside Risk Profile tab -->
 
   </div>
 
@@ -698,6 +613,7 @@ function logout(){
 function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
+  if(USER && USER.email) document.getElementById('headerUserEmail').textContent = USER.email;
   loadStates();
   loadBuilders();
 }
@@ -748,6 +664,35 @@ function togglePropertyDetails() {
   document.getElementById('detailsToggle').textContent = show ? '- Hide property details' : '+ Add property details for higher accuracy';
 }
 
+// ─── Reset / New Search ───
+function resetSearch(){
+  // Clear all results
+  LAST_SCORE = null;
+  LAST_PROPERTY_SCORE = null;
+  document.getElementById('scoreResult').innerHTML = '<div class="empty-state"><div class="icon">&#x1F4CA;</div><h3>Enter a zip code to begin</h3><p>We\'ll generate a comprehensive water risk profile across 7 data layers — including supply-side claims intelligence — for insurance underwriting.</p></div>';
+  document.getElementById('claimsResult').innerHTML = '<div class="empty-state"><div class="icon">&#x1F4C9;</div><h3>Score a zip code first</h3><p>Supply-side water damage claims intelligence will appear here after you analyze a location.</p></div>';
+  document.getElementById('deviceResult').innerHTML = '<div class="empty-state"><div class="icon">&#x1F4F1;</div><h3>Score a zip code first</h3><p>Device intelligence simulation will appear here after you analyze a location.</p></div>';
+  document.getElementById('deploymentResult').innerHTML = '';
+  document.getElementById('mandateResult').innerHTML = '';
+  document.getElementById('propertyResult').innerHTML = '';
+  document.getElementById('environmentalResult').innerHTML = '<div class="empty-state"><div class="icon">&#x1F30A;</div><h3>Score a zip code first</h3><p>Water quality and climate risk data will appear here after you analyze a location.</p></div>';
+  // Clear input fields
+  document.getElementById('zipInput').value = '';
+  document.getElementById('addrInput').value = '';
+  document.getElementById('cityInput').value = '';
+  document.getElementById('stateInput').value = '';
+  document.getElementById('zipInput2').value = '';
+  if(document.getElementById('yearBuiltInput')) document.getElementById('yearBuiltInput').value = '';
+  if(document.getElementById('pipeMaterialInput')) document.getElementById('pipeMaterialInput').value = '';
+  if(document.getElementById('builderNameInput')) document.getElementById('builderNameInput').value = '';
+  if(document.getElementById('whAgeInput')) document.getElementById('whAgeInput').value = '';
+  if(document.getElementById('prvInput')) document.getElementById('prvInput').checked = false;
+  if(document.getElementById('priorClaimsInput')) document.getElementById('priorClaimsInput').value = '0';
+  // Hide new search button, switch to score tab
+  document.getElementById('newSearchBtn').style.display = 'none';
+  switchTab('score', document.querySelector('.nav-tab'));
+}
+
 // ─── Quick Score ───
 function quickScore(zip){
   setSearchMode('zip');
@@ -786,8 +731,10 @@ async function scoreZip(){
       renderClaims(data);
       renderDevice(data);
       renderDeployment(data);
+      renderMandates();
       renderEnvironmental(data);
       renderPropertyZipLevel(data);
+      document.getElementById('newSearchBtn').style.display = 'inline-block';
     } else {
       document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
     }
@@ -836,7 +783,9 @@ async function scoreAddress(){
       renderClaims(data);
       renderDevice(data);
       renderDeployment(data);
+      renderMandates();
       renderEnvironmental(data);
+      document.getElementById('newSearchBtn').style.display = 'inline-block';
     } else {
       document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
     }
@@ -1009,10 +958,7 @@ function renderPropertyDetail(d) {
     '</div>'+
     builderDetail;
 
-  // Auto-switch to property tab if in address mode
-  switchTab('property', document.querySelectorAll('.nav-tab')[7]);
-  // Then switch back to score
-  setTimeout(function(){ switchTab('score', document.querySelector('.nav-tab')); }, 50);
+  // Property detail now renders inside Risk Profile tab — no tab switch needed
 }
 
 // ─── Render Property (zip-level fallback) ───
@@ -1747,7 +1693,42 @@ function renderDeployment(d){
   setTimeout(calcLossRatio, 100);
 }
 
-// ─── Loss Ratio Calculator (Tab 7) ───
+// ─── Render Mandates (inside Device Intelligence) ───
+function renderMandates(){
+  document.getElementById('mandateResult').innerHTML =
+    '<div style="margin-top:48px;padding-top:32px;border-top:2px solid var(--border)">'+
+    '<div class="section-title">Carrier Mandate Landscape</div>'+
+    '<div class="section-subtitle">Active and emerging water mitigation mandates across the insurance industry</div>'+
+    '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:32px">'+
+      '<div class="kpi-card highlight"><div class="kpi-label">Active Mandates</div><div class="kpi-value">3</div><div class="kpi-sub">Carrier requirements</div></div>'+
+      '<div class="kpi-card moderate"><div class="kpi-label">Policy Changes</div><div class="kpi-value">12</div><div class="kpi-sub">Last 24 months</div></div>'+
+      '<div class="kpi-card elevated"><div class="kpi-label">Projected Mandates</div><div class="kpi-value">8+</div><div class="kpi-sub">By 2028</div></div>'+
+      '<div class="kpi-card high"><div class="kpi-label">Industry Water Losses</div><div class="kpi-value">$14B</div><div class="kpi-sub">Annual (US)</div></div>'+
+    '</div>'+
+    '<h3 style="font-size:18px;font-weight:700;margin-bottom:16px">Carrier Mandate Timeline</h3>'+
+    '<div class="mandate-card active"><h4>Mercury Insurance</h4><div class="mandate-meta">Effective: January 2024 | Status: Active | States: CA, AZ, NV, TX</div><p>Requires whole-home automatic shutoff devices for new policies on homes over $750K. Premium discount of 5-12% for compliant homes.</p></div>'+
+    '<div class="mandate-card active"><h4>Chubb / StreamLabs</h4><div class="mandate-meta">Status: Active Program | Scope: All US</div><p>Policyholders receive 3-10% premium discounts for installing qualified leak detection with automatic shutoff. StreamLabs devices shut off water within 15 seconds of detecting a leak.</p></div>'+
+    '<div class="mandate-card active"><h4>Farmers Insurance / Moen</h4><div class="mandate-meta">Status: Active Partnership (2024) | States: CA, TX, FL</div><p>Strategic partnership with Moen Flo Smart Water Monitor. Premium incentive program for whole-home water monitoring. Moen data shows up to 96% reduction in claim frequency.</p></div>'+
+    '<div class="mandate-card pending"><h4>California State Mandate</h4><div class="mandate-meta">Status: Active Regulation | States: CA</div><p>New requirements mandate water leak detection valves on water mains for homeowners insurance eligibility in high-risk zones.</p></div>'+
+    '<div class="mandate-card pending"><h4>State Farm</h4><div class="mandate-meta">Status: Active Initiative | States: All US</div><p>Water Initiative launched to reduce water loss claims. Moving toward premium incentives for smart water shutoff devices in high-risk states.</p></div>'+
+    '<div class="mandate-card"><h4>Munich Re / HSB</h4><div class="mandate-meta">Status: Active (Reinsurance + IoT) | Scope: Global</div><p>HSB operates Sensor Solutions using Meshify technology. WINT partnership showed 73% fewer insurance claims and 90% less payouts at equipped sites.</p></div>'+
+    '<h3 style="font-size:18px;font-weight:700;margin:32px 0 16px">Carrier Engagement Pipeline</h3>'+
+    '<div class="progress-bar-wrap"><div class="progress-label"><span>Mercury Insurance</span><span>Active Partner</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;background:var(--green)"></div></div></div>'+
+    '<div class="progress-bar-wrap"><div class="progress-label"><span>Farmers / Moen</span><span>Active Partnership</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:85%;background:var(--green)"></div></div></div>'+
+    '<div class="progress-bar-wrap"><div class="progress-label"><span>Chubb / StreamLabs</span><span>Discount Program Active</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:80%;background:var(--green)"></div></div></div>'+
+    '<div class="progress-bar-wrap"><div class="progress-label"><span>State Farm</span><span>Water Initiative Active</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%;background:var(--blue)"></div></div></div>'+
+    '<div class="progress-bar-wrap"><div class="progress-label"><span>Munich Re / HSB</span><span>IoT Program Expanding</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:70%;background:var(--blue)"></div></div></div>'+
+    '<div class="card-section" style="margin-top:32px"><h3>Addressable Market</h3><div class="card-sub">Water mitigation device market in US residential insurance</div>'+
+      '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">'+
+        '<div class="kpi-card"><div class="kpi-label">Total US Homes</div><div class="kpi-value" style="font-size:24px">140M</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">High-Risk Eligible</div><div class="kpi-value" style="font-size:24px">28M</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Currently Equipped</div><div class="kpi-value" style="font-size:24px">&lt;2%</div></div>'+
+      '</div>'+
+    '</div>'+
+    '</div>';
+}
+
+// ─── Loss Ratio Calculator ───
 function calcLossRatio(){
   if(!document.getElementById('calcHomes')) return;
   const homes = parseInt(document.getElementById('calcHomes').value)||5000;
