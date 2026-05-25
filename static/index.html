@@ -1462,9 +1462,9 @@ function renderDevice(d){
   var publicScore = cs; // the score based on public data
   // Namara reduces risk by providing real-time data + active protection
   // Pressure monitoring + leak detection + freeze protection + auto shut-off + thermal relief
-  var namaraReduction = Math.round(cs * 0.38); // ~38% reduction through active monitoring + mitigation
-  var namaraScore = Math.max(Math.round(cs - namaraReduction), 5);
-  var scoreImprovement = publicScore - namaraScore;
+  var namaraReduction = parseFloat((cs * 0.38).toFixed(1)); // ~38% reduction through active monitoring + mitigation
+  var namaraScore = Math.max(parseFloat((cs - namaraReduction).toFixed(1)), 5);
+  var scoreImprovement = parseFloat((publicScore - namaraScore).toFixed(1));
 
   function riskLabel(s){ return s<=25?'Low':s<=45?'Moderate':s<=65?'High':s<=80?'Very High':'Critical'; }
   function riskColor(s){ return s<=25?'var(--green)':s<=45?'var(--yellow)':s<=65?'var(--orange)':s<=80?'var(--red)':'#991b1b'; }
@@ -1474,19 +1474,19 @@ function renderDevice(d){
       // Public data score
       '<div style="text-align:center;padding:24px 20px;background:rgba(239,68,68,0.04);border-radius:12px 0 0 12px;border:1px solid rgba(239,68,68,0.12)">'+
         '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted-dim);margin-bottom:8px;font-weight:600">Public Data Only</div>'+
-        '<div style="font-size:48px;font-weight:800;color:'+riskColor(publicScore)+'">'+publicScore+'</div>'+
+        '<div style="font-size:48px;font-weight:800;color:'+riskColor(publicScore)+'">'+d1(publicScore)+'</div>'+
         '<div style="font-size:13px;font-weight:600;color:'+riskColor(publicScore)+';margin-top:2px">'+riskLabel(publicScore)+' Risk</div>'+
         '<div style="font-size:11px;color:var(--muted-dim);margin-top:8px">Based on estimated & historical data</div>'+
       '</div>'+
       // Arrow
       '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;position:relative">'+
         '<div style="font-size:28px;color:var(--teal)">&#x27A1;&#xFE0F;</div>'+
-        '<div style="background:var(--teal);color:white;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;margin-top:4px">-'+scoreImprovement+' pts</div>'+
+        '<div style="background:var(--teal);color:white;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;margin-top:4px">-'+d1(scoreImprovement)+' pts</div>'+
       '</div>'+
       // Namara score
       '<div style="text-align:center;padding:24px 20px;background:rgba(45,212,191,0.06);border-radius:0 12px 12px 0;border:1px solid rgba(45,212,191,0.15)">'+
         '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px;font-weight:600">With Namara Device</div>'+
-        '<div style="font-size:48px;font-weight:800;color:'+riskColor(namaraScore)+'">'+namaraScore+'</div>'+
+        '<div style="font-size:48px;font-weight:800;color:'+riskColor(namaraScore)+'">'+d1(namaraScore)+'</div>'+
         '<div style="font-size:13px;font-weight:600;color:'+riskColor(namaraScore)+';margin-top:2px">'+riskLabel(namaraScore)+' Risk</div>'+
         '<div style="font-size:11px;color:var(--muted-dim);margin-top:8px">Real-time measured data + active protection</div>'+
       '</div>'+
