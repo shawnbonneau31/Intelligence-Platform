@@ -856,7 +856,11 @@ function renderPropertyScore(d) {
       d.namara_prevention.map(function(p){
         return '<tr><td><strong>'+p.risk+'</strong></td><td>'+p.prevention+'</td><td style="color:var(--green);font-weight:700">'+p.estimated_savings_pct+'%</td></tr>';
       }).join('')+
-      '</tbody></table></div>';
+      '</tbody></table>'+
+      '<div style="margin-top:10px;padding:10px 14px;background:rgba(37,99,235,0.04);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.5">'+
+        '<strong style="color:var(--text)">What does Est. Savings mean?</strong> This is the estimated percentage of claims cost for each risk type that the Namara device could help prevent. For example, 65% on aging pipe failure means Namara could prevent roughly 65% of the cost associated with pipe failure claims at this property through early leak detection and auto shut-off.'+
+      '</div>'+
+    '</div>';
   }
 
   // Builder info
@@ -1281,7 +1285,7 @@ function renderClaims(d){
      namara:'Continuous pressure monitoring detects supply line anomalies before catastrophic failure'},
     {type:'Slow / Hidden Leaks',pct:cd.slow_leak_pct||0,color:'var(--orange)',
      desc:'Under-slab leaks, in-wall leaks, pinhole leaks causing mold and rot',
-     namara:'Small leak detection (1-5 GPD) catches hidden leaks weeks before visible damage'},
+     namara:'Small leak detection (1 GPD) catches hidden leaks weeks before visible damage'},
     {type:'Water Heater Failures',pct:cd.water_heater_pct||0,color:'var(--yellow)',
      desc:'Tank ruptures, thermal expansion damage, relief valve failures',
      namara:'Thermal expansion relief protects water heater from excess pressure cycling'},
@@ -1320,14 +1324,14 @@ function renderClaims(d){
     '</div>'+
     '<div class="advantage-card">'+
       '<h3>Claims Reduction Potential</h3>'+
-      '<p>Every claim type above maps directly to a Namara device capability. Pipe burst claims are prevented by freeze protection. Supply line and PRV failures are caught by continuous pressure monitoring. Slow leaks are detected at 1-5 GPD — weeks before they cause visible damage. Auto shut-off prevents catastrophic flooding from large leaks. Carriers deploying Namara can expect measurable claims reduction across all five categories.</p>'+
+      '<p>Every claim type above maps directly to a Namara device capability. Pipe burst claims are prevented by freeze protection. Supply line and PRV failures are caught by continuous pressure monitoring. Slow leaks are detected at 1 GPD — weeks before they cause visible damage. Auto shut-off prevents catastrophic flooding from large leaks. Carriers deploying Namara can expect measurable claims reduction across all five categories.</p>'+
     '</div>'+
     '<div class="card-section" style="margin-top:24px">'+
       '<h3>Public Data vs. Namara Device</h3>'+
       '<div class="card-sub">The gap between geographic estimates and per-home intelligence</div>'+
       '<div class="comparison-row header"><div>Data Layer</div><div>Public Data Only</div><div class="with-namara">With Namara Device</div></div>'+
       '<div class="comparison-row"><div><strong>Water Pressure</strong></div><div>State-level avg ('+((d.layers.pressure||{}).data||{}).avg_psi+' PSI)</div><div class="with-namara">Real-time 20-sec pressure monitoring, per-home PSI tracking, anomaly detection</div></div>'+
-      '<div class="comparison-row"><div><strong>Leak Detection</strong></div><div>Not available</div><div class="with-namara">Small leak (1-5 GPD) and large leak (>5 GPD) continuous monitoring with instant alerts</div></div>'+
+      '<div class="comparison-row"><div><strong>Leak Detection</strong></div><div>Not available</div><div class="with-namara">Small leak (1 GPD) and large leak (>5 GPD) continuous monitoring with instant alerts</div></div>'+
       '<div class="comparison-row"><div><strong>Auto Shut-Off</strong></div><div>Not available</div><div class="with-namara">Automatic water shut-off on large leak detection, preventing catastrophic damage</div></div>'+
       '<div class="comparison-row"><div><strong>Freeze Protection</strong></div><div>Weather station freeze days</div><div class="with-namara">In-pipe temperature monitoring, automatic freeze prevention activation</div></div>'+
       '<div class="comparison-row"><div><strong>Thermal Expansion</strong></div><div>Not monitored</div><div class="with-namara">Thermal expansion relief protecting water heaters, pipes, and fixtures from pressure spikes</div></div>'+
@@ -1554,6 +1558,9 @@ function renderDevice(d){
     '</div>'+
 
     // Device KPIs
+    '<div style="margin:20px 0 12px;padding:12px 16px;background:rgba(37,99,235,0.04);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.5">'+
+      '<strong style="color:var(--text)">Fleet-Level Home View</strong> — This is the key data we provide for every home in a carrier\'s fleet. At a glance, you can see if the device is online, what the water pressure is, whether there\'s a leak, and if the water temperature is safe.'+
+    '</div>'+
     '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
       '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Device Status</div><div class="kpi-value" style="font-size:18px;color:var(--green)">Online</div><div class="kpi-sub">Last reading: 20 sec ago</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Current Pressure</div><div class="kpi-value">'+namaraPsi+'</div><div class="kpi-sub">PSI — Measured</div></div>'+
@@ -1592,7 +1599,7 @@ function renderDevice(d){
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
           '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Leak Detection</div>'+
-          '<div style="font-size:12px;color:var(--muted-dim)">Small leak (1-5 GPD) and large leak (>5 GPD) monitoring</div>'+
+          '<div style="font-size:12px;color:var(--muted-dim)">Small leak (1 GPD) and large leak (>5 GPD) monitoring</div>'+
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
           '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Auto Shut-Off</div>'+
@@ -1637,16 +1644,32 @@ function renderDeployment(d){
   var phase2Homes = Math.min(Math.round(estHomes * 0.15), 2000);
   var phase3Homes = Math.min(Math.round(estHomes * 0.35), 5000);
 
-  var deviceCostPerHome = 120; // annual device cost
-  var totalPhase1Cost = phase1Homes * deviceCostPerHome;
+  var deviceCost = 1250; // device purchase price
+  var installCost = 1000; // professional install
+  var totalPerHome = deviceCost + installCost; // $2,250 one-time
+  var totalPhase1Cost = phase1Homes * totalPerHome;
   var estClaimsReduction = 0.30; // 30% reduction
   var phase1Savings = Math.round(phase1Homes * freq/1000 * avgCost * estClaimsReduction);
   var phase1ROI = Math.round((phase1Savings / totalPhase1Cost) * 100);
+  var paybackYrs = phase1Savings > 0 ? (totalPhase1Cost / phase1Savings).toFixed(1) : 'N/A';
 
   var homeAge = new Date().getFullYear() - medianYear;
   var pipeMat = homeAge > 45 ? 'Lead/Galvanized' : homeAge > 30 ? 'Copper/CPVC' : homeAge > 15 ? 'CPVC/PEX' : 'PEX';
-  var installComplexity = homeAge > 40 ? 'High' : homeAge > 25 ? 'Moderate' : 'Low';
-  var installTime = homeAge > 40 ? '45-60 min' : homeAge > 25 ? '30-45 min' : '20-30 min';
+  // Install complexity based on pipe type and main line accessibility
+  var installComplexity, installTime, installNote;
+  if (pipeMat === 'Lead/Galvanized') {
+    installComplexity = 'High';
+    installTime = '45-60 min';
+    installNote = 'Galvanized or lead pipes may need adapter fittings and corrosion cleanup at connection point';
+  } else if (pipeMat === 'Copper/CPVC') {
+    installComplexity = 'Moderate';
+    installTime = '30-45 min';
+    installNote = 'Standard copper/CPVC connections — may need compression fittings depending on pipe condition';
+  } else {
+    installComplexity = 'Low';
+    installTime = '20-30 min';
+    installNote = 'Modern PEX or CPVC piping — straightforward connection at main line entry';
+  }
 
   document.getElementById('deploymentResult').innerHTML =
     '<div class="section-title">Deployment Analysis — '+cityLabel+'</div>'+
@@ -1682,10 +1705,11 @@ function renderDeployment(d){
     '<div class="card-section">'+
       '<h3>Phase 1 ROI Projection</h3>'+
       '<div class="card-sub">Estimated return from pilot deployment of '+phase1Homes+' devices</div>'+
-      '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">'+
-        '<div class="kpi-card"><div class="kpi-label">Annual Device Cost</div><div class="kpi-value">$'+totalPhase1Cost.toLocaleString()+'</div><div class="kpi-sub">$'+deviceCostPerHome+'/device/year</div></div>'+
-        '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Projected Claims Savings</div><div class="kpi-value" style="color:var(--green)">$'+phase1Savings.toLocaleString()+'</div><div class="kpi-sub">30% reduction estimate</div></div>'+
-        '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Projected ROI</div><div class="kpi-value" style="color:var(--green)">'+phase1ROI+'%</div><div class="kpi-sub">Year 1 return</div></div>'+
+      '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
+        '<div class="kpi-card"><div class="kpi-label">Deployment Cost</div><div class="kpi-value">$'+totalPhase1Cost.toLocaleString()+'</div><div class="kpi-sub">$'+totalPerHome.toLocaleString()+'/home ($'+deviceCost.toLocaleString()+' device + $'+installCost.toLocaleString()+' install)</div></div>'+
+        '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Annual Claims Savings</div><div class="kpi-value" style="color:var(--green)">$'+phase1Savings.toLocaleString()+'/yr</div><div class="kpi-sub">30% reduction estimate</div></div>'+
+        '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Payback Period</div><div class="kpi-value" style="color:var(--green)">'+paybackYrs+' yrs</div><div class="kpi-sub">One-time cost / annual savings</div></div>'+
+        '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Year 1 ROI</div><div class="kpi-value" style="color:var(--green)">'+phase1ROI+'%</div><div class="kpi-sub">Savings vs total investment</div></div>'+
       '</div>'+
     '</div>'+
     '<div class="card-section">'+
@@ -1696,7 +1720,7 @@ function renderDeployment(d){
         '<tbody>'+
           '<tr><td><strong>Likely Pipe Material</strong></td><td>'+pipeMat+'</td><td>Based on median construction year '+medianYear+'</td></tr>'+
           '<tr><td><strong>Install Time</strong></td><td>'+installTime+'</td><td>Standard Namara device installation</td></tr>'+
-          '<tr><td><strong>Complexity</strong></td><td>'+installComplexity+'</td><td>'+(installComplexity==='High'?'Older plumbing may need adapter fittings':'Standard installation expected')+'</td></tr>'+
+          '<tr><td><strong>Complexity</strong></td><td>'+installComplexity+'</td><td>'+installNote+'</td></tr>'+
           '<tr><td><strong>Contractor Network</strong></td><td>NCI Certified</td><td>Namara Certified Installer program available in '+state+'</td></tr>'+
           '<tr><td><strong>Service Model</strong></td><td>Professional Install</td><td>Licensed plumber installs at point of entry</td></tr>'+
         '</tbody>'+
