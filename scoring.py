@@ -414,6 +414,113 @@ def score_builder(state):
     return round(max(0, 100 - bs["avg_score"]), 1)
 
 
+def compute_builder_score(builder_data):
+    """
+    Compute builder composite score and grade from actual data fields.
+    Returns (composite_score, grade) tuple.
+
+    Uses normalized metrics (per 1,000 homes) instead of raw counts,
+    so a builder with 50 complaints and 50,000 homes isn't penalized
+    the same as one with 50 complaints and 2,000 homes.
+    """
+    homes = max(builder_data.get("homes_built", 1000), 100)  # floor at 100 to avoid division issues
+
+    # ── Component 1: Quality indicators average (30%) ──
+    callback = builder_data.get("callback_rate", 70) or 70
+    plumbing_mat = builder_data.get("plumbing_material_score", 70) or 70
+    drainage = builder_data.get("drainage_score", 70) or 70
+    quality_avg = (callback + plumbing_mat + drainage) / 3.0
+
+    # ── Component 2: Warranty claim rate (25%) ──
+    # Direct percentage — lower is better
+    wcr = builder_data.get("warranty_claim_rate", 3.0) or 3.0
+    if wcr <= 0.8:
+        warranty_score = 100
+    elif wcr <= 1.5:
+        warranty_score = 90 - (wcr - 0.8) * 14.3
+    elif wcr <= 2.5:
+        warranty_score = 80 - (wcr - 1.5) * 15
+    elif wcr <= 3.5:
+        warranty_score = 65 - (wcr - 2.5) * 15
+    elif wcr <= 5.0:
+        warranty_score = 50 - (wcr - 3.5) * 16.7
+    elif wcr <= 7.0:
+        warranty_score = 25 - (wcr - 5.0) * 10
+    else:
+        warranty_score = max(0, 5 - (wcr - 7.0) * 2.5)
+
+    # ── Component 3: Complaints per 1,000 homes (20%) ──
+    raw_complaints = builder_data.get("bbb_complaints", 0) or 0
+    complaints_per_1k = (raw_complaints / homes) * 1000
+    if complaints_per_1k <= 0.5:
+        complaint_score = 100
+    elif complaints_per_1k <= 1.5:
+        complaint_score = 90 - (complaints_per_1k - 0.5) * 15
+    elif complaints_per_1k <= 3.0:
+        complaint_score = 75 - (complaints_per_1k - 1.5) * 16.7
+    elif complaints_per_1k <= 5.0:
+        complaint_score = 50 - (complaints_per_1k - 3.0) * 15
+    elif complaints_per_1k <= 8.0:
+        complaint_score = 20 - (complaints_per_1k - 5.0) * 5
+    else:
+        complaint_score = max(0, 5 - (complaints_per_1k - 8.0) * 2.5)
+
+    # ── Component 4: Violations per 1,000 homes (15%) ──
+    raw_violations = builder_data.get("building_dept_violations", 0) or 0
+    violations_per_1k = (raw_violations / homes) * 1000
+    if violations_per_1k <= 0.1:
+        violation_score = 100
+    elif violations_per_1k <= 0.5:
+        violation_score = 90 - (violations_per_1k - 0.1) * 25
+    elif violations_per_1k <= 1.0:
+        violation_score = 80 - (violations_per_1k - 0.5) * 30
+    elif violations_per_1k <= 2.0:
+        violation_score = 65 - (violations_per_1k - 1.0) * 25
+    elif violations_per_1k <= 3.0:
+        violation_score = 40 - (violations_per_1k - 2.0) * 20
+    else:
+        violation_score = max(0, 20 - (violations_per_1k - 3.0) * 10)
+
+    # ── Component 5: Plumbing sub quality (10%) ──
+    psq = builder_data.get("plumbing_sub_quality", "unknown") or "unknown"
+    psq_map = {"premium": 90, "mid-tier": 55, "budget": 20, "unknown": 45}
+    plumbing_quality_score = psq_map.get(psq, 45)
+
+    # ── Weighted composite ──
+    composite = (
+        quality_avg * 0.30 +
+        warranty_score * 0.25 +
+        complaint_score * 0.20 +
+        violation_score * 0.15 +
+        plumbing_quality_score * 0.10
+    )
+
+    # ── License status penalty ──
+    license_status = builder_data.get("license_status", "active") or "active"
+    if license_status == "probation":
+        composite -= 15
+    elif license_status == "suspended":
+        composite -= 30
+    elif license_status == "revoked":
+        composite = min(composite, 15)
+
+    composite = round(max(0, min(100, composite)), 1)
+
+    # ── Grade assignment ──
+    if composite >= 82:
+        grade = "A"
+    elif composite >= 67:
+        grade = "B"
+    elif composite >= 52:
+        grade = "C"
+    elif composite >= 38:
+        grade = "D"
+    else:
+        grade = "F"
+
+    return composite, grade
+
+
 # ─── Regulatory Scoring ───
 
 def get_regulatory(state):
