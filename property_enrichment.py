@@ -105,14 +105,22 @@ def _attom_request(endpoint, params):
     url = f"{ATTOM_BASE_URL}{endpoint}?{urlencode(params)}"
     req = Request(url)
     req.add_header("Accept", "application/json")
-    req.add_header("APIKey", ATTOM_API_KEY)
+    req.add_header("apikey", ATTOM_API_KEY)
 
     try:
+        logger.info(f"ATTOM API request: {endpoint} params={params}")
         with urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
+            raw = resp.read().decode("utf-8")
+            data = json.loads(raw)
+            logger.info(f"ATTOM API success: {endpoint} — {len(raw)} bytes")
             return data
     except HTTPError as e:
-        logger.warning(f"ATTOM API HTTP error {e.code}: {e.reason} for {endpoint}")
+        body = ""
+        try:
+            body = e.read().decode("utf-8", errors="replace")[:500]
+        except:
+            pass
+        logger.warning(f"ATTOM API HTTP error {e.code}: {e.reason} for {endpoint} — {body}")
         if e.code == 429:
             logger.warning("ATTOM rate limit hit — will use cached/fallback data")
         return None

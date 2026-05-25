@@ -833,7 +833,10 @@ async function scoreAddress(){
       LAST_SCORE = null;
       renderPropertyScore(data);
       renderPropertyDetail(data);
+      renderClaims(data);
       renderDevice(data);
+      renderDeployment(data);
+      renderEnvironmental(data);
     } else {
       document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
     }
