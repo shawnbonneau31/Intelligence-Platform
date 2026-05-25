@@ -68,11 +68,22 @@ def init_db():
         appliance_score REAL,
         drainage_score REAL,
         composite_score REAL,
-        grade TEXT CHECK(grade IN ('A', 'B', 'C', 'D')),
+        grade TEXT CHECK(grade IN ('A', 'B', 'C', 'D', 'F')),
         homes_built INTEGER,
         year_established INTEGER,
         specialties TEXT,
         notes TEXT,
+        bbb_rating TEXT DEFAULT 'NR',
+        bbb_complaints INTEGER DEFAULT 0,
+        bbb_years_accredited INTEGER DEFAULT 0,
+        license_status TEXT DEFAULT 'active',
+        license_expiry TEXT,
+        building_dept_violations INTEGER DEFAULT 0,
+        building_dept_last_violation TEXT,
+        warranty_claim_rate REAL DEFAULT 0,
+        plumbing_sub_quality TEXT DEFAULT 'unknown',
+        avg_home_price INTEGER DEFAULT 0,
+        markets TEXT,
         updated_at TEXT DEFAULT (datetime('now'))
     );
 
@@ -164,6 +175,43 @@ def init_db():
         UNIQUE(api_key_id, window_start)
     );
 
+    CREATE TABLE IF NOT EXISTS properties (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        address TEXT NOT NULL,
+        city TEXT NOT NULL,
+        state TEXT NOT NULL,
+        zip_code TEXT NOT NULL,
+        latitude REAL,
+        longitude REAL,
+        year_built INTEGER,
+        sqft INTEGER,
+        stories INTEGER DEFAULT 1,
+        bathrooms REAL DEFAULT 2.0,
+        property_type TEXT DEFAULT 'single_family',
+        pipe_material TEXT,
+        pipe_material_source TEXT DEFAULT 'estimated',
+        has_prv INTEGER DEFAULT 0,
+        has_expansion_tank INTEGER DEFAULT 0,
+        water_heater_age_years INTEGER,
+        water_heater_type TEXT DEFAULT 'tank',
+        last_plumbing_permit_year INTEGER,
+        total_plumbing_permits INTEGER DEFAULT 0,
+        last_renovation_year INTEGER,
+        prior_water_claims INTEGER DEFAULT 0,
+        prior_claim_total_cost REAL DEFAULT 0,
+        builder_id INTEGER,
+        builder_name TEXT,
+        property_risk_score REAL,
+        namara_device_installed INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (builder_id) REFERENCES builders(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_properties_address ON properties(address, city, state);
+    CREATE INDEX IF NOT EXISTS idx_properties_zip ON properties(zip_code);
+    CREATE INDEX IF NOT EXISTS idx_properties_state ON properties(state);
+    CREATE INDEX IF NOT EXISTS idx_properties_builder ON properties(builder_id);
     CREATE INDEX IF NOT EXISTS idx_builders_state ON builders(state);
     CREATE INDEX IF NOT EXISTS idx_builders_grade ON builders(grade);
     CREATE INDEX IF NOT EXISTS idx_score_cache_hash ON score_cache(address_hash);

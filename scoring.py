@@ -561,3 +561,549 @@ def compute_composite_score(zip_code, builder_name=None):
             "Supply-side pressure relief and optimization"
         ]
     }
+
+
+# ─── Property-Level Scoring ───
+
+PIPE_MATERIAL_FROM_YEAR = [
+    (1940, "lead/galvanized", 95),
+    (1960, "galvanized", 80),
+    (1975, "copper/galvanized", 55),
+    (1990, "copper", 35),
+    (2000, "copper/cpvc", 25),
+    (2010, "pex/cpvc", 15),
+    (2030, "pex", 10),
+]
+
+PIPE_RISK_SCORES = {
+    "lead": 98, "lead/galvanized": 95, "galvanized": 80, "copper/galvanized": 55,
+    "copper": 35, "copper/cpvc": 25, "cpvc": 22, "pex/cpvc": 15, "pex": 10,
+    "unknown": 50,
+}
+
+
+def estimate_pipe_material(year_built):
+    """Estimate pipe material from year built."""
+    if not year_built:
+        return "unknown", 50
+    for threshold, material, risk in PIPE_MATERIAL_FROM_YEAR:
+        if year_built <= threshold:
+            return material, risk
+    return "pex", 10
+
+
+def lookup_property(address, city, state, zip_code):
+    """Look up a property in the database. Returns dict or None."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    row = None
+    addr = address.strip()
+    st = state.strip() if state else ""
+    zc = str(zip_code).strip() if zip_code else ""
+
+    # Try exact address + state match first
+    if st:
+        row = conn.execute(
+            "SELECT * FROM properties WHERE LOWER(address) = LOWER(?) AND LOWER(state) = LOWER(?)",
+            (addr, st)
+        ).fetchone()
+    # Try exact address + zip match
+    if not row and zc:
+        row = conn.execute(
+            "SELECT * FROM properties WHERE LOWER(address) = LOWER(?) AND zip_code = ?",
+            (addr, zc)
+        ).fetchone()
+    # Partial address + state
+    if not row and st:
+        row = conn.execute(
+            "SELECT * FROM properties WHERE LOWER(address) LIKE ? AND LOWER(state) = LOWER(?)",
+            (f"%{addr.lower()}%", st)
+        ).fetchone()
+    # Partial address + zip
+    if not row and zc:
+        row = conn.execute(
+            "SELECT * FROM properties WHERE LOWER(address) LIKE ? AND zip_code = ?",
+            (f"%{addr.lower()}%", zc)
+        ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def lookup_builder_by_id(builder_id):
+    """Look up a specific builder by ID."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute("SELECT * FROM builders WHERE id = ?", (builder_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def lookup_builder_by_name(name, state=None):
+    """Look up a builder by name (fuzzy match)."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    if state:
+        row = conn.execute(
+            "SELECT * FROM builders WHERE LOWER(name) LIKE ? AND state = ? ORDER BY composite_score DESC LIMIT 1",
+            (f"%{name.lower()}%", state)
+        ).fetchone()
+    else:
+        row = conn.execute(
+            "SELECT * FROM builders WHERE LOWER(name) LIKE ? ORDER BY composite_score DESC LIMIT 1",
+            (f"%{name.lower()}%",)
+        ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def score_property_age(year_built):
+    """Score home age risk 0-100. Older homes = higher risk."""
+    if not year_built:
+        return 50.0
+    age = datetime.now().year - year_built
+    if age <= 5:
+        return 8.0
+    elif age <= 10:
+        return 15.0
+    elif age <= 20:
+        return 28.0
+    elif age <= 30:
+        return 42.0
+    elif age <= 40:
+        return 58.0
+    elif age <= 50:
+        return 72.0
+    elif age <= 65:
+        return 82.0
+    else:
+        return 92.0
+
+
+def score_pipe_material(pipe_material, year_built):
+    """Score pipe material risk 0-100."""
+    if pipe_material and pipe_material.lower() != "unknown":
+        return PIPE_RISK_SCORES.get(pipe_material.lower(), 50)
+    # Estimate from year built
+    _, risk = estimate_pipe_material(year_built)
+    return risk
+
+
+def score_water_heater_risk(age_years, heater_type="tank"):
+    """Score water heater failure risk 0-100."""
+    if age_years is None:
+        return 40.0
+    # Tank heaters: avg lifespan 8-12 years, tankless: 15-20 years
+    if heater_type == "tankless":
+        if age_years <= 5:
+            return 8.0
+        elif age_years <= 10:
+            return 18.0
+        elif age_years <= 15:
+            return 35.0
+        elif age_years <= 20:
+            return 60.0
+        else:
+            return 85.0
+    else:  # tank
+        if age_years <= 3:
+            return 8.0
+        elif age_years <= 6:
+            return 18.0
+        elif age_years <= 8:
+            return 35.0
+        elif age_years <= 10:
+            return 55.0
+        elif age_years <= 12:
+            return 75.0
+        else:
+            return 92.0
+
+
+def score_permit_history(total_permits, last_permit_year, year_built):
+    """Score plumbing maintenance risk. More recent permits = lower risk (maintained home)."""
+    if not year_built:
+        return 50.0
+    age = datetime.now().year - year_built
+    if age <= 5:
+        return 10.0  # New home, no permits needed yet
+
+    if total_permits == 0 and age > 20:
+        return 78.0  # Old home, never maintained
+    elif total_permits == 0 and age > 10:
+        return 55.0
+
+    if last_permit_year:
+        years_since = datetime.now().year - last_permit_year
+        if years_since <= 3:
+            return 12.0
+        elif years_since <= 7:
+            return 25.0
+        elif years_since <= 15:
+            return 40.0
+        else:
+            return 60.0
+    return 45.0
+
+
+def score_prior_claims(num_claims, total_cost):
+    """Score prior claims risk 0-100. Properties with history are higher risk."""
+    if num_claims == 0:
+        return 10.0
+    elif num_claims == 1:
+        base = 40.0
+    elif num_claims == 2:
+        base = 60.0
+    elif num_claims == 3:
+        base = 75.0
+    else:
+        base = 88.0
+    # Adjust for severity
+    if total_cost and total_cost > 50000:
+        base = min(base + 10, 100)
+    elif total_cost and total_cost > 25000:
+        base = min(base + 5, 100)
+    return base
+
+
+def score_protection_devices(has_prv, has_expansion_tank):
+    """Score protection level. Devices present = lower risk."""
+    if has_prv and has_expansion_tank:
+        return 10.0
+    elif has_prv:
+        return 30.0
+    elif has_expansion_tank:
+        return 45.0
+    else:
+        return 70.0
+
+
+def score_individual_builder(builder):
+    """Score a specific builder's quality 0-100 (higher = more risk)."""
+    if not builder:
+        return 50.0, {}
+
+    factors = {}
+
+    # Core construction quality score (inverted: high quality = low risk)
+    core_score = builder.get("composite_score", 50)
+    factors["construction_quality"] = round(100 - core_score, 1)
+
+    # BBB rating
+    bbb_map = {"A+": 5, "A": 10, "A-": 18, "B+": 28, "B": 38, "B-": 48,
+               "C+": 58, "C": 65, "C-": 72, "D+": 78, "D": 85, "D-": 90, "F": 95, "NR": 45}
+    bbb_rating = builder.get("bbb_rating", "NR")
+    factors["bbb_rating_risk"] = bbb_map.get(bbb_rating, 45)
+
+    # BBB complaints
+    complaints = builder.get("bbb_complaints", 0)
+    if complaints == 0:
+        factors["bbb_complaints_risk"] = 10
+    elif complaints <= 3:
+        factors["bbb_complaints_risk"] = 25
+    elif complaints <= 8:
+        factors["bbb_complaints_risk"] = 45
+    elif complaints <= 15:
+        factors["bbb_complaints_risk"] = 65
+    else:
+        factors["bbb_complaints_risk"] = 85
+
+    # License status
+    license_status = builder.get("license_status", "unknown")
+    license_map = {"active": 10, "conditional": 45, "probation": 70, "expired": 85,
+                   "suspended": 95, "revoked": 98, "unknown": 50}
+    factors["license_risk"] = license_map.get(license_status, 50)
+
+    # Building dept violations
+    violations = builder.get("building_dept_violations", 0)
+    if violations == 0:
+        factors["violation_risk"] = 8
+    elif violations <= 2:
+        factors["violation_risk"] = 28
+    elif violations <= 5:
+        factors["violation_risk"] = 50
+    elif violations <= 10:
+        factors["violation_risk"] = 72
+    else:
+        factors["violation_risk"] = 90
+
+    # Warranty claim rate
+    warranty = builder.get("warranty_claim_rate", 0)
+    factors["warranty_risk"] = min(round(warranty / 0.15 * 100, 1), 100) if warranty else 40
+
+    # Plumbing sub quality
+    sub_map = {"excellent": 8, "good": 22, "average": 45, "below_average": 68, "poor": 88, "unknown": 50}
+    factors["plumbing_sub_risk"] = sub_map.get(builder.get("plumbing_sub_quality", "unknown"), 50)
+
+    # Weighted composite for builder
+    builder_risk = round(
+        factors["construction_quality"] * 0.25 +
+        factors["bbb_rating_risk"] * 0.15 +
+        factors["bbb_complaints_risk"] * 0.10 +
+        factors["license_risk"] * 0.15 +
+        factors["violation_risk"] * 0.15 +
+        factors["warranty_risk"] * 0.10 +
+        factors["plumbing_sub_risk"] * 0.10,
+        1
+    )
+
+    return builder_risk, factors
+
+
+def compute_property_score(address, city, state, zip_code,
+                            year_built=None, pipe_material=None,
+                            builder_name=None, builder_id=None,
+                            water_heater_age=None, water_heater_type="tank",
+                            has_prv=False, has_expansion_tank=False,
+                            prior_claims=0, prior_claim_cost=0,
+                            total_permits=0, last_permit_year=None,
+                            sqft=None, stories=1, bathrooms=2.0):
+    """
+    Compute address-level property risk score.
+    Combines property-specific factors (~60%) with environmental context (~40%).
+    Returns detailed breakdown for all factors.
+    """
+    if not state:
+        state = zip_to_state(zip_code)
+    if not state:
+        return {"error": f"Could not resolve state for zip code {zip_code}"}
+
+    # Try to look up property in database for enrichment
+    db_property = lookup_property(address, city, state, zip_code)
+    if db_property:
+        # Enrich from database where user didn't provide values
+        year_built = year_built or db_property.get("year_built")
+        pipe_material = pipe_material or db_property.get("pipe_material")
+        builder_id = builder_id or db_property.get("builder_id")
+        builder_name = builder_name or db_property.get("builder_name")
+        water_heater_age = water_heater_age if water_heater_age is not None else db_property.get("water_heater_age_years")
+        water_heater_type = water_heater_type or db_property.get("water_heater_type", "tank")
+        has_prv = has_prv or bool(db_property.get("has_prv"))
+        has_expansion_tank = has_expansion_tank or bool(db_property.get("has_expansion_tank"))
+        prior_claims = prior_claims or db_property.get("prior_water_claims", 0)
+        prior_claim_cost = prior_claim_cost or db_property.get("prior_claim_total_cost", 0)
+        total_permits = total_permits or db_property.get("total_plumbing_permits", 0)
+        last_permit_year = last_permit_year or db_property.get("last_plumbing_permit_year")
+        sqft = sqft or db_property.get("sqft")
+        stories = stories or db_property.get("stories", 1)
+        bathrooms = bathrooms or db_property.get("bathrooms", 2.0)
+
+    # Estimate pipe material if not provided
+    pipe_source = "provided"
+    if not pipe_material or pipe_material.lower() == "unknown":
+        pipe_material, _ = estimate_pipe_material(year_built)
+        pipe_source = "estimated_from_year"
+
+    # ─── Property-Level Factors (60% of total) ───
+
+    # 1. Home age (15%)
+    age_score = score_property_age(year_built)
+
+    # 2. Pipe material (15%)
+    pipe_score = score_pipe_material(pipe_material, year_built)
+
+    # 3. Water heater (10%)
+    heater_score = score_water_heater_risk(water_heater_age, water_heater_type)
+
+    # 4. Plumbing permit/maintenance history (8%)
+    permit_score = score_permit_history(total_permits, last_permit_year, year_built)
+
+    # 5. Prior claims (7%)
+    claims_history_score = score_prior_claims(prior_claims, prior_claim_cost)
+
+    # 6. Protection devices (5%)
+    protection_score = score_protection_devices(has_prv, has_expansion_tank)
+
+    # 7. Builder quality — specific builder if available (property-level), else state avg
+    builder = None
+    builder_risk = 50.0
+    builder_factors = {}
+    if builder_id:
+        builder = lookup_builder_by_id(builder_id)
+    elif builder_name:
+        builder = lookup_builder_by_name(builder_name, state)
+    if builder:
+        builder_risk, builder_factors = score_individual_builder(builder)
+
+    # Property composite (60% weight)
+    property_composite = round(
+        age_score * 0.15 / 0.60 +
+        pipe_score * 0.15 / 0.60 +
+        heater_score * 0.10 / 0.60 +
+        permit_score * 0.08 / 0.60 +
+        claims_history_score * 0.07 / 0.60 +
+        protection_score * 0.05 / 0.60,
+        1
+    )
+
+    # ─── Environmental Context (40% of total) ───
+    lat, lon = geocode_zip(zip_code)
+
+    climate_data = fetch_climate_data(lat, lon)
+    climate_score = score_climate(climate_data)
+
+    wq_data = get_water_quality(state)
+    wq_score = score_water_quality(wq_data)
+
+    pressure_data = get_pressure_data(state)
+    pressure_score = score_pressure(pressure_data)
+
+    claims_data = get_claims_data(state)
+    area_claims_score = score_claims(claims_data)
+
+    reg_data = get_regulatory(state)
+    reg_score = score_regulatory(reg_data)
+
+    # Environmental composite (40% weight)
+    env_composite = round(
+        climate_score * 0.10 / 0.40 +
+        wq_score * 0.08 / 0.40 +
+        pressure_score * 0.08 / 0.40 +
+        area_claims_score * 0.08 / 0.40 +
+        reg_score * 0.06 / 0.40,
+        1
+    )
+
+    # ─── Total Composite ───
+    total_composite = round(
+        # Property factors (60%)
+        age_score * 0.15 +
+        pipe_score * 0.15 +
+        heater_score * 0.10 +
+        permit_score * 0.08 +
+        claims_history_score * 0.07 +
+        protection_score * 0.05 +
+        # Environmental context (40%)
+        climate_score * 0.10 +
+        wq_score * 0.08 +
+        pressure_score * 0.08 +
+        area_claims_score * 0.08 +
+        reg_score * 0.06,
+        1
+    )
+
+    # Risk level
+    if total_composite <= 25:
+        risk_level = "Low"
+        risk_color = "#22c55e"
+    elif total_composite <= 45:
+        risk_level = "Moderate"
+        risk_color = "#f59e0b"
+    elif total_composite <= 65:
+        risk_level = "High"
+        risk_color = "#f97316"
+    elif total_composite <= 80:
+        risk_level = "Very High"
+        risk_color = "#ef4444"
+    else:
+        risk_level = "Critical"
+        risk_color = "#dc2626"
+
+    # Confidence level based on data completeness
+    data_points = sum([
+        bool(year_built), bool(pipe_material and pipe_source == "provided"),
+        bool(water_heater_age is not None), bool(total_permits > 0),
+        bool(builder), bool(db_property)
+    ])
+    if data_points >= 5:
+        confidence = "High"
+    elif data_points >= 3:
+        confidence = "Moderate"
+    else:
+        confidence = "Low (limited property data)"
+
+    # Namara device prevention mapping for this property
+    prevention_items = []
+    if pipe_score > 40:
+        prevention_items.append({
+            "risk": "Aging pipe failure",
+            "prevention": "Small leak detection catches failures early, auto shut-off prevents catastrophic damage",
+            "estimated_savings_pct": 65
+        })
+    if heater_score > 35:
+        prevention_items.append({
+            "risk": "Water heater failure",
+            "prevention": "Pressure monitoring detects tank pressure buildup, thermal expansion relief prevents burst",
+            "estimated_savings_pct": 70
+        })
+    if climate_score > 40 and climate_data.get("freeze_days", 0) > 10:
+        prevention_items.append({
+            "risk": "Freeze damage",
+            "prevention": "In-pipe temperature monitoring with alerts before pipe-freezing temps reached",
+            "estimated_savings_pct": 80
+        })
+    if pressure_score > 40:
+        prevention_items.append({
+            "risk": "High water pressure damage",
+            "prevention": "20-second pressure monitoring detects spikes, supply-side pressure relief prevents damage",
+            "estimated_savings_pct": 60
+        })
+    if not has_prv:
+        prevention_items.append({
+            "risk": "No pressure regulation",
+            "prevention": "Supply-side pressure relief and optimization compensates for missing PRV",
+            "estimated_savings_pct": 50
+        })
+
+    return {
+        "address": address,
+        "city": city,
+        "state": state,
+        "zip_code": zip_code,
+        "latitude": lat if lat else None,
+        "longitude": lon if lon else None,
+        "composite_score": total_composite,
+        "risk_level": risk_level,
+        "risk_color": risk_color,
+        "confidence": confidence,
+        "scored_at": datetime.utcnow().isoformat(),
+        "score_type": "property_level",
+        "property_data": {
+            "year_built": year_built,
+            "pipe_material": pipe_material,
+            "pipe_material_source": pipe_source,
+            "sqft": sqft,
+            "stories": stories,
+            "bathrooms": bathrooms,
+            "water_heater_age_years": water_heater_age,
+            "water_heater_type": water_heater_type,
+            "has_prv": has_prv,
+            "has_expansion_tank": has_expansion_tank,
+            "prior_water_claims": prior_claims,
+            "prior_claim_total_cost": prior_claim_cost,
+            "total_plumbing_permits": total_permits,
+            "last_plumbing_permit_year": last_permit_year,
+            "from_database": bool(db_property),
+        },
+        "property_factors": {
+            "home_age": {"score": age_score, "weight": 0.15, "weighted": round(age_score * 0.15, 1)},
+            "pipe_material": {"score": pipe_score, "weight": 0.15, "weighted": round(pipe_score * 0.15, 1)},
+            "water_heater": {"score": heater_score, "weight": 0.10, "weighted": round(heater_score * 0.10, 1)},
+            "permit_history": {"score": permit_score, "weight": 0.08, "weighted": round(permit_score * 0.08, 1)},
+            "prior_claims": {"score": claims_history_score, "weight": 0.07, "weighted": round(claims_history_score * 0.07, 1)},
+            "protection_devices": {"score": protection_score, "weight": 0.05, "weighted": round(protection_score * 0.05, 1)},
+            "subtotal": property_composite,
+        },
+        "environmental_factors": {
+            "climate": {"score": climate_score, "weight": 0.10, "weighted": round(climate_score * 0.10, 1), "data": climate_data},
+            "water_quality": {"score": wq_score, "weight": 0.08, "weighted": round(wq_score * 0.08, 1)},
+            "pressure": {"score": pressure_score, "weight": 0.08, "weighted": round(pressure_score * 0.08, 1)},
+            "area_claims": {"score": area_claims_score, "weight": 0.08, "weighted": round(area_claims_score * 0.08, 1)},
+            "regulatory": {"score": reg_score, "weight": 0.06, "weighted": round(reg_score * 0.06, 1)},
+            "subtotal": env_composite,
+        },
+        "builder": {
+            "name": builder.get("name") if builder else builder_name,
+            "grade": builder.get("grade") if builder else None,
+            "risk_score": builder_risk,
+            "factors": builder_factors,
+            "found_in_database": bool(builder),
+        },
+        "namara_prevention": prevention_items,
+        "namara_gap": [
+            "Real-time water pressure monitoring (20-sec intervals)",
+            "Small and large leak detection with auto shut-off",
+            "Freeze protection with in-pipe temperature monitoring",
+            "Thermal expansion relief",
+            "Supply-side pressure relief and optimization"
+        ]
+    }

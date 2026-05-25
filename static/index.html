@@ -69,6 +69,13 @@ a:hover{text-decoration:underline}
 .sample-zips{font-size:13px;opacity:0.55}
 .sample-zips a{color:#fff;opacity:0.8;text-decoration:underline;cursor:pointer}
 .sample-zips a:hover{opacity:1}
+.mode-btn{padding:8px 20px;border:1px solid rgba(96,165,250,0.3);background:transparent;color:#60a5fa;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}
+.mode-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.mode-btn:hover{border-color:var(--blue);color:#fff}
+.addr-field{padding:12px 16px;border:none;border-radius:8px;font-size:14px;background:rgba(255,255,255,0.12);color:#fff;width:100%}
+.addr-field:focus{outline:none;background:rgba(255,255,255,0.18)}
+.addr-field::placeholder{color:#64748b}
+.addr-field option{background:#1e293b;color:#fff}
 
 /* ── Tab Navigation ── */
 .tab-bar-wrap{background:var(--navy)}
@@ -297,19 +304,61 @@ a:hover{text-decoration:underline}
 
   <!-- Hero Search -->
   <div class="hero">
-    <h2>Assess Water Risk for Any Location</h2>
-    <div class="hero-sub">Enter a zip code to generate a comprehensive water risk profile with claims intelligence</div>
-    <div class="search-row">
+    <h2>Address-Level Water Risk Intelligence</h2>
+    <div class="hero-sub">Score any property with address-specific risk factors or quickly assess an area by zip code</div>
+
+    <!-- Toggle between Quick Zip and Full Address -->
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+      <button id="modeZip" class="mode-btn active" onclick="setSearchMode('zip')">Quick Zip Score</button>
+      <button id="modeAddr" class="mode-btn" onclick="setSearchMode('address')">Full Address Score</button>
+    </div>
+
+    <!-- Zip Code Mode -->
+    <div id="searchZip" class="search-row">
       <input type="text" id="zipInput" placeholder="Enter zip code (e.g. 85281)" maxlength="5"
              onkeydown="if(event.key==='Enter')scoreZip()">
       <button id="scoreBtn" onclick="scoreZip()">Analyze Risk</button>
     </div>
-    <div class="sample-zips">
+
+    <!-- Address Mode -->
+    <div id="searchAddr" style="display:none;max-width:720px;margin:0 auto">
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:8px">
+        <input type="text" id="addrInput" placeholder="Street address (e.g. 1420 Brickell Bay Dr)" class="addr-field">
+        <input type="text" id="cityInput" placeholder="City" class="addr-field">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px;margin-bottom:8px">
+        <select id="stateInput" class="addr-field"><option value="">State</option></select>
+        <input type="text" id="zipInput2" placeholder="Zip code" maxlength="5" class="addr-field">
+        <button id="scoreBtnAddr" onclick="scoreAddress()" style="padding:12px 24px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Score Property</button>
+      </div>
+      <!-- Optional property details (collapsible) -->
+      <div style="text-align:center;margin-bottom:8px">
+        <a onclick="togglePropertyDetails()" style="color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer" id="detailsToggle">+ Add property details for higher accuracy</a>
+      </div>
+      <div id="propertyDetails" style="display:none;background:rgba(255,255,255,0.06);border-radius:10px;padding:16px;margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+          <input type="number" id="yearBuiltInput" placeholder="Year built" class="addr-field">
+          <select id="pipeMaterialInput" class="addr-field">
+            <option value="">Pipe material</option><option value="pex">PEX</option><option value="cpvc">CPVC</option>
+            <option value="copper">Copper</option><option value="galvanized">Galvanized</option><option value="lead">Lead</option>
+          </select>
+          <input type="text" id="builderNameInput" placeholder="Builder name" class="addr-field">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+          <input type="number" id="whAgeInput" placeholder="Water heater age" class="addr-field">
+          <select id="whTypeInput" class="addr-field"><option value="tank">Tank</option><option value="tankless">Tankless</option></select>
+          <label style="color:rgba(255,255,255,0.7);font-size:12px;display:flex;align-items:center;gap:6px"><input type="checkbox" id="prvInput"> Has PRV</label>
+          <input type="number" id="priorClaimsInput" placeholder="Prior claims" class="addr-field" value="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="sample-zips" id="sampleLinks">
       Try: <a onclick="quickScore('85281')">85281</a> (Tempe, AZ) ·
       <a onclick="quickScore('33139')">33139</a> (Miami Beach, FL) ·
       <a onclick="quickScore('90210')">90210</a> (Beverly Hills, CA) ·
-      <a onclick="quickScore('02101')">02101</a> (Boston, MA) ·
-      <a onclick="quickScore('98101')">98101</a> (Seattle, WA)
+      <a onclick="quickAddr('1420 Brickell Bay Dr','Miami','FL','33131')">1420 Brickell Bay Dr, Miami FL</a> ·
+      <a onclick="quickAddr('3215 Bayshore Blvd','Tampa','FL','33629')">3215 Bayshore Blvd, Tampa FL</a>
     </div>
   </div>
 
@@ -447,13 +496,10 @@ a:hover{text-decoration:underline}
 
     <!-- Builder Quality Tab -->
     <div id="tab-builders" class="tab-panel">
+      <div id="builderSummary" style="margin-bottom:16px"></div>
       <div class="builder-filters">
         <select id="builderState" onchange="loadBuilders()">
           <option value="">All States</option>
-          <option value="FL" selected>Florida</option>
-          <option value="TX">Texas</option>
-          <option value="AZ">Arizona</option>
-          <option value="CA">California</option>
         </select>
         <select id="builderGrade" onchange="loadBuilders()">
           <option value="">All Grades</option>
@@ -461,10 +507,27 @@ a:hover{text-decoration:underline}
           <option value="B">Grade B</option>
           <option value="C">Grade C</option>
           <option value="D">Grade D</option>
+          <option value="F">Grade F</option>
+        </select>
+        <select id="builderBBB" onchange="loadBuilders()">
+          <option value="">All BBB Ratings</option>
+          <option value="A+">A+</option><option value="A">A</option><option value="A-">A-</option>
+          <option value="B+">B+</option><option value="B">B</option>
+          <option value="C">C</option><option value="D">D</option><option value="NR">Not Rated</option>
         </select>
         <input type="text" id="builderSearch" placeholder="Search by name..." oninput="loadBuilders()">
       </div>
       <div id="builderResults"><div class="loading"><div class="spinner"></div><p>Loading builders...</p></div></div>
+      <!-- Builder Detail Modal -->
+      <div id="builderModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:var(--card);border-radius:16px;padding:32px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h3 id="modalBuilderName" style="font-size:20px;font-weight:700"></h3>
+            <button onclick="closeBuilderModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted)">&times;</button>
+          </div>
+          <div id="modalBuilderContent"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Environmental Risk Tab (merged Water Quality + Climate) -->
@@ -474,10 +537,10 @@ a:hover{text-decoration:underline}
       </div>
     </div>
 
-    <!-- Property Risk Tab (merged Infrastructure + Pressure) -->
+    <!-- Property Risk Tab (address-level scoring) -->
     <div id="tab-property" class="tab-panel">
       <div id="propertyResult">
-        <div class="empty-state"><div class="icon">&#x1F3E0;</div><h3>Score a zip code first</h3><p>Infrastructure and pressure risk data will appear here after you analyze a location.</p></div>
+        <div class="empty-state"><div class="icon">&#x1F3E0;</div><h3>Score a property address</h3><p>Switch to "Full Address Score" above and enter a property address to see address-level risk factors including home age, pipe material, water heater risk, and builder quality.</p></div>
       </div>
     </div>
 
@@ -623,6 +686,7 @@ function logout(){
 function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
+  loadStates();
   loadBuilders();
   calcLossRatio();
 }
@@ -655,13 +719,42 @@ function phLevel(ph){
   return 'Alkaline';
 }
 
+// ─── Search Mode ───
+let SEARCH_MODE = 'zip';
+let LAST_PROPERTY_SCORE = null;
+
+function setSearchMode(mode) {
+  SEARCH_MODE = mode;
+  document.getElementById('modeZip').classList.toggle('active', mode==='zip');
+  document.getElementById('modeAddr').classList.toggle('active', mode==='address');
+  document.getElementById('searchZip').style.display = mode==='zip' ? 'flex' : 'none';
+  document.getElementById('searchAddr').style.display = mode==='address' ? 'block' : 'none';
+}
+
+function togglePropertyDetails() {
+  const el = document.getElementById('propertyDetails');
+  const show = el.style.display === 'none';
+  el.style.display = show ? 'block' : 'none';
+  document.getElementById('detailsToggle').textContent = show ? '- Hide property details' : '+ Add property details for higher accuracy';
+}
+
 // ─── Quick Score ───
 function quickScore(zip){
+  setSearchMode('zip');
   document.getElementById('zipInput').value = zip;
   scoreZip();
 }
 
-// ─── Risk Score ───
+function quickAddr(addr, city, state, zip) {
+  setSearchMode('address');
+  document.getElementById('addrInput').value = addr;
+  document.getElementById('cityInput').value = city;
+  document.getElementById('stateInput').value = state;
+  document.getElementById('zipInput2').value = zip;
+  scoreAddress();
+}
+
+// ─── Zip-Level Score ───
 async function scoreZip(){
   const zip = document.getElementById('zipInput').value.trim();
   if(!zip||zip.length<3){ alert('Enter a valid zip code'); return; }
@@ -677,12 +770,13 @@ async function scoreZip(){
     const data = await resp.json();
     if(resp.ok) {
       LAST_SCORE = data;
+      LAST_PROPERTY_SCORE = null;
       renderScore(data);
       renderClaims(data);
       renderDevice(data);
       renderDeployment(data);
       renderEnvironmental(data);
-      renderProperty(data);
+      renderPropertyZipLevel(data);
     } else {
       document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
     }
@@ -690,6 +784,185 @@ async function scoreZip(){
     document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">Connection error</p></div>';
   }
   btn.disabled = false; btn.textContent = 'Analyze Risk';
+}
+
+// ─── Address-Level Score ───
+async function scoreAddress(){
+  const addr = document.getElementById('addrInput').value.trim();
+  const city = document.getElementById('cityInput').value.trim();
+  const state = document.getElementById('stateInput').value;
+  const zip = document.getElementById('zipInput2').value.trim();
+
+  if(!addr || !zip){ alert('Address and zip code are required'); return; }
+
+  switchTab('score', document.querySelector('.nav-tab'));
+  const btn = document.getElementById('scoreBtnAddr');
+  btn.disabled = true; btn.textContent = 'Scoring...';
+  document.getElementById('scoreResult').innerHTML = '<div class="loading"><div class="spinner"></div><p>Scoring property risk factors...</p></div>';
+
+  const body = {
+    address: addr, city: city, state: state, zip_code: zip,
+    year_built: parseInt(document.getElementById('yearBuiltInput')?.value) || null,
+    pipe_material: document.getElementById('pipeMaterialInput')?.value || null,
+    builder_name: document.getElementById('builderNameInput')?.value || null,
+    water_heater_age: parseInt(document.getElementById('whAgeInput')?.value) || null,
+    water_heater_type: document.getElementById('whTypeInput')?.value || 'tank',
+    has_prv: document.getElementById('prvInput')?.checked || false,
+    prior_claims: parseInt(document.getElementById('priorClaimsInput')?.value) || 0,
+  };
+
+  try {
+    const resp = await fetch(API+'/api/v1/property/score', {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    const data = await resp.json();
+    if(resp.ok) {
+      LAST_PROPERTY_SCORE = data;
+      LAST_SCORE = null;
+      renderPropertyScore(data);
+      renderPropertyDetail(data);
+    } else {
+      document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
+    }
+  } catch(e) {
+    document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">Connection error</p></div>';
+  }
+  btn.disabled = false; btn.textContent = 'Score Property';
+}
+
+// ─── Render Property-Level Score (Tab 1 for address mode) ───
+function renderPropertyScore(d) {
+  const pf = d.property_factors||{};
+  const ef = d.environmental_factors||{};
+  const bld = d.builder||{};
+  const cs = d.composite_score;
+  const markerPct = Math.min(Math.max(cs,0),100);
+
+  const layers = [
+    {name:'Home Age (15%)', score:pf.home_age?.score||0},
+    {name:'Pipe Material (15%)', score:pf.pipe_material?.score||0},
+    {name:'Water Heater (10%)', score:pf.water_heater?.score||0},
+    {name:'Permit History (8%)', score:pf.permit_history?.score||0},
+    {name:'Prior Claims (7%)', score:pf.prior_claims?.score||0},
+    {name:'Protection Devices (5%)', score:pf.protection_devices?.score||0},
+    {name:'Climate (10%)', score:ef.climate?.score||0},
+    {name:'Water Quality (8%)', score:ef.water_quality?.score||0},
+    {name:'Pressure (8%)', score:ef.pressure?.score||0},
+    {name:'Area Claims (8%)', score:ef.area_claims?.score||0},
+    {name:'Regulatory (6%)', score:ef.regulatory?.score||0},
+  ];
+
+  let factorsHTML = layers.map(function(l){
+    const isProperty = ['Home Age','Pipe Material','Water Heater','Permit','Prior Claims','Protection'].some(k => l.name.includes(k));
+    const label = isProperty ? '<span style="color:var(--blue)">&#9679;</span> '+l.name : '<span style="color:var(--teal)">&#9679;</span> '+l.name;
+    return '<div class="factor-row">'+
+      '<div class="factor-label">'+label+'</div>'+
+      '<div class="factor-bar"><div class="factor-bar-fill" style="width:'+l.score+'%;background:'+factorColor(l.score)+'"></div></div>'+
+      '<div class="factor-score" style="color:'+factorColor(l.score)+'">'+l.score+'</div>'+
+    '</div>';
+  }).join('');
+
+  const pd = d.property_data||{};
+  const locationLabel = d.address + ', ' + (d.city ? d.city+' ' : '') + d.state + ' ' + d.zip_code;
+
+  // Prevention mapping
+  let preventionHTML = '';
+  if (d.namara_prevention && d.namara_prevention.length > 0) {
+    preventionHTML = '<div class="card-section" style="margin-top:24px">'+
+      '<h3>Namara Device Prevention Mapping</h3>'+
+      '<div class="card-sub">Risks at this property that the Namara device specifically addresses</div>'+
+      '<table class="data-table"><thead><tr><th>Risk</th><th>Prevention</th><th>Est. Savings</th></tr></thead><tbody>'+
+      d.namara_prevention.map(function(p){
+        return '<tr><td><strong>'+p.risk+'</strong></td><td>'+p.prevention+'</td><td style="color:var(--green);font-weight:700">'+p.estimated_savings_pct+'%</td></tr>';
+      }).join('')+
+      '</tbody></table></div>';
+  }
+
+  // Builder info
+  let builderHTML = '';
+  if (bld.found_in_database && bld.name) {
+    builderHTML = '<div class="kpi-card"><div class="kpi-label">Builder</div><div class="kpi-value" style="font-size:16px">'+bld.name+'</div><div class="kpi-sub">Grade '+(bld.grade||'N/A')+' · Risk: '+bld.risk_score+'</div></div>';
+  }
+
+  document.getElementById('scoreResult').innerHTML =
+    '<div class="location-header">'+
+      '<h2>'+locationLabel+'</h2>'+
+      '<div class="coords">Property-Level Score · Confidence: '+d.confidence+' · '+(d.response_time_ms||0)+'ms</div>'+
+    '</div>'+
+    '<div class="kpi-row">'+
+      '<div class="kpi-card highlight"><div class="kpi-label">Property Risk Score</div><div class="kpi-value">'+cs+'/100</div><div class="kpi-sub">'+d.risk_level+'</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Property Factors</div><div class="kpi-value">'+(pf.subtotal||0)+'</div><div class="kpi-sub">60% weight</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Environmental</div><div class="kpi-value">'+(ef.subtotal||0)+'</div><div class="kpi-sub">40% weight</div></div>'+
+      '<div class="kpi-card"><div class="kpi-label">Year Built</div><div class="kpi-value">'+(pd.year_built||'Unknown')+'</div><div class="kpi-sub">'+(pd.pipe_material||'est.')+' pipes</div></div>'+
+      builderHTML+
+    '</div>'+
+    '<div class="composite-section">'+
+      '<h3>Composite Property Risk Score</h3>'+
+      '<div class="comp-sub">60% property-specific factors <span style="color:var(--blue)">&#9679;</span> + 40% environmental context <span style="color:var(--teal)">&#9679;</span></div>'+
+      '<div class="gradient-bar"><div class="gradient-marker" style="left:'+markerPct+'%"></div></div>'+
+      '<div class="gradient-labels"><span>Low (0-25)</span><span>Moderate (26-45)</span><span>High (46-65)</span><span>Very High (66-80)</span><span>Critical (81+)</span></div>'+
+    '</div>'+
+    '<div class="breakdown-section">'+
+      '<h3>Risk Factor Breakdown</h3>'+
+      '<div class="brk-sub">Property-specific and environmental factors weighted by impact</div>'+
+      factorsHTML+
+    '</div>'+
+    preventionHTML;
+}
+
+// ─── Render Property Detail Tab (for address-level scores) ───
+function renderPropertyDetail(d) {
+  const pd = d.property_data||{};
+  const pf = d.property_factors||{};
+  const ef = d.environmental_factors||{};
+  const bld = d.builder||{};
+
+  let propRows = [
+    {name:'Year Built', value: pd.year_built||'Unknown', score: pf.home_age?.score||0},
+    {name:'Pipe Material', value: (pd.pipe_material||'Unknown')+' ('+(pd.pipe_material_source||'estimated')+')', score: pf.pipe_material?.score||0},
+    {name:'Water Heater', value: (pd.water_heater_age_years!=null ? pd.water_heater_age_years+' yrs' : 'Unknown') + ' ('+( pd.water_heater_type||'tank')+')', score: pf.water_heater?.score||0},
+    {name:'Plumbing Permits', value: (pd.total_plumbing_permits||0)+' permits'+(pd.last_plumbing_permit_year ? ', last '+pd.last_plumbing_permit_year : ''), score: pf.permit_history?.score||0},
+    {name:'Prior Water Claims', value: (pd.prior_water_claims||0)+' claims ($'+(pd.prior_claim_total_cost||0).toLocaleString()+')', score: pf.prior_claims?.score||0},
+    {name:'Protection Devices', value: (pd.has_prv ? 'PRV' : 'No PRV')+(pd.has_expansion_tank ? ', Expansion Tank' : ''), score: pf.protection_devices?.score||0},
+  ];
+
+  let detailRows = propRows.map(function(r){
+    return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.value+'</td><td style="color:'+factorColor(r.score)+'">'+r.score+'</td></tr>';
+  }).join('');
+
+  let builderDetail = '';
+  if (bld.found_in_database && bld.factors) {
+    const bf = bld.factors;
+    builderDetail = '<div class="card-section" style="margin-top:24px">'+
+      '<h3>Builder Risk Analysis — '+(bld.name||'Unknown')+'</h3>'+
+      '<div class="card-sub">Individual builder quality scoring across multiple data sources</div>'+
+      '<table class="data-table"><thead><tr><th>Factor</th><th>Risk Score</th></tr></thead><tbody>'+
+      Object.keys(bf).map(function(k){
+        return '<tr><td>'+k.replace(/_/g,' ').replace(/\b\w/g,function(l){return l.toUpperCase()})+'</td><td style="color:'+factorColor(bf[k])+'"><strong>'+bf[k]+'</strong></td></tr>';
+      }).join('')+
+      '</tbody></table></div>';
+  }
+
+  document.getElementById('propertyResult').innerHTML =
+    '<div class="section-title">Property Risk Detail — '+d.address+'</div>'+
+    '<div class="section-subtitle">Address-level risk assessment with '+d.confidence+' confidence</div>'+
+    '<div class="card-section">'+
+      '<h3>Property-Specific Risk Factors</h3>'+
+      '<div class="card-sub">Factors based on this individual property (60% of total score)</div>'+
+      '<table class="data-table"><thead><tr><th>Factor</th><th>Value</th><th>Risk Score</th></tr></thead><tbody>'+detailRows+'</tbody></table>'+
+    '</div>'+
+    builderDetail;
+
+  // Auto-switch to property tab if in address mode
+  switchTab('property', document.querySelectorAll('.nav-tab')[7]);
+  // Then switch back to score
+  setTimeout(function(){ switchTab('score', document.querySelector('.nav-tab')); }, 50);
+}
+
+// ─── Render Property (zip-level fallback) ───
+function renderPropertyZipLevel(d) {
+  // Keep existing infrastructure/pressure view for zip-level scores
+  renderProperty(d);
 }
 
 // ─── Render Risk Profile (Tab 1) ───
@@ -1299,40 +1572,133 @@ async function downloadReport(zip){
 async function loadBuilders(){
   const state = document.getElementById('builderState').value;
   const grade = document.getElementById('builderGrade').value;
+  const bbb = document.getElementById('builderBBB')?.value || '';
   const name = document.getElementById('builderSearch').value;
-  let url = API+'/api/v1/builders?limit=50';
+  let url = API+'/api/v1/builders/search?limit=100';
   if(state) url += '&state='+state;
   if(grade) url += '&grade='+grade;
+  if(bbb) url += '&bbb_rating='+encodeURIComponent(bbb);
   if(name) url += '&name='+encodeURIComponent(name);
   try{
     const resp = await fetch(url, {headers:authHeaders()});
     const data = await resp.json();
-    renderBuilders(data.builders||[]);
+    renderBuilders(data.builders||[], data.state_summary);
   } catch(e) { document.getElementById('builderResults').innerHTML = '<p style="padding:20px;color:var(--muted)">Error loading builders</p>'; }
 }
 
-function renderBuilders(builders){
+function renderBuilders(builders, summary){
+  // State summary KPIs
+  if (summary) {
+    const gd = summary.grade_distribution||{};
+    document.getElementById('builderSummary').innerHTML =
+      '<div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">'+
+        '<div class="kpi-card"><div class="kpi-label">Total Builders</div><div class="kpi-value">'+summary.total_builders+'</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Avg Score</div><div class="kpi-value">'+summary.avg_score+'</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Score Range</div><div class="kpi-value" style="font-size:18px">'+summary.score_range[0]+' - '+summary.score_range[1]+'</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Avg BBB Complaints</div><div class="kpi-value">'+summary.avg_complaints+'</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Avg Warranty Rate</div><div class="kpi-value" style="font-size:18px">'+(summary.avg_warranty_rate*100).toFixed(1)+'%</div></div>'+
+      '</div>';
+  } else {
+    document.getElementById('builderSummary').innerHTML = '';
+  }
+
   if(!builders.length){
     document.getElementById('builderResults').innerHTML = '<div class="empty-state" style="padding:40px"><h3>No builders found</h3><p>Try adjusting your filters.</p></div>';
     return;
   }
+
   let rows = builders.map(function(b){
-    return '<tr>'+
+    const bbbColor = b.bbb_rating && b.bbb_rating.startsWith('A') ? 'var(--green)' : b.bbb_rating === 'NR' ? 'var(--muted)' : b.bbb_rating && b.bbb_rating.startsWith('B') ? 'var(--yellow)' : 'var(--red)';
+    const licColor = b.license_status === 'active' ? 'var(--green)' : b.license_status === 'expired' ? 'var(--red)' : 'var(--yellow)';
+    return '<tr style="cursor:pointer" onclick="showBuilderDetail('+b.id+')">'+
       '<td><strong>'+b.name+'</strong></td>'+
       '<td>'+b.state+'</td>'+
       '<td><span class="grade-badge grade-'+b.grade+'">'+b.grade+'</span></td>'+
       '<td><strong>'+b.composite_score+'</strong></td>'+
+      '<td style="color:'+bbbColor+'">'+( b.bbb_rating||'NR')+'</td>'+
+      '<td>'+(b.bbb_complaints||0)+'</td>'+
+      '<td style="color:'+licColor+'">'+(b.license_status||'unknown')+'</td>'+
+      '<td>'+(b.building_dept_violations||0)+'</td>'+
       '<td>'+(b.homes_built?b.homes_built.toLocaleString():'—')+'</td>'+
-      '<td>'+(b.year_established||'—')+'</td>'+
-      '<td>'+(b.specialties||'—')+'</td>'+
     '</tr>';
   }).join('');
 
   document.getElementById('builderResults').innerHTML =
     '<table class="builder-table">'+
-      '<thead><tr><th>Builder</th><th>State</th><th>Grade</th><th>Score</th><th>Homes Built</th><th>Est.</th><th>Specialties</th></tr></thead>'+
+      '<thead><tr><th>Builder</th><th>State</th><th>Grade</th><th>Score</th><th>BBB</th><th>Complaints</th><th>License</th><th>Violations</th><th>Homes</th></tr></thead>'+
       '<tbody>'+rows+'</tbody>'+
     '</table>';
+}
+
+async function showBuilderDetail(id) {
+  try {
+    const resp = await fetch(API+'/api/v1/builders/'+id, {headers:authHeaders()});
+    const data = await resp.json();
+    const b = data.builder;
+    const rf = data.risk_factors||{};
+    const rs = data.risk_score;
+
+    document.getElementById('modalBuilderName').textContent = b.name + ' (' + b.state + ')';
+
+    let factorRows = Object.keys(rf).map(function(k){
+      return '<tr><td>'+k.replace(/_/g,' ').replace(/\b\w/g,function(l){return l.toUpperCase()})+'</td><td style="color:'+factorColor(rf[k])+'"><strong>'+rf[k]+'</strong></td></tr>';
+    }).join('');
+
+    document.getElementById('modalBuilderContent').innerHTML =
+      '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
+        '<div class="kpi-card"><div class="kpi-label">Grade</div><div class="kpi-value"><span class="grade-badge grade-'+b.grade+'">'+b.grade+'</span></div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Score</div><div class="kpi-value">'+b.composite_score+'</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Risk Score</div><div class="kpi-value" style="color:'+factorColor(rs)+'">'+rs+'</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">BBB Rating</div><div class="kpi-value">'+(b.bbb_rating||'NR')+'</div></div>'+
+      '</div>'+
+      '<table class="data-table" style="margin-top:16px">'+
+        '<thead><tr><th>Detail</th><th>Value</th></tr></thead>'+
+        '<tbody>'+
+          '<tr><td>License Status</td><td>'+(b.license_status||'unknown')+'</td></tr>'+
+          '<tr><td>License Number</td><td>'+(b.license_number||'—')+'</td></tr>'+
+          '<tr><td>BBB Complaints</td><td>'+(b.bbb_complaints||0)+'</td></tr>'+
+          '<tr><td>Building Dept Violations</td><td>'+(b.building_dept_violations||0)+'</td></tr>'+
+          '<tr><td>Warranty Claim Rate</td><td>'+((b.warranty_claim_rate||0)*100).toFixed(1)+'%</td></tr>'+
+          '<tr><td>Plumbing Sub Quality</td><td>'+(b.plumbing_sub_quality||'unknown')+'</td></tr>'+
+          '<tr><td>Homes Built</td><td>'+(b.homes_built?b.homes_built.toLocaleString():'—')+'</td></tr>'+
+          '<tr><td>Year Established</td><td>'+(b.year_established||'—')+'</td></tr>'+
+          '<tr><td>Markets</td><td>'+(b.markets||'—')+'</td></tr>'+
+          '<tr><td>Avg Home Price</td><td>'+(b.avg_home_price ? '$'+b.avg_home_price.toLocaleString() : '—')+'</td></tr>'+
+        '</tbody>'+
+      '</table>'+
+      (factorRows ? '<h4 style="margin-top:20px;margin-bottom:8px">Risk Factor Breakdown</h4>'+
+        '<table class="data-table"><thead><tr><th>Factor</th><th>Risk Score</th></tr></thead><tbody>'+factorRows+'</tbody></table>' : '');
+
+    document.getElementById('builderModal').style.display = 'flex';
+  } catch(e) { alert('Error loading builder details'); }
+}
+
+function closeBuilderModal() {
+  document.getElementById('builderModal').style.display = 'none';
+}
+
+// ─── Populate State Dropdown ───
+async function loadStates() {
+  try {
+    const resp = await fetch(API+'/api/v1/builders/states', {headers:authHeaders()});
+    const data = await resp.json();
+    const sel = document.getElementById('builderState');
+    // Keep "All States"
+    (data.states||[]).forEach(function(s){
+      const opt = document.createElement('option');
+      opt.value = s.state;
+      opt.textContent = s.state + ' (' + s.builder_count + ' builders)';
+      sel.appendChild(opt);
+    });
+    // Also populate address form state dropdown
+    const sel2 = document.getElementById('stateInput');
+    const states = ['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+    states.forEach(function(st){
+      const opt = document.createElement('option');
+      opt.value = st; opt.textContent = st;
+      sel2.appendChild(opt);
+    });
+  } catch(e) {}
 }
 
 // ─── Tab Navigation ───
