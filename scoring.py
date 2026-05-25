@@ -8,7 +8,10 @@ import sqlite3
 import hashlib
 import json
 import os
+import logging
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "data", "namara.db")
 
@@ -867,10 +870,13 @@ def compute_property_score(address, city, state, zip_code,
     if not state:
         return {"error": f"Could not resolve state for zip code {zip_code}"}
 
-    # Try to look up property in database for enrichment
+    # ─── Data Enrichment (3-tier priority: user input > local DB > external API) ───
+
+    # Tier 1: User-provided values are already in function params (highest priority)
+
+    # Tier 2: Local database lookup
     db_property = lookup_property(address, city, state, zip_code)
     if db_property:
-        # Enrich from database where user didn't provide values
         year_built = year_built or db_property.get("year_built")
         pipe_material = pipe_material or db_property.get("pipe_material")
         builder_id = builder_id or db_property.get("builder_id")
@@ -886,6 +892,29 @@ def compute_property_score(address, city, state, zip_code,
         sqft = sqft or db_property.get("sqft")
         stories = stories or db_property.get("stories", 1)
         bathrooms = bathrooms or db_property.get("bathrooms", 2.0)
+
+    # Tier 3: External property data API (ATTOM) — fills remaining gaps
+    enrichment_data = None
+    enrichment_source = None
+    try:
+        from property_enrichment import enrich_property
+        enrichment_data = enrich_property(address, city, state, zip_code)
+        if enrichment_data:
+            enrichment_source = enrichment_data.get("provider", "external")
+            logger.info(f"Property enrichment from {enrichment_source}: {list(enrichment_data.keys())}")
+            # Only fill in fields that are still missing after user input + DB
+            if not year_built and enrichment_data.get("year_built"):
+                year_built = enrichment_data["year_built"]
+            if not sqft and enrichment_data.get("sqft"):
+                sqft = enrichment_data["sqft"]
+            if (not stories or stories == 1) and enrichment_data.get("stories"):
+                stories = enrichment_data["stories"]
+            if (not bathrooms or bathrooms == 2.0) and enrichment_data.get("bathrooms"):
+                bathrooms = enrichment_data["bathrooms"]
+    except ImportError:
+        logger.debug("Property enrichment module not available")
+    except Exception as e:
+        logger.warning(f"Property enrichment failed: {e}")
 
     # Estimate pipe material if not provided
     pipe_source = "provided"
@@ -1073,6 +1102,8 @@ def compute_property_score(address, city, state, zip_code,
             "total_plumbing_permits": total_permits,
             "last_plumbing_permit_year": last_permit_year,
             "from_database": bool(db_property),
+            "enrichment_source": enrichment_source,
+            "enrichment_data": enrichment_data if enrichment_data else None,
         },
         "property_factors": {
             "home_age": {"score": age_score, "weight": 0.15, "weighted": round(age_score * 0.15, 1)},

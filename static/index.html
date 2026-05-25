@@ -936,10 +936,23 @@ function renderPropertyDetail(d) {
   const pf = d.property_factors||{};
   const ef = d.environmental_factors||{};
   const bld = d.builder||{};
+  const enrichSrc = pd.enrichment_source;
+  const enrichData = pd.enrichment_data;
+
+  // Build source tag for enriched fields
+  function srcTag(field) {
+    if(enrichData && enrichData[field] !== undefined && enrichSrc) {
+      return ' <span style="font-size:10px;padding:1px 6px;border-radius:8px;background:rgba(37,99,235,0.1);color:var(--blue);font-weight:600;vertical-align:middle">'+enrichSrc.toUpperCase()+'</span>';
+    }
+    if(pd.from_database) return ' <span style="font-size:10px;padding:1px 6px;border-radius:8px;background:rgba(45,212,191,0.1);color:var(--teal);font-weight:600;vertical-align:middle">DB</span>';
+    return '';
+  }
 
   let propRows = [
-    {name:'Year Built', value: pd.year_built||'Unknown', score: pf.home_age?.score||0},
+    {name:'Year Built', value: (pd.year_built||'Unknown')+srcTag('year_built'), score: pf.home_age?.score||0},
     {name:'Pipe Material', value: (pd.pipe_material||'Unknown')+' ('+(pd.pipe_material_source||'estimated')+')', score: pf.pipe_material?.score||0},
+    {name:'Sq Ft', value: (pd.sqft ? pd.sqft.toLocaleString()+' sq ft' : 'Unknown')+srcTag('sqft'), score: null},
+    {name:'Stories / Baths', value: (pd.stories||'?')+' stories, '+(pd.bathrooms||'?')+' baths'+srcTag('bathrooms'), score: null},
     {name:'Water Heater', value: (pd.water_heater_age_years!=null ? pd.water_heater_age_years+' yrs' : 'Unknown') + ' ('+( pd.water_heater_type||'tank')+')', score: pf.water_heater?.score||0},
     {name:'Plumbing Permits', value: (pd.total_plumbing_permits||0)+' permits'+(pd.last_plumbing_permit_year ? ', last '+pd.last_plumbing_permit_year : ''), score: pf.permit_history?.score||0},
     {name:'Prior Water Claims', value: (pd.prior_water_claims||0)+' claims ($'+(pd.prior_claim_total_cost||0).toLocaleString()+')', score: pf.prior_claims?.score||0},
@@ -947,8 +960,29 @@ function renderPropertyDetail(d) {
   ];
 
   let detailRows = propRows.map(function(r){
-    return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.value+'</td><td style="color:'+factorColor(r.score)+'">'+r.score+'</td></tr>';
+    var scoreCell = r.score !== null ? '<td style="color:'+factorColor(r.score)+'">'+r.score+'</td>' : '<td style="color:var(--muted-dim)">—</td>';
+    return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.value+'</td>'+scoreCell+'</tr>';
   }).join('');
+
+  // Data source attribution banner
+  var sourcesBanner = '';
+  if(enrichSrc) {
+    var enrichFields = [];
+    if(enrichData) {
+      if(enrichData.year_built) enrichFields.push('year built');
+      if(enrichData.sqft) enrichFields.push('sq ft');
+      if(enrichData.bathrooms) enrichFields.push('bathrooms');
+      if(enrichData.stories) enrichFields.push('stories');
+      if(enrichData.construction_type) enrichFields.push('construction type');
+    }
+    sourcesBanner = '<div style="margin-bottom:16px;padding:12px 16px;background:rgba(37,99,235,0.06);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;font-size:12px;color:var(--muted);line-height:1.5">'+
+      '<strong style="color:var(--text)">Property Data Enriched</strong> — '+
+      (enrichFields.length ? enrichFields.join(', ') : 'property details') +
+      ' auto-populated from <strong>'+enrichSrc.toUpperCase()+'</strong> property records. '+
+      (pd.from_database ? 'Additional data from Namara database. ' : '')+
+      'Fields marked <span style="font-size:10px;padding:1px 6px;border-radius:8px;background:rgba(37,99,235,0.1);color:var(--blue);font-weight:600">'+enrichSrc.toUpperCase()+'</span> were sourced externally.'+
+    '</div>';
+  }
 
   let builderDetail = '';
   if (bld.found_in_database && bld.factors) {
@@ -966,6 +1000,7 @@ function renderPropertyDetail(d) {
   document.getElementById('propertyResult').innerHTML =
     '<div class="section-title">Property Risk Detail — '+d.address+'</div>'+
     '<div class="section-subtitle">Address-level risk assessment with '+d.confidence+' confidence</div>'+
+    sourcesBanner+
     '<div class="card-section">'+
       '<h3>Property-Specific Risk Factors</h3>'+
       '<div class="card-sub">Factors based on this individual property (60% of total score)</div>'+

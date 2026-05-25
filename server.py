@@ -685,9 +685,17 @@ class HealthHandler(BaseHandler):
         score_count = conn.execute("SELECT COUNT(*) FROM audit_log WHERE action IN ('score', 'property_score')").fetchone()[0]
         conn.close()
 
+        # Get enrichment status
+        enrichment_status = {}
+        try:
+            from property_enrichment import get_enrichment_status
+            enrichment_status = get_enrichment_status()
+        except Exception:
+            enrichment_status = {"attom_configured": False}
+
         self.write({
             "status": "healthy",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "platform": "Namara Water Risk Intelligence",
             "stats": {
                 "users": user_count,
@@ -696,6 +704,7 @@ class HealthHandler(BaseHandler):
                 "states_covered": state_count,
                 "scores_generated": score_count
             },
+            "enrichment": enrichment_status,
             "timestamp": datetime.utcnow().isoformat()
         })
 
