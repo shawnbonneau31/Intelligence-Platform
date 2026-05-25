@@ -1809,7 +1809,7 @@ function renderBuilders(builders, summary){
         '<div class="kpi-card"><div class="kpi-label">Avg Score</div><div class="kpi-value">'+summary.avg_score+'</div></div>'+
         '<div class="kpi-card"><div class="kpi-label">Score Range</div><div class="kpi-value" style="font-size:18px">'+summary.score_range[0]+' - '+summary.score_range[1]+'</div></div>'+
         '<div class="kpi-card"><div class="kpi-label">Avg BBB Complaints</div><div class="kpi-value">'+summary.avg_complaints+'</div></div>'+
-        '<div class="kpi-card"><div class="kpi-label">Avg Warranty Rate</div><div class="kpi-value" style="font-size:18px">'+(summary.avg_warranty_rate*100).toFixed(1)+'%</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Avg Warranty Rate</div><div class="kpi-value" style="font-size:18px">'+(summary.avg_warranty_rate).toFixed(1)+'%</div></div>'+
       '</div>';
   } else {
     document.getElementById('builderSummary').innerHTML = '';
@@ -1871,7 +1871,7 @@ async function showBuilderDetail(id) {
           '<tr><td>License Number</td><td>'+(b.license_number||'—')+'</td></tr>'+
           '<tr><td>BBB Complaints</td><td>'+(b.bbb_complaints||0)+'</td></tr>'+
           '<tr><td>Building Dept Violations</td><td>'+(b.building_dept_violations||0)+'</td></tr>'+
-          '<tr><td>Warranty Claim Rate</td><td>'+((b.warranty_claim_rate||0)*100).toFixed(1)+'%</td></tr>'+
+          '<tr><td>Warranty Claim Rate</td><td>'+((b.warranty_claim_rate||0)).toFixed(1)+'%</td></tr>'+
           '<tr><td>Plumbing Sub Quality</td><td>'+(b.plumbing_sub_quality||'unknown')+'</td></tr>'+
           '<tr><td>Homes Built</td><td>'+(b.homes_built?b.homes_built.toLocaleString():'—')+'</td></tr>'+
           '<tr><td>Year Established</td><td>'+(b.year_established||'—')+'</td></tr>'+
