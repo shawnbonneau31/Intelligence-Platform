@@ -147,42 +147,39 @@ def fetch_attom_property_detail(address, city, state, zip_code):
     return _attom_request("/property/detail", params)
 
 
+def _safe_int(val):
+    """Safely convert a value to int, handling strings, floats, and None."""
+    if val is None:
+        return None
+    try:
+        return int(float(val))
+    except (ValueError, TypeError):
+        return None
+
+
+def _safe_float(val):
+    """Safely convert a value to float, handling strings and None."""
+    if val is None:
+        return None
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return None
+
+
+def _first_valid(*values):
+    """Return the first non-None, non-zero, non-empty value."""
+    for v in values:
+        if v is not None and v != 0 and v != "" and v != "0":
+            return v
+    return None
+
+
 def parse_attom_property(raw_response):
     """
     Extract property characteristics from ATTOM property/detail response.
-    Returns a standardized dict of enrichment fields.
-
-    ATTOM response structure:
-    {
-      "status": {...},
-      "property": [{
-        "identifier": {"attomId": ..., "fips": ..., "apn": ...},
-        "lot": {"lotSize1": ..., "lotSize2": ...},
-        "area": {"countrySecSubd": ..., "countyUse1": ...},
-        "address": {...},
-        "location": {"latitude": ..., "longitude": ...},
-        "summary": {
-          "yearBuilt": 1995,
-          "propClass": "Single Family Residence",
-          "propType": "SFR",
-          "propSubType": "Residential",
-          "beds": 3,
-          "bathsFull": 2,
-          "bathsHalf": 1,
-          "bathsTotal": 2.5
-        },
-        "utilities": {"heatingType": ..., "coolingType": ...},
-        "building": {
-          "size": {"universalSize": 2100, "livingSize": 1900},
-          "rooms": {"beds": 3, "bathsFull": 2, "bathsHalf": 1, "bathsTotal": 2.5},
-          "interior": {"fplcCount": 1},
-          "construction": {"constructionType": "Frame", "roofCover": "Composition Shingle"},
-          "parking": {"garageType": "Attached"},
-          "summary": {"levels": 2, "yearBuilt": 1995, "quality": "Average"}
-        },
-        "vintage": {"lastModified": ..., "pubDate": ...}
-      }]
-    }
+    Handles multiple response formats — ATTOM nests data differently by
+    property type (SFR vs condo vs multi-family) and by data availability.
     """
     if not raw_response:
         return None
@@ -192,95 +189,146 @@ def parse_attom_property(raw_response):
         return None
 
     prop = properties[0]
+
+    # Log the top-level keys we received for debugging
+    logger.info(f"ATTOM property keys: {list(prop.keys())}")
+
     summary = prop.get("summary", {})
     building = prop.get("building", {})
-    building_summary = building.get("summary", {})
-    building_size = building.get("size", {})
-    building_rooms = building.get("rooms", {})
-    building_construction = building.get("construction", {})
     utilities = prop.get("utilities", {})
     lot = prop.get("lot", {})
     location = prop.get("location", {})
     identifier = prop.get("identifier", {})
 
-    # Extract year built — check multiple locations
-    year_built = (
-        building_summary.get("yearBuilt")
-        or summary.get("yearBuilt")
+    # Some ATTOM responses nest building as a list — normalize first
+    if isinstance(building, list) and len(building) > 0:
+        building = building[0]
+    elif not isinstance(building, dict):
+        building = {}
+
+    building_summary = building.get("summary", {})
+    building_size = building.get("size", {})
+    building_rooms = building.get("rooms", {})
+    building_construction = building.get("construction", {})
+
+    # Year built — check every known location
+    year_built = _safe_int(_first_valid(
+        building_summary.get("yearBuilt"),
+        summary.get("yearBuilt"),
+        prop.get("yearBuilt"),
+        summary.get("yearbuilt"),       # lowercase variant
+        building_summary.get("yearbuilt"),
+    ))
+
+    # Square footage — multiple possible keys
+    sqft = _safe_int(_first_valid(
+        building_size.get("universalSize"),
+        building_size.get("livingSize"),
+        building_size.get("bldgSize"),
+        building_size.get("grossSize"),
+        building_size.get("groundFloorSize"),
+        summary.get("aboveGradeFinishedArea"),
+        summary.get("livingSize"),
+    ))
+
+    # Bathrooms — total, or compute from full + half
+    baths_total = _safe_float(_first_valid(
+        building_rooms.get("bathsTotal"),
+        summary.get("bathsTotal"),
+    ))
+    if baths_total is None:
+        baths_full = _safe_float(_first_valid(
+            building_rooms.get("bathsFull"),
+            summary.get("bathsFull"),
+        ))
+        baths_half = _safe_float(_first_valid(
+            building_rooms.get("bathsHalf"),
+            summary.get("bathsHalf"),
+        ))
+        if baths_full is not None:
+            baths_total = baths_full + (baths_half or 0) * 0.5
+
+    # Bedrooms
+    beds = _safe_int(_first_valid(
+        building_rooms.get("beds"),
+        building_rooms.get("bedrooms"),
+        summary.get("beds"),
+        summary.get("bedrooms"),
+    ))
+
+    # Stories/levels
+    stories = _safe_int(_first_valid(
+        building_summary.get("levels"),
+        summary.get("levels"),
+        summary.get("stories"),
+        building_summary.get("stories"),
+    ))
+
+    # Construction type
+    construction_type = _first_valid(
+        building_construction.get("constructionType"),
+        summary.get("constructionType"),
+        building_construction.get("frameType"),
     )
 
-    # Extract square footage
-    sqft = (
-        building_size.get("universalSize")
-        or building_size.get("livingSize")
-        or building_size.get("bldgSize")
+    # Heating type
+    heating_type = _first_valid(
+        utilities.get("heatingType"),
+        utilities.get("heatingFuel"),
     )
 
-    # Extract bathrooms
-    baths_total = (
-        building_rooms.get("bathsTotal")
-        or summary.get("bathsTotal")
+    # Quality rating
+    quality = _first_valid(
+        building_summary.get("quality"),
+        summary.get("quality"),
     )
-
-    # Extract bedrooms (useful context for risk)
-    beds = (
-        building_rooms.get("beds")
-        or summary.get("beds")
-    )
-
-    # Extract stories/levels
-    stories = building_summary.get("levels") or summary.get("levels")
-
-    # Construction type (can inform pipe material estimation)
-    construction_type = (
-        building_construction.get("constructionType")
-        or summary.get("constructionType")
-    )
-
-    # Heating type — relevant for water heater risk
-    heating_type = utilities.get("heatingType")
-
-    # Quality rating from assessor
-    quality = building_summary.get("quality")
 
     # Property type
-    prop_type = summary.get("propType") or summary.get("propClass")
+    prop_type = _first_valid(
+        summary.get("propType"),
+        summary.get("propClass"),
+    )
     prop_subtype = summary.get("propSubType")
 
-    # Lot size in sqft
-    lot_size_sqft = lot.get("lotSize2")
-    lot_size_acres = lot.get("lotSize1")
+    # Lot size
+    lot_size_sqft = _safe_int(lot.get("lotSize2") or lot.get("lotsize2"))
+    lot_size_acres = _safe_float(lot.get("lotSize1") or lot.get("lotsize1"))
 
-    # Roof — relevant for overall property condition
-    roof_cover = building_construction.get("roofCover")
+    # Roof
+    roof_cover = _first_valid(
+        building_construction.get("roofCover"),
+        building_construction.get("roofType"),
+    )
 
     # Location
-    latitude = location.get("latitude")
-    longitude = location.get("longitude")
+    latitude = _safe_float(location.get("latitude"))
+    longitude = _safe_float(location.get("longitude"))
 
     enriched = {
         "provider": "attom",
-        "attom_id": identifier.get("attomId"),
-        "year_built": int(year_built) if year_built else None,
-        "sqft": int(sqft) if sqft else None,
-        "bathrooms": float(baths_total) if baths_total else None,
-        "bedrooms": int(beds) if beds else None,
-        "stories": int(stories) if stories else None,
+        "attom_id": identifier.get("attomId") or identifier.get("obPropId"),
+        "year_built": year_built,
+        "sqft": sqft,
+        "bathrooms": baths_total,
+        "bedrooms": beds,
+        "stories": stories,
         "construction_type": construction_type,
         "heating_type": heating_type,
         "quality_rating": quality,
         "property_type": prop_type,
         "property_subtype": prop_subtype,
-        "lot_size_sqft": int(lot_size_sqft) if lot_size_sqft else None,
-        "lot_size_acres": float(lot_size_acres) if lot_size_acres else None,
+        "lot_size_sqft": lot_size_sqft,
+        "lot_size_acres": lot_size_acres,
         "roof_cover": roof_cover,
-        "latitude": float(latitude) if latitude else None,
-        "longitude": float(longitude) if longitude else None,
+        "latitude": latitude,
+        "longitude": longitude,
         "fetched_at": datetime.utcnow().isoformat(),
     }
 
     # Remove None values for clean output
-    return {k: v for k, v in enriched.items() if v is not None}
+    result = {k: v for k, v in enriched.items() if v is not None}
+    logger.info(f"ATTOM parsed fields: {list(result.keys())}")
+    return result
 
 
 # ─── Main Enrichment Function ───

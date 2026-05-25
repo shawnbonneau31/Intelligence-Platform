@@ -1372,9 +1372,9 @@ function renderDevice(d){
   var cityLabel = city ? city+', '+state : state;
   var locationLabel = isProperty ? (d.property_data?.address ? d.property_data.address+', '+cityLabel : cityLabel) : cityLabel;
 
-  // Get pressure data
+  // Get pressure data (works for both zip and property mode since both now have d.layers)
   var avgPsi = 65;
-  if(!isProperty && d.layers && d.layers.pressure) {
+  if(d.layers && d.layers.pressure) {
     avgPsi = (d.layers.pressure.data||{}).avg_psi||65;
   }
 
@@ -1425,10 +1425,10 @@ function renderDevice(d){
       publicSource: 'Water heater age estimate',
       publicValue: 'Risk estimated from home age',
       publicConfidence: 'Low',
-      namaraValue: 'Active relief — 2 events today',
+      namaraValue: 'Active relief at 79.5 PSI — 2 events today',
       namaraConfidence: 'Exact',
       impact: 'moderate',
-      detail: 'Device actively relieves thermal expansion pressure spikes that would otherwise stress pipes and fittings'
+      detail: 'Triggers at 79.5 PSI — plumbing code and manufacturer warranties void at 80 PSI. Device relieves thermal expansion before the threshold is reached.'
     },
     {
       factor: 'Supply Pressure Surges',
@@ -1535,11 +1535,10 @@ function renderDevice(d){
   // --- CLEAN EVENT LOG (no duplicates) ---
   var events = [
     {time:'2 min ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Reading',detail:namaraPsi+' PSI — Normal range',color:'var(--green)'},
-    {time:'18 min ago',type:'thermal',icon:'&#x1F321;',label:'Thermal Expansion Event',detail:'Pressure spike to '+(namaraPsi+22)+' PSI — Relief activated, returned to '+namaraPsi+' PSI',color:'var(--blue)'},
+    {time:'18 min ago',type:'thermal',icon:'&#x1F321;',label:'Thermal Expansion Relief',detail:'Water heater cycle pushed pressure to 79.5 PSI trigger — relief activated, returned to '+namaraPsi+' PSI. Code and manufacturer warranties void at 80 PSI.',color:'var(--blue)'},
     {time:'3.2 hrs ago',type:'leak',icon:'&#x1F4A7;',label:'Leak Check',detail:'No leak detected — Flow: 0.0 GPD',color:'var(--green)'},
     {time:'6 hrs ago',type:'freeze',icon:'&#x2744;',label:'Temperature Check',detail:'Water temp: '+namaraTemp+'°F — No freeze risk',color:'var(--green)'},
     {time:'8 hrs ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Anomaly Detected',detail:'Pressure dropped to '+(namaraPsi-15)+' PSI for 4 min — Municipal supply fluctuation, auto-resolved',color:'var(--orange)'},
-    {time:'14 hrs ago',type:'thermal',icon:'&#x1F321;',label:'Thermal Expansion Event',detail:'Water heater cycle — Pressure spike relieved automatically',color:'var(--blue)'},
   ];
 
   var eventsHTML = events.map(function(e){
@@ -1631,7 +1630,7 @@ function renderDevice(d){
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
           '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Thermal Expansion Relief</div>'+
-          '<div style="font-size:12px;color:var(--muted-dim)">Protects water heater and pipes from pressure spikes</div>'+
+          '<div style="font-size:12px;color:var(--muted-dim)">Triggers at 79.5 PSI — code and manufacturer warranties void at 80 PSI</div>'+
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
           '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Pressure Optimization</div>'+
