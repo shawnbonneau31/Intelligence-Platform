@@ -457,20 +457,6 @@ def predict_event_timeframe(composite_score, pressure_psi=None, pressure_source=
         prediction_text = f"~{months} months"
         urgency = "critical"
 
-    # Compute Namara-protected prediction:
-    # Namara eliminates the pressure multiplier entirely through static
-    # pressure management AND reduces base risk through leak detection
-    # and auto shut-off. Conservative estimate: 70% risk reduction.
-    namara_annual_risk = base_annual_risk * 0.30  # 70% reduction
-    namara_years = 1.0 / namara_annual_risk if namara_annual_risk > 0 else 99
-
-    if namara_years > 10:
-        namara_prediction = "10+ years"
-    elif namara_years > 1.5:
-        namara_prediction = f"~{round(namara_years)} years"
-    else:
-        namara_prediction = f"~{max(3, round(namara_years * 12))} months"
-
     return {
         "prediction_text": prediction_text,
         "prediction_years": round(expected_years, 1),
@@ -479,9 +465,7 @@ def predict_event_timeframe(composite_score, pressure_psi=None, pressure_source=
         "pressure_psi": pressure_psi,
         "pressure_multiplier": p_mult,
         "pressure_source": pressure_source,
-        "namara_prediction": namara_prediction,
-        "namara_prediction_years": round(namara_years, 1),
-        "methodology": "Midpoint baseline (5% annual) × score risk curve × pressure multiplier",
+        "methodology": "Midpoint baseline (5% annual) x score risk curve x pressure multiplier",
     }
 
 
@@ -1040,26 +1024,33 @@ def lookup_builder_by_name(name, state=None):
 
 
 def score_property_age(year_built):
-    """Score home age risk 0-100. Older homes = higher risk."""
+    """Score home age risk 0-100. Older homes = higher risk.
+    Calibrated: more aggressive scoring — plumbing systems degrade
+    faster than the conservative model assumed. A 25-year-old home
+    has real failure risk, not just theoretical."""
     if not year_built:
         return 50.0
     age = datetime.now().year - year_built
     if age <= 5:
-        return 8.0
+        return 10.0
     elif age <= 10:
-        return 15.0
+        return 22.0
+    elif age <= 15:
+        return 35.0
     elif age <= 20:
-        return 28.0
+        return 45.0
+    elif age <= 25:
+        return 55.0
     elif age <= 30:
-        return 42.0
+        return 65.0
     elif age <= 40:
-        return 58.0
+        return 75.0
     elif age <= 50:
-        return 72.0
+        return 85.0
     elif age <= 65:
-        return 82.0
-    else:
         return 92.0
+    else:
+        return 95.0
 
 
 def score_pipe_material(pipe_material, year_built, construction_type=None, quality_rating=None):
@@ -1185,7 +1176,9 @@ def score_water_heater_risk(age_years, heater_type="tank"):
 
 
 def score_permit_history(total_permits, last_permit_year, year_built):
-    """Score plumbing maintenance risk. More recent permits = lower risk (maintained home)."""
+    """Score plumbing maintenance risk. More recent permits = lower risk (maintained home).
+    Calibrated: no permits on a 20+ year home is a strong signal — plumbing
+    has never been professionally inspected or updated."""
     if not year_built:
         return 50.0
     age = datetime.now().year - year_built
@@ -1193,9 +1186,9 @@ def score_permit_history(total_permits, last_permit_year, year_built):
         return 10.0  # New home, no permits needed yet
 
     if total_permits == 0 and age > 20:
-        return 78.0  # Old home, never maintained
+        return 85.0  # Old home, never maintained — high risk
     elif total_permits == 0 and age > 10:
-        return 55.0
+        return 65.0
 
     if last_permit_year:
         years_since = datetime.now().year - last_permit_year
@@ -1204,10 +1197,10 @@ def score_permit_history(total_permits, last_permit_year, year_built):
         elif years_since <= 7:
             return 25.0
         elif years_since <= 15:
-            return 40.0
+            return 45.0
         else:
-            return 60.0
-    return 45.0
+            return 65.0
+    return 50.0
 
 
 def score_prior_claims(num_claims, total_cost):
@@ -1231,15 +1224,18 @@ def score_prior_claims(num_claims, total_cost):
 
 
 def score_protection_devices(has_prv, has_expansion_tank):
-    """Score protection level. Devices present = lower risk."""
+    """Score protection level. Devices present = lower risk.
+    Calibrated: no protection devices at all is a serious gap —
+    the home has zero defense against pressure spikes or thermal
+    expansion events."""
     if has_prv and has_expansion_tank:
         return 10.0
     elif has_prv:
         return 30.0
     elif has_expansion_tank:
-        return 45.0
+        return 55.0
     else:
-        return 70.0
+        return 82.0
 
 
 def score_individual_builder(builder):
@@ -1521,7 +1517,7 @@ def compute_property_score(address, city, state, zip_code,
     )
 
     # ─── Total Composite ───
-    total_composite = round(
+    raw_composite = (
         # Property factors (60%)
         age_score * 0.15 +
         pipe_score * 0.15 +
@@ -1534,9 +1530,26 @@ def compute_property_score(address, city, state, zip_code,
         wq_score * 0.08 +
         pressure_score * 0.08 +
         area_claims_score * 0.08 +
-        reg_score * 0.06,
-        1
+        reg_score * 0.06
     )
+
+    # Compounding factor boost: when multiple risk factors are firing
+    # hot simultaneously, the composite should reflect compounding risk.
+    # Weighted averages compress scores — this corrects for that.
+    high_factors = sum(1 for s in [
+        age_score, pipe_score, heater_score, permit_score,
+        claims_history_score, protection_score
+    ] if s > 60)
+    if high_factors >= 4:
+        compounding_mult = 1.15
+    elif high_factors >= 3:
+        compounding_mult = 1.10
+    elif high_factors >= 2:
+        compounding_mult = 1.05
+    else:
+        compounding_mult = 1.0
+
+    total_composite = round(min(raw_composite * compounding_mult, 100.0), 1)
 
     # Risk level
     if total_composite <= 25:
