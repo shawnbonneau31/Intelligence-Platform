@@ -711,14 +711,18 @@ function buildPressureCallout(pressureEstimate, pressureScore) {
   var confidence = pressureEstimate.confidence || 0;
 
   var sourceLabels = {
-    'namara_device': 'Namara Device (Real-Time)',
-    'measured': 'Measured (Utility Reported)',
-    'utility_zone': 'Utility Zone Estimate',
-    'elevation_estimate': 'Elevation-Based Estimate',
+    'namara_device': 'Namara Device',
+    'measured': 'Utility Reported',
+    'utility_zone': 'Utility Zone',
+    'elevation_estimate': 'Elevation Est.',
     'state_average': 'State Average'
   };
   var sourceLabel = sourceLabels[source] || source;
   var isDevice = source === 'namara_device';
+
+  // Derive confidence from source if missing/NaN
+  var confMap = {'namara_device': 100, 'measured': 100, 'utility_zone': 85, 'elevation_estimate': 60, 'state_average': 40};
+  var confPct = (confidence && !isNaN(confidence)) ? Math.round(confidence * 100) : (confMap[source] || 40);
 
   var codeBadge = exceedsCode
     ? '<span class="pc-badge exceeds">Exceeds 80 PSI Code</span>'
@@ -758,8 +762,8 @@ function buildPressureCallout(pressureEstimate, pressureScore) {
     '<div class="pc-stats">'+
       '<div class="pc-stat '+psiStatClass+'"><div class="pc-stat-value">'+psi+'</div><div class="pc-stat-label">Estimated PSI</div></div>'+
       '<div class="pc-stat"><div class="pc-stat-value">'+codeBadge+'</div><div class="pc-stat-label">Code Maximum: 80 PSI</div></div>'+
-      '<div class="pc-stat"><div class="pc-stat-value">'+Math.round(confidence*100)+'%</div><div class="pc-stat-label">Data Confidence</div></div>'+
-      '<div class="pc-stat"><div class="pc-stat-value" style="font-size:14px;color:rgba(255,255,255,0.8)">'+sourceLabel+'</div><div class="pc-stat-label">Pressure Source</div></div>'+
+      '<div class="pc-stat"><div class="pc-stat-value">'+confPct+'%</div><div class="pc-stat-label">Data Confidence</div></div>'+
+      '<div class="pc-stat"><div class="pc-stat-value" style="font-size:18px">'+sourceLabel+'</div><div class="pc-stat-label">Pressure Source</div></div>'+
     '</div>'+
     deviceNote+
   '</div>';
