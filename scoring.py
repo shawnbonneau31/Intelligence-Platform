@@ -215,10 +215,10 @@ def score_claims(claims_data):
     if not claims_data:
         return 50.0
     freq = claims_data.get("claims_per_1000", 18)
-    cost = claims_data.get("avg_claim_cost", 13000)
+    cost = claims_data.get("avg_claim_cost", 15400)
     # Frequency score: national avg ~20/1000, scale 10-30 range
     freq_score = min(max((freq - 10) / 20 * 100, 0), 100)
-    # Severity score: national avg ~$13K, scale $8K-$20K range
+    # Severity score: national avg ~$15.4K, scale $8K-$20K range
     cost_score = min(max((cost - 8000) / 12000 * 100, 0), 100)
     # Combined: 60% frequency, 40% severity
     return round(freq_score * 0.6 + cost_score * 0.4, 1)
