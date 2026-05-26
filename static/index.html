@@ -252,6 +252,27 @@ a:hover{text-decoration:underline}
 .pred-main-label{font-size:14px;color:var(--muted-dim);margin-top:8px}
 .pred-annual{font-size:13px;color:var(--muted-dim);margin-top:4px}
 
+/* ── Pressure Callout ── */
+.pressure-callout{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:12px;padding:28px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(15,23,42,0.25)}
+.pressure-callout::before{content:'';position:absolute;top:0;right:0;width:200px;height:200px;background:radial-gradient(circle,rgba(56,189,248,0.15) 0%,transparent 70%);pointer-events:none}
+.pressure-callout .pc-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.pressure-callout .pc-icon{width:44px;height:44px;border-radius:10px;background:rgba(56,189,248,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pressure-callout .pc-title{font-size:16px;font-weight:700;letter-spacing:0.3px}
+.pressure-callout .pc-subtitle{font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px}
+.pressure-callout .pc-narrative{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.85);margin-bottom:20px}
+.pressure-callout .pc-narrative strong{color:#38bdf8}
+.pressure-callout .pc-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.pressure-callout .pc-stat{background:rgba(255,255,255,0.08);border-radius:8px;padding:14px 16px;backdrop-filter:blur(4px)}
+.pressure-callout .pc-stat-value{font-size:24px;font-weight:800;color:#38bdf8}
+.pressure-callout .pc-stat-label{font-size:11px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+.pressure-callout .pc-stat.warning .pc-stat-value{color:#f59e0b}
+.pressure-callout .pc-stat.danger .pc-stat-value{color:#ef4444}
+.pressure-callout .pc-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.pressure-callout .pc-badge.compliant{background:rgba(34,197,94,0.15);color:#4ade80}
+.pressure-callout .pc-badge.exceeds{background:rgba(239,68,68,0.15);color:#f87171}
+.pressure-callout .pc-device-note{margin-top:16px;padding:12px 16px;background:rgba(56,189,248,0.08);border-left:3px solid #38bdf8;border-radius:0 8px 8px 0;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6}
+.pressure-callout .pc-device-note strong{color:#38bdf8}
+
 /* ── Footer ── */
 .footer{text-align:center;padding:32px;font-size:12px;color:var(--muted-dim);border-top:1px solid var(--border);margin-top:24px}
 
@@ -681,6 +702,69 @@ function urgencyColor(u) {
   return '#991b1b'; // critical
 }
 
+function buildPressureCallout(pressureEstimate, pressureScore) {
+  if (!pressureEstimate) return '';
+  var psi = pressureEstimate.estimated_psi || 0;
+  var source = pressureEstimate.source || 'state_average';
+  var exceedsCode = pressureEstimate.exceeds_code || false;
+  var psiOver = pressureEstimate.psi_over_code || 0;
+  var confidence = pressureEstimate.confidence || 0;
+
+  var sourceLabels = {
+    'namara_device': 'Namara Device (Real-Time)',
+    'measured': 'Measured (Utility Reported)',
+    'utility_zone': 'Utility Zone Estimate',
+    'elevation_estimate': 'Elevation-Based Estimate',
+    'state_average': 'State Average'
+  };
+  var sourceLabel = sourceLabels[source] || source;
+  var isDevice = source === 'namara_device';
+
+  var codeBadge = exceedsCode
+    ? '<span class="pc-badge exceeds">Exceeds 80 PSI Code</span>'
+    : '<span class="pc-badge compliant">Within Code</span>';
+
+  var psiStatClass = exceedsCode ? (psiOver > 20 ? 'danger' : 'warning') : '';
+
+  var deviceNote = '';
+  if (isDevice) {
+    deviceNote = '<div class="pc-device-note">'+
+      '<strong>Namara Verified:</strong> A Namara device in this area provides real-time pressure monitoring every 20 seconds. '+
+      'This is the highest-confidence pressure reading available, validating municipal supply pressure for the entire water main.'+
+    '</div>';
+  } else {
+    deviceNote = '<div class="pc-device-note">'+
+      '<strong>Why this matters:</strong> Without a Namara device installed, pressure data relies on '+sourceLabel.toLowerCase()+
+      '. A single Namara device in this area would validate actual incoming municipal pressure and detect supply surges '+
+      'that static estimates miss — providing verified data for every home on the same water main.'+
+    '</div>';
+  }
+
+  return '<div class="pressure-callout">'+
+    '<div class="pc-header">'+
+      '<div class="pc-icon">&#x1F4A7;</div>'+
+      '<div>'+
+        '<div class="pc-title">Water Pressure — The #1 Driver of Residential Water Damage</div>'+
+        '<div class="pc-subtitle">Pressure is the highest-weighted factor in the Namara risk model</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="pc-narrative">'+
+      'The majority of residential water damage claims originate from <strong>unregulated water pressure</strong>. '+
+      'Excessive pressure accelerates pipe fatigue, stresses joints and fittings, shortens appliance lifespan, and overwhelms PRV valves — '+
+      'compounding every other risk factor in the home. '+
+      'Unlike other risk factors that are static, <strong>pressure fluctuates constantly</strong> with municipal supply changes, time of day, and seasonal demand — '+
+      'making real-time monitoring critical for accurate risk assessment.'+
+    '</div>'+
+    '<div class="pc-stats">'+
+      '<div class="pc-stat '+psiStatClass+'"><div class="pc-stat-value">'+psi+'</div><div class="pc-stat-label">Estimated PSI</div></div>'+
+      '<div class="pc-stat"><div class="pc-stat-value">'+codeBadge+'</div><div class="pc-stat-label">Code Maximum: 80 PSI</div></div>'+
+      '<div class="pc-stat"><div class="pc-stat-value">'+Math.round(confidence*100)+'%</div><div class="pc-stat-label">Data Confidence</div></div>'+
+      '<div class="pc-stat"><div class="pc-stat-value" style="font-size:14px;color:rgba(255,255,255,0.8)">'+sourceLabel+'</div><div class="pc-stat-label">Pressure Source</div></div>'+
+    '</div>'+
+    deviceNote+
+  '</div>';
+}
+
 function buildPredictionCard(prediction) {
   if (!prediction) return '';
   var pred = prediction.prediction_text || '—';
@@ -921,6 +1005,7 @@ function renderPropertyScore(d) {
   }
 
   var propPredictionHTML = buildPredictionCard(d.prediction);
+  var propPressureCalloutHTML = buildPressureCallout(d.pressure_estimate, ef.pressure?.score||0);
 
   document.getElementById('scoreResult').innerHTML =
     '<div class="location-header">'+
@@ -934,6 +1019,7 @@ function renderPropertyScore(d) {
       '<div class="kpi-card"><div class="kpi-label">Year Built</div><div class="kpi-value">'+(pd.year_built||'Unknown')+'</div><div class="kpi-sub">'+(pd.pipe_material||'est.')+' pipes</div></div>'+
       builderHTML+
     '</div>'+
+    propPressureCalloutHTML+
     propPredictionHTML+
     '<div class="composite-section">'+
       '<h3>Composite Property Risk Score</h3>'+
@@ -1077,6 +1163,7 @@ function renderScore(d){
   }).join('');
 
   var predictionHTML = buildPredictionCard(d.prediction);
+  var pressureCalloutHTML = buildPressureCallout(d.pressure_estimate, pr.score||0);
 
   document.getElementById('scoreResult').innerHTML =
     '<div class="location-header">'+
@@ -1092,6 +1179,7 @@ function renderScore(d){
       '<div class="kpi-card '+riskClass(pr.score||0)+'"><div class="kpi-label">Pressure Risk</div><div class="kpi-value">'+d1(pr.score||0)+'</div><div class="kpi-sub">'+prSub+'</div></div>'+
       '<div class="kpi-card '+riskClass(bq.score||0)+'"><div class="kpi-label">Builder Quality</div><div class="kpi-value">'+d1(bq.score||0)+'</div><div class="kpi-sub">'+bqSub+'</div></div>'+
     '</div>'+
+    pressureCalloutHTML+
     predictionHTML+
     '<div class="composite-section">'+
       '<h3>Composite Water Risk Score</h3>'+

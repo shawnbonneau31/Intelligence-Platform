@@ -208,6 +208,19 @@ def init_db():
         FOREIGN KEY (builder_id) REFERENCES builders(id)
     );
 
+    CREATE TABLE IF NOT EXISTS namara_pressure_zones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        zip_code TEXT NOT NULL,
+        avg_psi REAL,
+        min_psi REAL,
+        max_psi REAL,
+        device_count INTEGER DEFAULT 0,
+        last_reading TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(zip_code)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_properties_address ON properties(address, city, state);
     CREATE INDEX IF NOT EXISTS idx_properties_zip ON properties(zip_code);
     CREATE INDEX IF NOT EXISTS idx_properties_state ON properties(state);
@@ -217,6 +230,7 @@ def init_db():
     CREATE INDEX IF NOT EXISTS idx_score_cache_hash ON score_cache(address_hash);
     CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id);
     CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at);
+    CREATE INDEX IF NOT EXISTS idx_namara_pressure_zip ON namara_pressure_zones(zip_code);
     """)
 
     conn.commit()

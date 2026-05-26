@@ -278,23 +278,67 @@ HIGH_PRESSURE_VARIANCE_STATES = {
 }
 
 
-def estimate_delivery_psi(state, elevation_m=None):
+def lookup_namara_pressure(zip_code):
+    """
+    Look up real-time pressure data from deployed Namara devices in a zip code.
+
+    A single Namara device in a neighborhood validates the municipal supply
+    pressure for the entire area on that water main. This is the gold standard
+    for pressure data — ground-truth, real-time, validated.
+
+    Returns dict with psi, device_count, last_reading, or None if no devices.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT avg_psi, device_count, last_reading FROM namara_pressure_zones WHERE zip_code = ?",
+            (zip_code,)
+        ).fetchone()
+        conn.close()
+        if row and row["avg_psi"]:
+            return {
+                "psi": round(row["avg_psi"]),
+                "device_count": row["device_count"],
+                "last_reading": row["last_reading"],
+            }
+    except Exception:
+        pass
+    return None
+
+
+def estimate_delivery_psi(state, elevation_m=None, zip_code=None):
     """
     Estimate municipal water delivery pressure (PSI) for a location.
 
-    Municipal systems use pressure zones based on elevation. Water pressure
-    increases by ~0.43 PSI per foot (1.42 PSI per meter) of elevation DROP
-    from the storage tank. Homes at lower elevation in a zone receive higher
-    pressure; homes at higher elevation receive lower pressure.
-
-    Tier 3 in the pressure data cascade:
-        1. User/carrier measured PSI (most accurate)
+    Pressure data cascade (highest confidence first):
+        0. Namara device measured PSI (ground-truth from deployed device)
+        1. User/carrier measured PSI (gauge test)
         2. Utility pressure zone lookup (future)
         3. Elevation-based estimate (this function)
         4. State average (least accurate fallback)
 
+    A single Namara device in a neighborhood validates supply pressure
+    for all properties on that water main — the most accurate source
+    of pressure data available.
+
     Returns dict with estimated_psi, confidence, and source info.
     """
+    # Tier 0: Namara device data (ground-truth)
+    if zip_code:
+        namara_data = lookup_namara_pressure(zip_code)
+        if namara_data:
+            return {
+                "estimated_psi": namara_data["psi"],
+                "elevation_m": elevation_m,
+                "elevation_ft": round(elevation_m * 3.281) if elevation_m else None,
+                "exceeds_code": namara_data["psi"] > 80,
+                "psi_over_code": max(0, namara_data["psi"] - 80),
+                "confidence": "High (Namara device validated)",
+                "source": "namara_device",
+                "device_count": namara_data["device_count"],
+                "last_reading": namara_data["last_reading"],
+            }
     base_psi = STATE_TYPICAL_DELIVERY_PSI.get(state, 62)
 
     if elevation_m is not None:
@@ -358,9 +402,10 @@ def compute_pressure_multiplier(psi, source="unknown"):
     """
     Compute the pressure risk multiplier for the prediction model.
 
-    Water pressure above the 80 PSI code maximum accelerates ALL other
-    failure modes — pipe corrosion, water heater degradation, supply line
-    fatigue, fitting stress, appliance wear. Industry data shows ~10%
+    Unregulated water pressure is the primary driver of most residential
+    water damage. Pressure above the 80 PSI code maximum accelerates ALL
+    other failure modes — pipe corrosion, water heater degradation, supply
+    line fatigue, fitting stress, appliance wear. Industry data shows ~10%
     shorter appliance lifespan per 10 PSI over code (IRC/UPC/IAPMO).
 
     The multiplier scales from 1.0 (at or below code) upward:
@@ -372,8 +417,14 @@ def compute_pressure_multiplier(psi, source="unknown"):
         130 PSI → 1.75x
         150 PSI → 2.05x
 
-    When pressure source is measured (tier 1), the multiplier applies at
-    full strength. When estimated, it's dampened by a confidence factor.
+    Pressure data source determines confidence:
+    - namara_device: Real-time validated measurement from deployed device.
+      A single Namara device in a neighborhood validates municipal supply
+      pressure for the entire area on that water main. (100% confidence)
+    - measured: User-provided reading from gauge test. (100% confidence)
+    - utility_zone: Published utility zone data. (85% confidence)
+    - elevation_estimate: Modeled from elevation + state base. (60% confidence)
+    - state_average: Fallback baseline. (40% confidence)
     """
     if psi is None or psi <= 80:
         return 1.0
@@ -381,9 +432,9 @@ def compute_pressure_multiplier(psi, source="unknown"):
     psi_over = psi - 80
     raw_multiplier = 1.0 + (psi_over * 0.02)
 
-    # Confidence dampening: measured data gets full multiplier,
+    # Confidence dampening: measured/device data gets full multiplier,
     # estimates are dampened to avoid over-penalizing on guesses
-    if source == "measured":
+    if source in ("namara_device", "measured"):
         return round(raw_multiplier, 2)
     elif source == "utility_zone":
         return round(1.0 + (raw_multiplier - 1.0) * 0.85, 2)  # 85% strength
@@ -790,7 +841,7 @@ def compute_composite_score(zip_code, builder_name=None):
     # Layer 4: Pressure (now with elevation-based estimation)
     pressure_data = get_pressure_data(state)
     pressure_score = score_pressure(pressure_data)
-    pressure_estimate = estimate_delivery_psi(state, elevation_m)
+    pressure_estimate = estimate_delivery_psi(state, elevation_m, zip_code)
 
     # Layer 5: Builder Quality
     builder_data = get_builder_score(state)
@@ -804,15 +855,17 @@ def compute_composite_score(zip_code, builder_name=None):
     claims_data = get_claims_data(state)
     claims_score = score_claims(claims_data)
 
-    # Composite: Claims 20% + Climate 15% + WQ 15% + Infrastructure 15% + Pressure 15% + Builder 10% + Regulatory 10%
+    # Composite: Pressure 25% + Claims 20% + Infrastructure 15% + Climate 12% + WQ 10% + Builder 10% + Regulatory 8%
+    # Pressure is the dominant factor — unregulated municipal water pressure
+    # is the primary driver of most residential water damage events.
     composite = round(
+        pressure_score * 0.25 +
         claims_score * 0.20 +
-        climate_score * 0.15 +
-        wq_score * 0.15 +
         infra_score * 0.15 +
-        pressure_score * 0.15 +
+        climate_score * 0.12 +
+        wq_score * 0.10 +
         builder_risk_score * 0.10 +
-        reg_score * 0.10,
+        reg_score * 0.08,
         1
     )
 
@@ -1478,14 +1531,14 @@ def compute_property_score(address, city, state, zip_code,
     if builder:
         builder_risk, builder_factors = score_individual_builder(builder)
 
-    # Property composite (60% weight)
+    # Property composite (55% weight)
     property_composite = round(
-        age_score * 0.15 / 0.60 +
-        pipe_score * 0.15 / 0.60 +
-        heater_score * 0.10 / 0.60 +
-        permit_score * 0.08 / 0.60 +
-        claims_history_score * 0.07 / 0.60 +
-        protection_score * 0.05 / 0.60,
+        age_score * 0.13 / 0.55 +
+        pipe_score * 0.13 / 0.55 +
+        heater_score * 0.08 / 0.55 +
+        permit_score * 0.07 / 0.55 +
+        claims_history_score * 0.07 / 0.55 +
+        protection_score * 0.07 / 0.55,
         1
     )
 
@@ -1502,7 +1555,7 @@ def compute_property_score(address, city, state, zip_code,
     pressure_score = score_pressure(pressure_data)
 
     # Elevation-based pressure estimation (tier 3 in cascade)
-    pressure_estimate = estimate_delivery_psi(state, elevation_m)
+    pressure_estimate = estimate_delivery_psi(state, elevation_m, zip_code)
 
     claims_data = get_claims_data(state)
     area_claims_score = score_claims(claims_data)
@@ -1510,31 +1563,34 @@ def compute_property_score(address, city, state, zip_code,
     reg_data = get_regulatory(state)
     reg_score = score_regulatory(reg_data)
 
-    # Environmental composite (40% weight)
+    # Environmental composite (45% weight)
+    # Pressure is the dominant factor — unregulated municipal water pressure
+    # is the primary driver of most residential water damage events.
     env_composite = round(
-        climate_score * 0.10 / 0.40 +
-        wq_score * 0.08 / 0.40 +
-        pressure_score * 0.08 / 0.40 +
-        area_claims_score * 0.08 / 0.40 +
-        reg_score * 0.06 / 0.40,
+        pressure_score * 0.20 / 0.45 +
+        climate_score * 0.08 / 0.45 +
+        wq_score * 0.06 / 0.45 +
+        area_claims_score * 0.06 / 0.45 +
+        reg_score * 0.05 / 0.45,
         1
     )
 
     # ─── Total Composite ───
     raw_composite = (
-        # Property factors (60%)
-        age_score * 0.15 +
-        pipe_score * 0.15 +
-        heater_score * 0.10 +
-        permit_score * 0.08 +
+        # Pressure — the dominant factor (20%)
+        pressure_score * 0.20 +
+        # Property factors (55%)
+        age_score * 0.13 +
+        pipe_score * 0.13 +
+        heater_score * 0.08 +
+        permit_score * 0.07 +
         claims_history_score * 0.07 +
-        protection_score * 0.05 +
-        # Environmental context (40%)
-        climate_score * 0.10 +
-        wq_score * 0.08 +
-        pressure_score * 0.08 +
-        area_claims_score * 0.08 +
-        reg_score * 0.06
+        protection_score * 0.07 +
+        # Environmental context (25%)
+        climate_score * 0.08 +
+        wq_score * 0.06 +
+        area_claims_score * 0.06 +
+        reg_score * 0.05
     )
 
     # Compounding factor boost: when multiple risk factors are firing
