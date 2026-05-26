@@ -1326,24 +1326,25 @@ function renderClaims(d){
     '<div class="section-subtitle">Water damage claims frequency, severity, and Namara prevention mapping</div>'+
     '<div style="margin:8px 0 12px;font-size:12px;color:var(--muted);font-style:italic">These scores reflect the average for zip code '+d.zip_code+', not a specific property.</div>'+
 
-    // ── Top KPI row ──
+    // ── Industry Crisis Banner (top) ──
+    '<div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:12px;padding:28px 32px;margin:0 0 24px;color:#fff">'+
+      '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#a5b4fc;margin-bottom:8px;font-weight:600">The Water Damage Crisis</div>'+
+      '<div style="font-size:20px;font-weight:700;margin-bottom:16px">Water damage has surpassed fire as the #1 homeowner insurance peril</div>'+
+      '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px">'+
+        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#818cf8">1 in 10</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">homes get a leak each year</div></div>'+
+        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#f87171">$20B</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">annual cost of water damage nationally</div></div>'+
+        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#fbbf24">21%</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">increase in nonweather damage claims YoY</div></div>'+
+        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#34d399">80M</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">homeowners buy smart devices yearly</div></div>'+
+        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#c084fc">24%</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">5-yr increase in national water + sewage rates</div></div>'+
+      '</div>'+
+    '</div>'+
+
+    // ── Zip-level KPI row ──
     '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
       '<div class="kpi-card '+riskClass(clm.score||0)+'"><div class="kpi-label">Claims Risk Score</div><div class="kpi-value">'+d1(clm.score||0)+'/100</div><div class="kpi-sub">Zip code avg — '+riskLabel(clm.score||0)+'</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Claims per 1,000 Homes</div><div class="kpi-value">'+freq+'</div><div class="kpi-sub">'+(freqVsNat>=0?'+':'')+freqVsNat+'% vs national avg ('+natAvgFreq+')</div></div>'+
       '<div class="kpi-card"><div class="kpi-label">Avg Claim Cost</div><div class="kpi-value">$'+avgCost.toLocaleString()+'</div><div class="kpi-sub">'+(costVsNat>=0?'+':'')+costVsNat+'% vs national avg ($'+natAvgCost.toLocaleString()+')</div></div>'+
       '<div class="kpi-card" style="border-left:3px solid var(--red)"><div class="kpi-label">Annual Loss per Home</div><div class="kpi-value">$'+Math.round(annualLossPerHome).toLocaleString()+'</div><div class="kpi-sub">Expected water damage cost per insured home</div></div>'+
-    '</div>'+
-
-    // ── Industry Crisis Banner ──
-    '<div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:12px;padding:24px 28px;margin:20px 0;color:#fff">'+
-      '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#a5b4fc;margin-bottom:8px;font-weight:600">Industry Trend</div>'+
-      '<div style="font-size:20px;font-weight:700;margin-bottom:12px">Water damage has surpassed fire as the #1 homeowner insurance peril</div>'+
-      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px">'+
-        '<div><div style="font-size:28px;font-weight:800;color:#818cf8">~30%</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">of all homeowner claims are water damage</div></div>'+
-        '<div><div style="font-size:28px;font-weight:800;color:#f87171">6%</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">annual increase in water claim frequency</div></div>'+
-        '<div><div style="font-size:28px;font-weight:800;color:#fbbf24">$14.1B</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">total annual U.S. water damage losses (homeowner)</div></div>'+
-        '<div><div style="font-size:28px;font-weight:800;color:#34d399">8.4%</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">annual increase in avg claim severity</div></div>'+
-      '</div>'+
     '</div>'+
 
     // ── Fleet Exposure Calculator ──
