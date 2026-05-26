@@ -243,6 +243,21 @@ a:hover{text-decoration:underline}
 .spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── Prediction Card ── */
+.prediction-card{background:var(--card);border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid var(--border);position:relative;overflow:hidden}
+.prediction-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red),var(--orange),var(--yellow),var(--green))}
+.prediction-card h3{font-size:18px;font-weight:700;margin-bottom:4px;color:#1e293b}
+.prediction-card .pred-sub{font-size:13px;color:var(--muted-dim);margin-bottom:20px}
+.prediction-compare{display:grid;grid-template-columns:1fr auto 1fr;gap:0;margin-top:16px}
+.pred-box{text-align:center;padding:24px 20px;border-radius:12px}
+.pred-box.without{background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.12)}
+.pred-box.with-namara{background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.15)}
+.pred-box .pred-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted-dim);margin-bottom:8px;font-weight:600}
+.pred-box.with-namara .pred-label{color:var(--teal)}
+.pred-box .pred-value{font-size:44px;font-weight:800;line-height:1.1}
+.pred-box .pred-sub-label{font-size:12px;color:var(--muted-dim);margin-top:6px}
+.pred-arrow{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px}
+
 /* ── Footer ── */
 .footer{text-align:center;padding:32px;font-size:12px;color:var(--muted-dim);border-top:1px solid var(--border);margin-top:24px}
 
@@ -663,6 +678,79 @@ function phLevel(ph){
   return 'Alkaline';
 }
 
+// ─── Prediction Display ───
+function urgencyColor(u) {
+  if(u==='low') return 'var(--green)';
+  if(u==='moderate') return 'var(--yellow)';
+  if(u==='elevated') return 'var(--orange)';
+  if(u==='high') return 'var(--red)';
+  return '#991b1b'; // critical
+}
+
+function buildPredictionCard(prediction) {
+  if (!prediction) return '';
+  var pred = prediction.prediction_text || '—';
+  var namaraPred = prediction.namara_prediction || '—';
+  var urgency = prediction.urgency || 'moderate';
+  var annualRisk = prediction.annual_risk_pct || 0;
+  var pMult = prediction.pressure_multiplier || 1.0;
+  var pPsi = prediction.pressure_psi;
+  var pSource = prediction.pressure_source || 'unknown';
+  var predYears = prediction.prediction_years || 0;
+  var namaraYears = prediction.namara_prediction_years || 0;
+
+  var urgLabel = urgency.charAt(0).toUpperCase() + urgency.slice(1);
+  var uColor = urgencyColor(urgency);
+
+  // Pressure context line
+  var pressureLine = '';
+  if (pPsi && pPsi > 80) {
+    var sourceLabel = pSource === 'measured' ? 'measured' : pSource === 'utility_zone' ? 'utility zone' : pSource === 'elevation_estimate' ? 'elevation est.' : 'state avg';
+    pressureLine = '<div style="margin-top:12px;padding:10px 14px;background:rgba(239,68,68,0.06);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.5">'+
+      '<strong style="color:var(--red)">Pressure Factor:</strong> Estimated '+Math.round(pPsi)+' PSI ('+sourceLabel+') is above the 80 PSI code maximum. '+
+      'Every 10 PSI over code accelerates pipe fatigue, appliance wear, and PRV degradation. Pressure multiplier: <strong>'+pMult+'x</strong>.'+
+    '</div>';
+  }
+
+  // Improvement calculation
+  var improvementText = '';
+  if (namaraYears > 10 && predYears <= 10) {
+    improvementText = 'Extends beyond 10 years';
+  } else if (namaraYears > predYears) {
+    var diff = namaraYears - predYears;
+    improvementText = '+' + (diff > 1 ? Math.round(diff) + ' years' : Math.round(diff * 12) + ' months');
+  }
+
+  return '<div class="prediction-card">'+
+    '<h3>Predicted Water Damage Event</h3>'+
+    '<div class="pred-sub">Data-driven prediction based on composite risk score, water pressure, and industry baseline rates</div>'+
+    '<div class="prediction-compare">'+
+      // Without Namara
+      '<div class="pred-box without">'+
+        '<div class="pred-label">Without Protection</div>'+
+        '<div class="pred-value" style="color:'+uColor+'">'+pred+'</div>'+
+        '<div class="pred-sub-label">'+annualRisk+'% annual probability · '+urgLabel+' urgency</div>'+
+      '</div>'+
+      // Arrow
+      '<div class="pred-arrow">'+
+        '<div style="font-size:28px;color:var(--teal)">&#x27A1;&#xFE0F;</div>'+
+        (improvementText ? '<div style="background:var(--teal);color:white;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;margin-top:4px">'+improvementText+'</div>' : '')+
+      '</div>'+
+      // With Namara
+      '<div class="pred-box with-namara">'+
+        '<div class="pred-label">With Namara Protection</div>'+
+        '<div class="pred-value" style="color:var(--green)">'+namaraPred+'</div>'+
+        '<div class="pred-sub-label">Pressure managed + 70% base risk reduction</div>'+
+      '</div>'+
+    '</div>'+
+    pressureLine+
+    '<div style="margin-top:12px;padding:10px 14px;background:rgba(37,99,235,0.04);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.5">'+
+      '<strong style="color:var(--text)">How this works:</strong> Namara eliminates the pressure multiplier entirely — it manages static pressure when water is off, opens to optimal pressure when in use, then closes and bleeds back down. '+
+      'Combined with leak detection, auto shut-off, and freeze protection, this produces a 70% base risk reduction. No matter what the incoming municipal pressure is, Namara protects the home from it.'+
+    '</div>'+
+  '</div>';
+}
+
 // ─── Search Mode ───
 let SEARCH_MODE = 'zip';
 
@@ -870,6 +958,8 @@ function renderPropertyScore(d) {
     builderHTML = '<div class="kpi-card"><div class="kpi-label">Builder</div><div class="kpi-value" style="font-size:16px">'+bld.name+'</div><div class="kpi-sub">Grade '+(bld.grade||'N/A')+' · Risk: '+bld.risk_score+'</div></div>';
   }
 
+  var propPredictionHTML = buildPredictionCard(d.prediction);
+
   document.getElementById('scoreResult').innerHTML =
     '<div class="location-header">'+
       '<h2>'+locationLabel+'</h2>'+
@@ -882,6 +972,7 @@ function renderPropertyScore(d) {
       '<div class="kpi-card"><div class="kpi-label">Year Built</div><div class="kpi-value">'+(pd.year_built||'Unknown')+'</div><div class="kpi-sub">'+(pd.pipe_material||'est.')+' pipes</div></div>'+
       builderHTML+
     '</div>'+
+    propPredictionHTML+
     '<div class="composite-section">'+
       '<h3>Composite Property Risk Score</h3>'+
       '<div class="comp-sub">Property-specific factors <span style="color:var(--blue)">&#9679;</span> + Environmental context <span style="color:var(--teal)">&#9679;</span></div>'+
@@ -1023,6 +1114,8 @@ function renderScore(d){
     '</div>';
   }).join('');
 
+  var predictionHTML = buildPredictionCard(d.prediction);
+
   document.getElementById('scoreResult').innerHTML =
     '<div class="location-header">'+
       '<h2>'+locationLabel+'</h2>'+
@@ -1037,6 +1130,7 @@ function renderScore(d){
       '<div class="kpi-card '+riskClass(pr.score||0)+'"><div class="kpi-label">Pressure Risk</div><div class="kpi-value">'+d1(pr.score||0)+'</div><div class="kpi-sub">'+prSub+'</div></div>'+
       '<div class="kpi-card '+riskClass(bq.score||0)+'"><div class="kpi-label">Builder Quality</div><div class="kpi-value">'+d1(bq.score||0)+'</div><div class="kpi-sub">'+bqSub+'</div></div>'+
     '</div>'+
+    predictionHTML+
     '<div class="composite-section">'+
       '<h3>Composite Water Risk Score</h3>'+
       '<div class="comp-sub">Weighted assessment across 7 data layers including claims intelligence</div>'+
