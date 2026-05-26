@@ -513,18 +513,22 @@ def fetch_climate_data(lat, lon):
 
 
 def score_climate(climate_data):
-    """Score climate risk 0-100."""
+    """Score climate risk 0-100.
+    Focused on factors that directly impact indoor plumbing:
+    freeze days (pipe burst risk) and extreme heat (thermal expansion stress).
+    Precipitation/flooding is external risk — not relevant to Namara's
+    protection model."""
+    if not climate_data or climate_data.get("data_points", 0) == 0:
+        return 45.0  # Moderate baseline when no data available
+
     fd = climate_data.get("freeze_days", 0)
     hd = climate_data.get("heat_days", 0)
-    tp = climate_data.get("total_precip_inches", 0)
-    mp = climate_data.get("max_daily_precip_inches", 0)
 
     freeze_score = min(fd / 60 * 100, 100)
     heat_score = min(hd / 45 * 100, 100)
-    precip_score = min(tp / 60 * 100, 100)
-    extreme_precip = min(mp / 4 * 100, 100)
 
-    return round(freeze_score * 0.35 + heat_score * 0.15 + precip_score * 0.25 + extreme_precip * 0.25, 1)
+    # Freeze is the dominant indoor plumbing risk from climate
+    return round(freeze_score * 0.70 + heat_score * 0.30, 1)
 
 
 # ─── Water Quality Scoring ───

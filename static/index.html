@@ -1133,9 +1133,6 @@ function renderEnvironmental(d){
 
   const freezeDays = cld.freeze_days||0;
   const heatDays = cld.heat_days||0;
-  const totalPrecip = cld.total_precip_inches||0;
-  const maxPrecip = cld.max_daily_precip_inches||0;
-  const heavyRainDays = Math.round(totalPrecip/10);
 
   const hardRisk = chem.hardness > 10 ? 'Elevated' : chem.hardness > 7 ? 'Moderate' : 'Low';
   const phRisk = chem.ph < 6.5 || chem.ph > 8.5 ? 'Elevated' : 'Low';
@@ -1156,13 +1153,10 @@ function renderEnvironmental(d){
     return '<tr><td><strong>'+p.name+'</strong></td><td>'+p.value+'</td><td>'+badgeHTML(p.risk)+'</td><td>'+p.impact+'</td></tr>';
   }).join('');
 
-  // Climate factors table
+  // Climate factors table — focused on indoor plumbing risk only
   const climateFactors = [
     {name:'Freeze Days (12mo)',value:freezeDays+' days',risk:freezeDays>30?'High':freezeDays>10?'Moderate':'Low',impact:'Pipe burst risk, freeze protection activation, PRV freeze damage'},
     {name:'Extreme Heat Days (>95F)',value:heatDays+' days',risk:heatDays>30?'High':heatDays>10?'Moderate':'Low',impact:'Thermal expansion stress, water heater overwork, supply line fatigue'},
-    {name:'Total Precipitation',value:totalPrecip+' in',risk:totalPrecip>50?'Elevated':totalPrecip>30?'Moderate':'Low',impact:'Foundation saturation, sewer backup risk, hydrostatic pressure on basement walls'},
-    {name:'Max Daily Precipitation',value:maxPrecip+' in',risk:maxPrecip>3?'High':maxPrecip>1.5?'Elevated':'Moderate',impact:'Flash flood risk, sump pump overload, storm drain capacity exceedance'},
-    {name:'Heavy Rain Days',value:heavyRainDays+' days',risk:heavyRainDays>8?'Elevated':'Moderate',impact:'Cumulative moisture intrusion, mold risk, drainage system stress'},
   ];
 
   let climateTableRows = climateFactors.map(function(f){
@@ -1188,11 +1182,10 @@ function renderEnvironmental(d){
     '</div>'+
     '<div class="card-section">'+
       '<h3>Climate & Freeze Risk<span class="live-badge" style="margin-left:8px">Live Data</span></h3>'+
-      '<div class="card-sub">12-month climate and precipitation analysis</div>'+
-      '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">'+
-        '<div class="kpi-card"><div class="kpi-label">Total Precipitation</div><div class="kpi-value">'+totalPrecip+'</div><div class="kpi-sub">inches (12mo)</div></div>'+
-        '<div class="kpi-card"><div class="kpi-label">Max Daily Precip</div><div class="kpi-value">'+maxPrecip+'</div><div class="kpi-sub">inches</div></div>'+
-        '<div class="kpi-card"><div class="kpi-label">Heavy Rain Days</div><div class="kpi-value">'+heavyRainDays+'</div><div class="kpi-sub">Estimated</div></div>'+
+      '<div class="card-sub">12-month freeze and heat stress analysis — factors that directly impact indoor plumbing</div>'+
+      '<div class="kpi-row" style="grid-template-columns:repeat(2,1fr)">'+
+        '<div class="kpi-card"><div class="kpi-label">Freeze Days</div><div class="kpi-value">'+freezeDays+'</div><div class="kpi-sub">Days below 32°F (12mo)</div></div>'+
+        '<div class="kpi-card"><div class="kpi-label">Extreme Heat Days</div><div class="kpi-value">'+heatDays+'</div><div class="kpi-sub">Days above 95°F (12mo)</div></div>'+
       '</div>'+
       '<table class="data-table">'+
         '<thead><tr><th>Factor</th><th>Value</th><th>Risk</th><th>Insurance Impact</th></tr></thead>'+
