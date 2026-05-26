@@ -1334,17 +1334,9 @@ function renderClaims(d){
         '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#818cf8">1 in 10</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">homes get a leak each year</div></div>'+
         '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#f87171">$20B</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">annual cost of water damage nationally</div></div>'+
         '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#fbbf24">21%</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">increase in nonweather damage claims YoY</div></div>'+
-        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#34d399">80M</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">homeowners buy smart devices yearly</div></div>'+
-        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#c084fc">24%</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">5-yr increase in national water + sewage rates</div></div>'+
+        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#34d399">~$15,400</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">average water damage claim cost (III)</div></div>'+
+        '<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:#c084fc">93%</div><div style="font-size:11px;color:#c7d2fe;margin-top:4px">of water damage is preventable with early detection</div></div>'+
       '</div>'+
-    '</div>'+
-
-    // ── Zip-level KPI row ──
-    '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
-      '<div class="kpi-card '+riskClass(clm.score||0)+'"><div class="kpi-label">Claims Risk Score</div><div class="kpi-value">'+d1(clm.score||0)+'/100</div><div class="kpi-sub">Zip code avg — '+riskLabel(clm.score||0)+'</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Claims per 1,000 Homes</div><div class="kpi-value">'+freq+'</div><div class="kpi-sub">'+(freqVsNat>=0?'+':'')+freqVsNat+'% vs national avg ('+natAvgFreq+')</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Avg Claim Cost</div><div class="kpi-value">$'+avgCost.toLocaleString()+'</div><div class="kpi-sub">'+(costVsNat>=0?'+':'')+costVsNat+'% vs national avg ($'+natAvgCost.toLocaleString()+')</div></div>'+
-      '<div class="kpi-card" style="border-left:3px solid var(--red)"><div class="kpi-label">Annual Loss per Home</div><div class="kpi-value">$'+Math.round(annualLossPerHome).toLocaleString()+'</div><div class="kpi-sub">Expected water damage cost per insured home</div></div>'+
     '</div>'+
 
     // ── Fleet Exposure Calculator ──
