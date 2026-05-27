@@ -278,30 +278,55 @@ HIGH_PRESSURE_VARIANCE_STATES = {
 }
 
 
-def lookup_namara_pressure(zip_code):
+def lookup_namara_pressure(zip_code, neighborhood=None):
     """
-    Look up real-time pressure data from deployed Namara devices in a zip code.
+    Look up real-time pressure data from deployed Namara devices.
 
     A single Namara device in a neighborhood validates the municipal supply
     pressure for the entire area on that water main. This is the gold standard
     for pressure data — ground-truth, real-time, validated.
 
-    Returns dict with psi, device_count, last_reading, or None if no devices.
+    If a neighborhood is specified, it looks for a device zone matching that
+    neighborhood within the zip code. Otherwise, it returns any device zone
+    in the zip code.
+
+    Returns dict with psi, device_count, last_reading, neighborhood,
+    telemetry data, or None if no devices.
     """
     try:
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
-        row = conn.execute(
-            "SELECT avg_psi, device_count, last_reading FROM namara_pressure_zones WHERE zip_code = ?",
-            (zip_code,)
-        ).fetchone()
+        if neighborhood:
+            row = conn.execute(
+                "SELECT * FROM namara_pressure_zones WHERE zip_code = ? AND neighborhood = ?",
+                (zip_code, neighborhood)
+            ).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT * FROM namara_pressure_zones WHERE zip_code = ? AND avg_psi IS NOT NULL ORDER BY device_count DESC LIMIT 1",
+                (zip_code,)
+            ).fetchone()
         conn.close()
         if row and row["avg_psi"]:
-            return {
+            result = {
                 "psi": round(row["avg_psi"]),
+                "min_psi": row["min_psi"],
+                "max_psi": row["max_psi"],
                 "device_count": row["device_count"],
                 "last_reading": row["last_reading"],
+                "neighborhood": row["neighborhood"],
+                "device_address": row["device_address"],
+                "high_pressure_events_per_day": row["high_pressure_events_per_day"],
+                "water_savings_pct": row["water_savings_pct"],
+                "output_set_point": row["output_set_point"],
             }
+            # Parse telemetry data if available
+            if row["telemetry_data"]:
+                try:
+                    result["telemetry"] = json.loads(row["telemetry_data"])
+                except Exception:
+                    pass
+            return result
     except Exception:
         pass
     return None
@@ -328,7 +353,7 @@ def estimate_delivery_psi(state, elevation_m=None, zip_code=None):
     if zip_code:
         namara_data = lookup_namara_pressure(zip_code)
         if namara_data:
-            return {
+            result = {
                 "estimated_psi": namara_data["psi"],
                 "elevation_m": elevation_m,
                 "elevation_ft": round(elevation_m * 3.281) if elevation_m else None,
@@ -338,7 +363,17 @@ def estimate_delivery_psi(state, elevation_m=None, zip_code=None):
                 "source": "namara_device",
                 "device_count": namara_data["device_count"],
                 "last_reading": namara_data["last_reading"],
+                "neighborhood": namara_data.get("neighborhood"),
+                "device_address": namara_data.get("device_address"),
+                "min_psi": namara_data.get("min_psi"),
+                "max_psi": namara_data.get("max_psi"),
+                "high_pressure_events_per_day": namara_data.get("high_pressure_events_per_day"),
+                "water_savings_pct": namara_data.get("water_savings_pct"),
+                "output_set_point": namara_data.get("output_set_point"),
             }
+            if namara_data.get("telemetry"):
+                result["telemetry"] = namara_data["telemetry"]
+            return result
     base_psi = STATE_TYPICAL_DELIVERY_PSI.get(state, 62)
 
     if elevation_m is not None:

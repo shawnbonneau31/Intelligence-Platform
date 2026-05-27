@@ -16,7 +16,8 @@ from functools import wraps
 
 from database import (
     init_db, get_db, authenticate_user, validate_api_key,
-    check_rate_limit, log_request, create_user, generate_api_key
+    check_rate_limit, log_request, create_user, generate_api_key,
+    seed_device_zones
 )
 from scoring import (
     compute_composite_score, compute_property_score, search_builders,
@@ -819,6 +820,7 @@ class DashboardHandler(tornado.web.RequestHandler):
 
 def make_app():
     init_db()
+    seed_device_zones()
 
     return tornado.web.Application([
         # Frontend

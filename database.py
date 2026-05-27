@@ -211,14 +211,20 @@ def init_db():
     CREATE TABLE IF NOT EXISTS namara_pressure_zones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         zip_code TEXT NOT NULL,
+        neighborhood TEXT,
         avg_psi REAL,
         min_psi REAL,
         max_psi REAL,
         device_count INTEGER DEFAULT 0,
         last_reading TEXT,
+        device_address TEXT,
+        high_pressure_events_per_day REAL,
+        water_savings_pct REAL,
+        output_set_point REAL,
+        telemetry_data TEXT,
         created_at TEXT DEFAULT (datetime('now')),
         updated_at TEXT DEFAULT (datetime('now')),
-        UNIQUE(zip_code)
+        UNIQUE(zip_code, neighborhood)
     );
 
     CREATE INDEX IF NOT EXISTS idx_properties_address ON properties(address, city, state);
@@ -231,7 +237,73 @@ def init_db():
     CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id);
     CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at);
     CREATE INDEX IF NOT EXISTS idx_namara_pressure_zip ON namara_pressure_zones(zip_code);
+    CREATE INDEX IF NOT EXISTS idx_namara_pressure_neighborhood ON namara_pressure_zones(zip_code, neighborhood);
     """)
+
+    conn.commit()
+
+    # Migrate existing namara_pressure_zones table if missing new columns
+    try:
+        cols = [row[1] for row in conn.execute("PRAGMA table_info(namara_pressure_zones)").fetchall()]
+        migrations = {
+            "neighborhood": "TEXT",
+            "device_address": "TEXT",
+            "high_pressure_events_per_day": "REAL",
+            "water_savings_pct": "REAL",
+            "output_set_point": "REAL",
+            "telemetry_data": "TEXT",
+        }
+        for col, ctype in migrations.items():
+            if col not in cols:
+                conn.execute(f"ALTER TABLE namara_pressure_zones ADD COLUMN {col} {ctype}")
+        conn.commit()
+    except Exception:
+        pass
+
+    conn.close()
+
+
+def seed_device_zones():
+    """Seed Namara device zones with real device data from deployed units."""
+    conn = get_db()
+
+    # Check if PHR zone already exists
+    existing = conn.execute(
+        "SELECT id FROM namara_pressure_zones WHERE zip_code = ? AND neighborhood = ?",
+        ("92130", "Pacific Highlands Ranch")
+    ).fetchone()
+
+    if existing:
+        conn.close()
+        return
+
+    # Load telemetry data from the Bonneau house device
+    telemetry_path = os.path.join(os.path.dirname(__file__), "data", "phr_telemetry.json")
+    telemetry_json = None
+    if os.path.exists(telemetry_path):
+        with open(telemetry_path) as f:
+            telemetry_json = f.read()
+
+    conn.execute("""
+        INSERT INTO namara_pressure_zones
+        (zip_code, neighborhood, avg_psi, min_psi, max_psi, device_count,
+         last_reading, device_address, high_pressure_events_per_day,
+         water_savings_pct, output_set_point, telemetry_data)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        "92130",
+        "Pacific Highlands Ranch",
+        72.1,   # avg_psi — measured from Bonneau device
+        0.0,    # min_psi — drops to 0 during surges
+        200.0,  # max_psi — peak surge recorded Sept 26
+        1,      # device_count
+        "2025-09-29T09:49:54",
+        "6085 African Holly Trl",
+        23.3,   # high_pressure_events_per_day
+        19.7,   # water_savings_pct
+        48.0,   # output_set_point
+        telemetry_json,
+    ))
 
     conn.commit()
     conn.close()

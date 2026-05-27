@@ -272,6 +272,44 @@ a:hover{text-decoration:underline}
 .pressure-callout .pc-badge.exceeds{background:rgba(239,68,68,0.15);color:#f87171}
 .pressure-callout .pc-device-note{margin-top:16px;padding:12px 16px;background:rgba(56,189,248,0.08);border-left:3px solid #38bdf8;border-radius:0 8px 8px 0;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6}
 .pressure-callout .pc-device-note strong{color:#38bdf8}
+.pc-expand-bar{margin-top:20px;padding:12px 16px;background:rgba(45,212,191,0.12);border:1px solid rgba(45,212,191,0.25);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background 0.2s}
+.pc-expand-bar:hover{background:rgba(45,212,191,0.2)}
+.pc-expand-bar .pc-expand-label{font-size:13px;font-weight:700;color:#2dd4bf;display:flex;align-items:center;gap:8px}
+.pc-expand-bar .pc-expand-label .pc-dot{width:8px;height:8px;border-radius:50%;background:#2dd4bf;animation:pc-pulse 2s infinite}
+@keyframes pc-pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.pc-expand-bar .pc-chevron{color:#2dd4bf;font-size:18px;transition:transform 0.3s}
+.pc-expand-bar.open .pc-chevron{transform:rotate(180deg)}
+.pc-telemetry{max-height:0;overflow:hidden;transition:max-height 0.5s ease-out}
+.pc-telemetry.open{max-height:3000px;transition:max-height 0.8s ease-in}
+.pc-telemetry-inner{padding:20px 0 0;border-top:1px solid rgba(255,255,255,0.1);margin-top:16px}
+.pc-telem-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
+.pc-telem-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px}
+.pc-telem-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.pc-telem-stat{background:rgba(255,255,255,0.06);border-radius:8px;padding:12px 14px}
+.pc-telem-stat-val{font-size:20px;font-weight:800;color:#2dd4bf}
+.pc-telem-stat-val.warn{color:#f59e0b}
+.pc-telem-stat-val.danger{color:#ef4444}
+.pc-telem-stat-label{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+.pc-telem-chart{background:rgba(0,0,0,0.2);border-radius:8px;padding:16px;margin-bottom:16px}
+.pc-telem-legend{display:flex;gap:14px;font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:10px;flex-wrap:wrap}
+.pc-telem-legend span{display:flex;align-items:center;gap:4px}
+.pc-telem-legend .swatch{width:10px;height:10px;border-radius:2px;display:inline-block}
+.pc-telem-events{margin-top:16px}
+.pc-telem-event{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);align-items:flex-start}
+.pc-telem-event:last-child{border-bottom:none}
+.pc-telem-event-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.pc-telem-event-detail{flex:1}
+.pc-telem-event-title{font-size:13px;font-weight:600;color:#fff}
+.pc-telem-event-desc{font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;line-height:1.5}
+.pc-telem-event-severity{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:2px 8px;border-radius:10px}
+.pc-neighborhood-box{margin-top:16px;padding:16px;background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.15);border-radius:8px}
+.pc-neighborhood-box .pc-nb-title{font-size:14px;font-weight:700;color:#2dd4bf;margin-bottom:6px}
+.pc-neighborhood-box .pc-nb-text{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6}
+.pc-confidence-compare{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;margin:12px 0}
+.pc-conf-box{text-align:center;padding:16px;border-radius:8px}
+.pc-conf-box .pc-conf-val{font-size:28px;font-weight:800}
+.pc-conf-box .pc-conf-label{font-size:11px;margin-top:4px}
+.pc-conf-arrow{padding:0 12px;font-size:20px;color:#2dd4bf}
 
 /* ── Footer ── */
 .footer{text-align:center;padding:32px;font-size:12px;color:var(--muted-dim);border-top:1px solid var(--border);margin-top:24px}
@@ -407,7 +445,7 @@ a:hover{text-decoration:underline}
         <a onclick="quickAddr('1247 Lakeshore Dr','Minneapolis','MN','55408')">Minneapolis, MN</a> (Cold/Freeze) ·
         <a onclick="quickAddr('820 S Michigan Ave','Chicago','IL','60605')">Chicago, IL</a> (Temp Swings) ·
         <a onclick="quickAddr('1420 Brickell Bay Dr','Miami','FL','33131')">Miami, FL</a> (Hot/Humid) ·
-        <a onclick="quickAddr('2100 Green St','San Francisco','CA','94123')">San Francisco, CA</a> (Mild/Coastal)
+        <a onclick="quickAddr('6085 African Holly Trl','San Diego','CA','92130')">San Diego, CA</a> (Namara Live)
       </div>
     </div>
   </div>
@@ -744,6 +782,121 @@ function buildPressureCallout(pressureEstimate, pressureScore) {
     '</div>';
   }
 
+  // Build expandable device telemetry section if device data exists
+  var deviceTelemetryHTML = '';
+  if (isDevice && pressureEstimate.telemetry) {
+    var tel = pressureEstimate.telemetry;
+    var nbhood = pressureEstimate.neighborhood || 'This Area';
+    var devAddr = pressureEstimate.device_address || '';
+    var hpEvts = pressureEstimate.high_pressure_events_per_day || 0;
+    var savPct = pressureEstimate.water_savings_pct || 0;
+    var setPoint = pressureEstimate.output_set_point || 48;
+    var minP = pressureEstimate.min_psi || 0;
+    var maxP = pressureEstimate.max_psi || 0;
+    var summ = tel.summary || {};
+    var period = tel.period || {};
+    var events = tel.events || [];
+    var hourlyP = tel.hourly_pressure || [];
+
+    var uid = 'pcTelem' + Math.random().toString(36).substr(2,6);
+
+    // Stats row
+    var telemStats =
+      '<div class="pc-telem-stats">'+
+        '<div class="pc-telem-stat"><div class="pc-telem-stat-val">'+Math.round(psi)+'</div><div class="pc-telem-stat-label">Avg Input PSI</div></div>'+
+        '<div class="pc-telem-stat"><div class="pc-telem-stat-val warn">'+Math.round(maxP)+'</div><div class="pc-telem-stat-label">Peak Surge PSI</div></div>'+
+        '<div class="pc-telem-stat"><div class="pc-telem-stat-val">'+Math.round(setPoint)+'</div><div class="pc-telem-stat-label">Output Set Point</div></div>'+
+        '<div class="pc-telem-stat"><div class="pc-telem-stat-val danger">'+Math.round(hpEvts * (period.days||7))+'</div><div class="pc-telem-stat-label">High Pressure Events</div></div>'+
+        '<div class="pc-telem-stat"><div class="pc-telem-stat-val" style="color:#4ade80">'+savPct+'%</div><div class="pc-telem-stat-label">Water Saved</div></div>'+
+        '<div class="pc-telem-stat"><div class="pc-telem-stat-val">'+(summ.total_readings||0).toLocaleString()+'</div><div class="pc-telem-stat-label">Total Readings</div></div>'+
+      '</div>';
+
+    // Chart placeholder
+    var chartId = 'telemChart' + uid;
+    var telemChart =
+      '<div class="pc-telem-chart">'+
+        '<div class="pc-telem-legend">'+
+          '<span><span class="swatch" style="background:#38bdf8"></span>Avg input PSI</span>'+
+          '<span><span class="swatch" style="background:rgba(56,189,248,0.2)"></span>Min-max range</span>'+
+          '<span><span class="swatch" style="background:#2dd4bf"></span>Output (regulated)</span>'+
+          '<span><span style="width:14px;border-top:2px dashed #ef4444;display:inline-block"></span> 80 PSI code limit</span>'+
+        '</div>'+
+        '<div style="position:relative;width:100%;height:220px">'+
+          '<canvas id="'+chartId+'"></canvas>'+
+        '</div>'+
+      '</div>';
+
+    // Events
+    var sevColors = {critical:'rgba(239,68,68,0.2)', ongoing:'rgba(245,158,11,0.2)', info:'rgba(56,189,248,0.2)', clear:'rgba(34,197,94,0.2)'};
+    var sevTextColors = {critical:'#f87171', ongoing:'#fbbf24', info:'#38bdf8', clear:'#4ade80'};
+    var sevIcons = {critical:'&#x26A0;&#xFE0F;', ongoing:'&#x1F525;', info:'&#x1F4A7;', clear:'&#x2705;'};
+    var eventsHTML = events.map(function(e){
+      return '<div class="pc-telem-event">'+
+        '<div class="pc-telem-event-icon" style="background:'+(sevColors[e.severity]||sevColors.info)+'">'+
+          (sevIcons[e.severity]||'&#x2139;&#xFE0F;')+
+        '</div>'+
+        '<div class="pc-telem-event-detail">'+
+          '<div class="pc-telem-event-title">'+e.detail.split(' — ')[0]+'</div>'+
+          '<div class="pc-telem-event-desc">'+(e.detail.indexOf(' — ')>-1?e.detail.split(' — ').slice(1).join(' — '):e.detail)+'</div>'+
+        '</div>'+
+        '<span class="pc-telem-event-severity" style="background:'+(sevColors[e.severity]||sevColors.info)+';color:'+(sevTextColors[e.severity]||sevTextColors.info)+'">'+e.severity+'</span>'+
+      '</div>';
+    }).join('');
+
+    // Neighborhood validation box
+    var nbBox =
+      '<div class="pc-neighborhood-box">'+
+        '<div class="pc-nb-title">Neighborhood Validation — '+nbhood+'</div>'+
+        '<div class="pc-confidence-compare">'+
+          '<div class="pc-conf-box" style="background:rgba(239,68,68,0.1)">'+
+            '<div class="pc-conf-val" style="color:#f87171">40%</div>'+
+            '<div class="pc-conf-label" style="color:rgba(255,255,255,0.5)">Before (state avg)</div>'+
+          '</div>'+
+          '<div class="pc-conf-arrow">&#x27A1;&#xFE0F;</div>'+
+          '<div class="pc-conf-box" style="background:rgba(45,212,191,0.1)">'+
+            '<div class="pc-conf-val" style="color:#2dd4bf">100%</div>'+
+            '<div class="pc-conf-label" style="color:rgba(255,255,255,0.5)">Device validated</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="pc-nb-text">'+
+          'This device at '+devAddr+' confirms that the municipal supply serving '+nbhood+' '+
+          'delivers an average of '+Math.round(psi)+' PSI with surges up to '+Math.round(maxP)+' PSI. '+
+          'Every property scored in this neighborhood now uses device-validated pressure data — '+
+          'upgrading confidence from 40% to 100%.'+
+        '</div>'+
+      '</div>';
+
+    // Store hourly data in a global so the onclick doesn't inline 10KB of JSON
+    window['__telemData_'+chartId] = hourlyP;
+
+    deviceTelemetryHTML =
+      '<div class="pc-expand-bar" id="'+uid+'Bar" onclick="(function(){'+
+        'var bar=document.getElementById(\''+uid+'Bar\');'+
+        'var panel=document.getElementById(\''+uid+'Panel\');'+
+        'bar.classList.toggle(\'open\');'+
+        'panel.classList.toggle(\'open\');'+
+        'if(panel.classList.contains(\'open\')&&!window[\''+chartId+'Built\']){'+
+          'window[\''+chartId+'Built\']=true;'+
+          'loadChartJS(function(){buildTelemChart(\''+chartId+'\',window[\'__telemData_'+chartId+'\']);});'+
+        '}'+
+      '})()">'+
+        '<div class="pc-expand-label"><span class="pc-dot"></span>Namara device data available — '+nbhood+'</div>'+
+        '<span class="pc-chevron">&#x25BC;</span>'+
+      '</div>'+
+      '<div class="pc-telemetry" id="'+uid+'Panel">'+
+        '<div class="pc-telemetry-inner">'+
+          '<div class="pc-telem-title">'+(period.days||7)+'-Day Device Telemetry — '+nbhood+'</div>'+
+          '<div class="pc-telem-sub">Real data from device at '+devAddr+' &middot; '+(summ.total_readings||0).toLocaleString()+' readings &middot; '+period.start+' to '+period.end+'</div>'+
+          telemStats+
+          telemChart+
+          '<div class="pc-telem-title" style="font-size:14px;margin-top:8px">Device Events</div>'+
+          '<div class="pc-telem-sub">Key events captured during monitoring period</div>'+
+          '<div class="pc-telem-events">'+eventsHTML+'</div>'+
+          nbBox+
+        '</div>'+
+      '</div>';
+  }
+
   return '<div class="pressure-callout">'+
     '<div class="pc-header">'+
       '<div class="pc-icon">&#x1F4A7;</div>'+
@@ -760,13 +913,75 @@ function buildPressureCallout(pressureEstimate, pressureScore) {
       'making real-time monitoring critical for accurate risk assessment.'+
     '</div>'+
     '<div class="pc-stats">'+
-      '<div class="pc-stat '+psiStatClass+'"><div class="pc-stat-value">'+psi+'</div><div class="pc-stat-label">Estimated PSI</div></div>'+
+      '<div class="pc-stat '+psiStatClass+'"><div class="pc-stat-value">'+psi+'</div><div class="pc-stat-label">'+(isDevice?'Measured':'Estimated')+' PSI</div></div>'+
       '<div class="pc-stat"><div class="pc-stat-value">'+codeBadge+'</div><div class="pc-stat-label">Code Maximum: 80 PSI</div></div>'+
       '<div class="pc-stat"><div class="pc-stat-value">'+confPct+'%</div><div class="pc-stat-label">Data Confidence</div></div>'+
       '<div class="pc-stat"><div class="pc-stat-value" style="font-size:18px">'+sourceLabel+'</div><div class="pc-stat-label">Pressure Source</div></div>'+
     '</div>'+
     deviceNote+
+    deviceTelemetryHTML+
   '</div>';
+}
+
+function loadChartJS(cb) {
+  if (typeof Chart !== 'undefined') { cb(); return; }
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+  s.onload = cb;
+  s.onerror = function(){ console.error('Failed to load Chart.js'); };
+  document.head.appendChild(s);
+}
+
+function buildTelemChart(canvasId, hourlyData) {
+  if (!hourlyData || !hourlyData.length || typeof Chart === 'undefined') return;
+  var labels = hourlyData.map(function(d) {
+    var dt = new Date(d.t);
+    return (dt.getMonth()+1)+'/'+dt.getDate()+' '+dt.getHours()+':00';
+  });
+  var ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {label:'Max PSI',data:hourlyData.map(function(d){return d.max}),borderColor:'transparent',backgroundColor:'rgba(56,189,248,0.12)',fill:'+1',pointRadius:0,tension:0.3,order:3},
+        {label:'Avg input PSI',data:hourlyData.map(function(d){return d.avg}),borderColor:'#38bdf8',backgroundColor:'transparent',borderWidth:2,pointRadius:0,pointHoverRadius:3,tension:0.3,fill:false,order:1},
+        {label:'Min PSI',data:hourlyData.map(function(d){return d.min}),borderColor:'transparent',backgroundColor:'rgba(56,189,248,0.12)',fill:'-1',pointRadius:0,tension:0.3,order:3},
+        {label:'Output PSI',data:hourlyData.map(function(d){return d.out}),borderColor:'#2dd4bf',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,3],pointRadius:0,tension:0.3,fill:false,order:2}
+      ]
+    },
+    options: {
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          title:function(items){return items[0].label},
+          label:function(ctx){
+            if(ctx.datasetIndex===0) return 'Max: '+Math.round(ctx.raw)+' PSI';
+            if(ctx.datasetIndex===1) return 'Avg: '+Math.round(ctx.raw*10)/10+' PSI';
+            if(ctx.datasetIndex===2) return 'Min: '+Math.round(ctx.raw)+' PSI';
+            return 'Output: '+Math.round(ctx.raw*10)/10+' PSI';
+          }
+        }}
+      },
+      scales:{
+        x:{ticks:{maxTicksLimit:7,font:{size:10},color:'rgba(255,255,255,0.4)'},grid:{display:false}},
+        y:{min:0,max:100,ticks:{stepSize:20,font:{size:10},color:'rgba(255,255,255,0.4)',callback:function(v){return v+' PSI'}},grid:{color:'rgba(255,255,255,0.06)'}}
+      }
+    },
+    plugins:[{
+      id:'codeLine80',
+      afterDraw:function(chart){
+        var yScale=chart.scales.y;var ctx2=chart.ctx;var y80=yScale.getPixelForValue(80);
+        ctx2.save();ctx2.setLineDash([6,4]);ctx2.strokeStyle='#ef4444';ctx2.lineWidth=1.5;
+        ctx2.beginPath();ctx2.moveTo(chart.chartArea.left,y80);ctx2.lineTo(chart.chartArea.right,y80);ctx2.stroke();
+        ctx2.fillStyle='#ef4444';ctx2.font='10px sans-serif';ctx2.fillText('80 PSI code limit',chart.chartArea.right-90,y80-5);
+        ctx2.restore();
+      }
+    }]
+  });
 }
 
 function buildPredictionCard(prediction) {
