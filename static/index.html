@@ -1283,6 +1283,20 @@ function renderPropertyDetail(d) {
     return '';
   }
 
+  // Detect Namara device installed via pressure source
+  var pe = d.pressure_estimate||{};
+  var hasNamara = pe.source === 'namara_device';
+
+  // Protection devices value changes when Namara is installed (it replaces the PRV)
+  var protectionVal;
+  if (hasNamara) {
+    protectionVal = '<span style="color:#2dd4bf;font-weight:700">Namara VFC</span> <span style="font-size:10px;padding:1px 6px;border-radius:8px;background:rgba(45,212,191,0.15);color:#2dd4bf;font-weight:600;vertical-align:middle">ACTIVE</span>' +
+      ' <span style="color:rgba(255,255,255,0.4);font-size:11px">(replaces PRV)</span>' +
+      (pd.has_expansion_tank ? ', Expansion Tank' : '');
+  } else {
+    protectionVal = (pd.has_prv ? 'PRV' : 'No PRV')+(pd.has_expansion_tank ? ', Expansion Tank' : '');
+  }
+
   let propRows = [
     {name:'Year Built', value: (pd.year_built||'Unknown')+srcTag('year_built'), score: pf.home_age?.score||0},
     {name:'Pipe Material', value: (pd.pipe_material||'Unknown')+' ('+(pd.pipe_material_source||'estimated')+')', score: pf.pipe_material?.score||0},
@@ -1291,7 +1305,7 @@ function renderPropertyDetail(d) {
     {name:'Water Heater', value: (pd.water_heater_age_years!=null ? pd.water_heater_age_years+' yrs' : 'Unknown') + ' ('+( pd.water_heater_type||'tank')+')', score: pf.water_heater?.score||0},
     {name:'Plumbing Permits', value: (pd.total_plumbing_permits||0)+' permits'+(pd.last_plumbing_permit_year ? ', last '+pd.last_plumbing_permit_year : ''), score: pf.permit_history?.score||0},
     {name:'Prior Water Claims', value: (pd.prior_water_claims||0)+' claims ($'+(pd.prior_claim_total_cost||0).toLocaleString()+')', score: pf.prior_claims?.score||0},
-    {name:'Protection Devices', value: (pd.has_prv ? 'PRV' : 'No PRV')+(pd.has_expansion_tank ? ', Expansion Tank' : ''), score: pf.protection_devices?.score||0},
+    {name:'Protection Devices', value: protectionVal, score: hasNamara ? 0 : (pf.protection_devices?.score||0)},
   ];
 
   let detailRows = propRows.map(function(r){
@@ -1326,13 +1340,47 @@ function renderPropertyDetail(d) {
       '</tbody></table></div>';
   }
 
+  // Namara device banner for properties with active device
+  var namaraBanner = '';
+  if (hasNamara) {
+    var nSetPoint = pe.output_set_point || 48;
+    var nSavPct = pe.water_savings_pct || 0;
+    var nNbhood = pe.neighborhood || 'this area';
+    namaraBanner =
+      '<div style="margin-bottom:16px;padding:16px 20px;background:linear-gradient(135deg,rgba(45,212,191,0.1),rgba(56,189,248,0.06));border:1px solid rgba(45,212,191,0.25);border-radius:10px">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 8px rgba(45,212,191,0.5);animation:pc-pulse 2s infinite"></div>'+
+          '<strong style="color:#2dd4bf;font-size:14px">Namara VFC Active at This Property</strong>'+
+        '</div>'+
+        '<div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:12px">'+
+          'The Namara VFC replaces the traditional PRV and provides continuous pressure regulation, real-time monitoring, thermal expansion relief, leak detection, and auto shut-off. '+
+          'Output pressure is set to '+nSetPoint+' PSI — optimized to protect plumbing while maintaining adequate flow.'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px">'+
+          '<div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px">'+
+            '<div style="font-size:16px;font-weight:800;color:#2dd4bf">'+nSetPoint+' PSI</div>'+
+            '<div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase">Output Set Point</div>'+
+          '</div>'+
+          '<div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px">'+
+            '<div style="font-size:16px;font-weight:800;color:#4ade80">'+nSavPct+'%</div>'+
+            '<div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase">Water Saved</div>'+
+          '</div>'+
+          '<div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px">'+
+            '<div style="font-size:16px;font-weight:800;color:#38bdf8">'+nNbhood+'</div>'+
+            '<div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase">Validated Zone</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+  }
+
   document.getElementById('propertyResult').innerHTML =
     '<div class="section-title">Property Risk Detail — '+d.address+'</div>'+
     '<div class="section-subtitle">Address-level risk assessment with '+d.confidence+' confidence</div>'+
+    namaraBanner+
     sourcesBanner+
     '<div class="card-section">'+
       '<h3>Property-Specific Risk Factors</h3>'+
-      '<div class="card-sub">Factors based on this individual property</div>'+
+      '<div class="card-sub">'+(hasNamara ? 'Property factors with Namara VFC active protections applied' : 'Factors based on this individual property')+'</div>'+
       '<table class="data-table"><thead><tr><th>Factor</th><th>Value</th><th>Risk Score</th></tr></thead><tbody>'+detailRows+'</tbody></table>'+
     '</div>'+
     builderDetail;
