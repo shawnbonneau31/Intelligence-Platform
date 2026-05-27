@@ -273,10 +273,7 @@ def seed_device_zones():
         ("92130", "Pacific Highlands Ranch")
     ).fetchone()
 
-    if existing:
-        conn.close()
-        return
-
+    # Always reload telemetry from file so edits take effect
     # Load telemetry data from the Bonneau house device
     telemetry_path = os.path.join(os.path.dirname(__file__), "data", "phr_telemetry.json")
     telemetry_json = None
@@ -284,26 +281,33 @@ def seed_device_zones():
         with open(telemetry_path) as f:
             telemetry_json = f.read()
 
-    conn.execute("""
-        INSERT INTO namara_pressure_zones
-        (zip_code, neighborhood, avg_psi, min_psi, max_psi, device_count,
-         last_reading, device_address, high_pressure_events_per_day,
-         water_savings_pct, output_set_point, telemetry_data)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        "92130",
-        "Pacific Highlands Ranch",
-        72.1,   # avg_psi — measured from Bonneau device
-        0.0,    # min_psi — drops to 0 during surges
-        200.0,  # max_psi — peak surge recorded Sept 26
-        1,      # device_count
-        "2025-09-29T09:49:54",
-        "6085 African Holly Trl",
-        23.3,   # high_pressure_events_per_day
-        19.7,   # water_savings_pct
-        48.0,   # output_set_point
-        telemetry_json,
-    ))
+    if existing:
+        # Update telemetry data from file so edits propagate
+        conn.execute(
+            "UPDATE namara_pressure_zones SET telemetry_data = ?, updated_at = datetime('now') WHERE id = ?",
+            (telemetry_json, existing['id'])
+        )
+    else:
+        conn.execute("""
+            INSERT INTO namara_pressure_zones
+            (zip_code, neighborhood, avg_psi, min_psi, max_psi, device_count,
+             last_reading, device_address, high_pressure_events_per_day,
+             water_savings_pct, output_set_point, telemetry_data)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            "92130",
+            "Pacific Highlands Ranch",
+            72.1,   # avg_psi — measured from Bonneau device
+            0.0,    # min_psi — drops to 0 during surges
+            200.0,  # max_psi — peak surge recorded Sept 26
+            1,      # device_count
+            "2025-09-29T09:49:54",
+            "6085 African Holly Trl",
+            23.3,   # high_pressure_events_per_day
+            19.7,   # water_savings_pct
+            48.0,   # output_set_point
+            telemetry_json,
+        ))
 
     conn.commit()
     conn.close()
