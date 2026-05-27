@@ -390,7 +390,7 @@ a:hover{text-decoration:underline}
   <!-- Hero Search -->
   <div class="hero">
     <h2>See the water risk. Reduce it with Namara.</h2>
-    <div class="hero-sub">The only water risk platform with real-time, property-level device intelligence — <span class="tooltip-wrap" style="position:relative;display:inline"><span style="border-bottom:1px dashed rgba(255,255,255,0.4);cursor:pointer" onmouseenter="document.getElementById('dataTooltip').style.display='block'" onmouseleave="document.getElementById('dataTooltip').style.display='none'">not just public data</span><div id="dataTooltip" style="display:none;position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:560px;background:#0d1b3e;border:1px solid rgba(96,165,250,0.25);border-radius:12px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,0.5);z-index:100;text-align:left"><div style="display:flex;gap:16px"><div style="flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:10px">Industry data (9 sources)</div><div style="font-size:11px;color:#cbd5e1;line-height:1.8">&#x2022; State-level claims history<br>&#x2022; Climate zone risk averages<br>&#x2022; Water quality violation records<br>&#x2022; Housing age estimates<br>&#x2022; Municipal pressure surveys<br>&#x2022; Builder license &amp; quality records<br>&#x2022; Property characteristics<br>&#x2022; Regulatory mandate databases<br>&#x2022; Building code compliance data</div><div style="margin-top:8px;font-size:10px;color:#64748b;font-style:italic">Static snapshots. Updated periodically.</div></div><div style="width:1px;background:rgba(96,165,250,0.15)"></div><div style="flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2dd4bf;margin-bottom:10px">Namara device intelligence (15+ signals)</div><div style="font-size:11px;color:#cbd5e1;line-height:1.8">&#x2022; Real-time input pressure (city supply)<br>&#x2022; Real-time output pressure (home)<br>&#x2022; Live flow rate (GPM)<br>&#x2022; Pressure / flow optimization<br>&#x2022; Large leak detection + auto shutoff<br>&#x2022; Small leak detection<br>&#x2022; Freeze protection (air + water temp)<br>&#x2022; Air temperature monitoring<br>&#x2022; Water temperature monitoring<br>&#x2022; Thermal expansion management<br>&#x2022; Over-pressure protection<br>&#x2022; Under-pressure monitoring<br>&#x2022; Water usage + savings tracking<br>&#x2022; High pressure event frequency<br>&#x2022; Irrigation vs domestic patterns</div><div style="margin-top:8px;font-size:10px;color:#2dd4bf;font-style:italic">Live. Measured. Updated every 5 seconds.</div></div></div><div style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:#0d1b3e;border-right:1px solid rgba(96,165,250,0.25);border-bottom:1px solid rgba(96,165,250,0.25)"></div></div></span></div>
+    <div class="hero-sub">The only water risk platform with real-time, property-level device intelligence — <span class="tooltip-wrap" style="position:relative;display:inline"><span style="border-bottom:1px dashed rgba(255,255,255,0.4);cursor:pointer" onmouseenter="document.getElementById('dataTooltip').style.display='block'" onmouseleave="document.getElementById('dataTooltip').style.display='none'">not just public data</span><div id="dataTooltip" style="display:none;position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);width:560px;background:#0d1b3e;border:1px solid rgba(96,165,250,0.25);border-radius:12px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,0.5);z-index:100;text-align:left"><div style="display:flex;gap:16px"><div style="flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:10px">Industry data (9 sources)</div><div style="font-size:11px;color:#cbd5e1;line-height:1.8">&#x2022; State-level claims history<br>&#x2022; Climate zone risk averages<br>&#x2022; Water quality violation records<br>&#x2022; Housing age estimates<br>&#x2022; Municipal pressure surveys<br>&#x2022; Builder license &amp; quality records<br>&#x2022; Property characteristics<br>&#x2022; Regulatory mandate databases<br>&#x2022; Building code compliance data</div><div style="margin-top:8px;font-size:10px;color:#64748b;font-style:italic">Static snapshots. Updated periodically.</div></div><div style="width:1px;background:rgba(96,165,250,0.15)"></div><div style="flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2dd4bf;margin-bottom:10px">Namara device intelligence (15+ signals)</div><div style="font-size:11px;color:#cbd5e1;line-height:1.8">&#x2022; Real-time input pressure (city supply)<br>&#x2022; Real-time output pressure (home)<br>&#x2022; Live flow rate (GPM)<br>&#x2022; Pressure / flow optimization<br>&#x2022; Large leak detection + auto shutoff<br>&#x2022; Small leak detection<br>&#x2022; Freeze protection (air + water temp)<br>&#x2022; Air temperature monitoring<br>&#x2022; Water temperature monitoring<br>&#x2022; Thermal expansion management<br>&#x2022; Over-pressure protection<br>&#x2022; Under-pressure monitoring<br>&#x2022; Water usage + savings tracking<br>&#x2022; High pressure event frequency<br>&#x2022; Irrigation vs domestic patterns</div><div style="margin-top:8px;font-size:10px;color:#2dd4bf;font-style:italic">Live. Measured. Updated every 5 seconds.</div></div></div><div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:#0d1b3e;border-left:1px solid rgba(96,165,250,0.25);border-top:1px solid rgba(96,165,250,0.25)"></div></div></span></div>
 
     <!-- Toggle between Quick Zip and Full Address -->
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
@@ -1951,8 +1951,17 @@ function renderDevice(d){
   }
 
   // --- PUBLIC DATA vs NAMARA COMPARISON ---
-  // Simulated Namara-measured values (device provides real data)
-  var namaraPsi = avgPsi - 3 + Math.round(Math.random()*4); // actual measured, slightly different
+  // Use real telemetry data when available, otherwise simulate
+  var devPe = d.pressure_estimate||{};
+  var devTelem = (devPe.telemetry||{});
+  var devHourly = devTelem.hourly_pressure||[];
+  var namaraPsi;
+  if(devPe.source === 'namara_device' && devHourly.length > 0){
+    var psiSum = 0; for(var qi=0;qi<devHourly.length;qi++) psiSum += devHourly[qi].avg;
+    namaraPsi = Math.round(psiSum / devHourly.length);
+  } else {
+    namaraPsi = avgPsi - 3 + Math.round(Math.random()*4);
+  }
   var namaraTemp = 64 + Math.round(Math.random()*8); // in-pipe temp
   var weatherTemp = 58 + Math.round(Math.random()*12); // weather station outdoor temp (less accurate for pipe risk)
 
@@ -2061,47 +2070,177 @@ function renderDevice(d){
     '</div>';
   }).join('');
 
-  // --- RISK SCORE COMPARISON (public only vs with Namara) ---
+  // --- DYNAMIC RISK SCORE COMPARISON ---
+  // Pull real device telemetry when available
+  var pe = d.pressure_estimate||{};
+  var telem = pe.telemetry||{};
+  var summary = telem.summary||{};
+  var propData = d.property_data||{};
   var publicScore = cs; // the score based on public data
-  // Namara reduces risk by providing real-time data + active protection
-  // Pressure monitoring + leak detection + freeze protection + auto shut-off + thermal relief
-  var namaraReduction = parseFloat((cs * 0.38).toFixed(1)); // ~38% reduction through active monitoring + mitigation
-  var namaraScore = Math.max(parseFloat((cs - namaraReduction).toFixed(1)), 5);
-  var scoreImprovement = parseFloat((publicScore - namaraScore).toFixed(1));
+
+  // --- STEP 1: Validated Risk Score (what real device data reveals) ---
+  // Device data can move the score UP or DOWN vs public estimates
+  var validatedScore = publicScore;
+  var measuredInputPsi = avgPsi; // default to public estimate
+  var hasDeviceData = !!(pe.source === 'namara_device' && summary.total_readings);
+  var hpEventsPerDay = summary.high_pressure_events_per_day||0;
+  var maxPsiSeen = 0;
+
+  if(hasDeviceData){
+    // Use actual measured input pressure from device
+    var hourlyData = telem.hourly_pressure||[];
+    if(hourlyData.length > 0){
+      var totalAvg = 0;
+      for(var hi=0;hi<hourlyData.length;hi++){
+        totalAvg += hourlyData[hi].avg;
+        if(hourlyData[hi].max > maxPsiSeen) maxPsiSeen = hourlyData[hi].max;
+      }
+      measuredInputPsi = Math.round(totalAvg / hourlyData.length);
+    }
+
+    // Pressure delta: how far off was the public estimate?
+    var psiDelta = measuredInputPsi - avgPsi;
+    // Each PSI of difference adjusts score — higher pressure = higher risk
+    var pressureAdjust = psiDelta * 0.3;
+
+    // High pressure events are a major risk signal public data completely misses
+    var spikeAdjust = 0;
+    if(hpEventsPerDay > 15) spikeAdjust = 8;       // severe — frequent spikes
+    else if(hpEventsPerDay > 8) spikeAdjust = 5;   // elevated
+    else if(hpEventsPerDay > 3) spikeAdjust = 2;   // moderate
+    // No spikes? That's good — slight reduction
+    else if(hpEventsPerDay <= 1) spikeAdjust = -2;
+
+    // Thermal expansion stress (if many events, system is under repeated cycling)
+    var thermalEvents = summary.thermal_expansion_events||0;
+    var thermalAdjust = 0;
+    if(thermalEvents > 100) thermalAdjust = 4;      // heavy cycling
+    else if(thermalEvents > 50) thermalAdjust = 2;
+    else if(thermalEvents > 0) thermalAdjust = 1;
+
+    // Max pressure spike severity (e.g. 200 PSI municipal surge)
+    var surgeAdjust = 0;
+    if(maxPsiSeen > 150) surgeAdjust = 6;
+    else if(maxPsiSeen > 120) surgeAdjust = 3;
+    else if(maxPsiSeen > 100) surgeAdjust = 1;
+
+    validatedScore = publicScore + pressureAdjust + spikeAdjust + thermalAdjust + surgeAdjust;
+    validatedScore = Math.max(5, Math.min(99, validatedScore));
+    validatedScore = parseFloat(validatedScore.toFixed(1));
+  }
+
+  // --- STEP 2: Namara Protected Score (with device actively protecting) ---
+  // The valve adapts based on home age, building type, pipe material
+  var yearBuilt = propData.year_built || 1985;
+  var homeAge = new Date().getFullYear() - yearBuilt;
+
+  // Adaptive static pressure: valve holds system at low static PSI when no flow
+  // Older homes get lower optimized flow pressure to reduce stress on aging infrastructure
+  var staticPsi = 22; // valve closes to this when no flow (most of the day)
+  var optimizedFlowPsi;
+  if(homeAge > 40) optimizedFlowPsi = 38;       // pre-1986: galvanized, aging joints
+  else if(homeAge > 25) optimizedFlowPsi = 42;  // 1986-2001: mixed materials
+  else if(homeAge > 10) optimizedFlowPsi = 46;  // 2002-2016: modern but aging
+  else optimizedFlowPsi = 50;                    // 2017+: new construction
+
+  // Weighted average effective pressure (home uses water ~10-15% of the day)
+  var flowFraction = 0.12; // ~12% of time water is flowing
+  var effectivePsi = (staticPsi * (1 - flowFraction)) + (optimizedFlowPsi * flowFraction);
+
+  // Protection credits from each active capability
+  // Pressure regulation: biggest single factor — reducing from unregulated to managed
+  var unregulatedPsi = hasDeviceData ? measuredInputPsi : avgPsi;
+  var pressureReductionPct = Math.max(0, (unregulatedPsi - effectivePsi) / unregulatedPsi);
+  // Pressure drives ~40% of total risk, so pressure reduction credit scales accordingly
+  var pressureCredit = validatedScore * pressureReductionPct * 0.40;
+
+  // Active protection credits (each capability reduces residual risk)
+  var leakDetectionCredit = validatedScore * 0.12;   // large + small leak detection + auto shutoff
+  var freezeProtectionCredit = validatedScore * 0.06; // freeze monitoring + prevention
+  var thermalMgmtCredit = validatedScore * 0.05;      // thermal expansion relief
+  var flowOptCredit = validatedScore * 0.04;           // pressure/flow optimization + savings
+  var continuousMonitorCredit = validatedScore * 0.03; // 24/7 real-time monitoring vs periodic estimates
+
+  var totalProtectionCredit = pressureCredit + leakDetectionCredit + freezeProtectionCredit + thermalMgmtCredit + flowOptCredit + continuousMonitorCredit;
+  var namaraScore = Math.max(5, parseFloat((validatedScore - totalProtectionCredit).toFixed(1)));
+  var totalImprovement = parseFloat((publicScore - namaraScore).toFixed(1));
+  var validatedDelta = parseFloat((validatedScore - publicScore).toFixed(1));
 
   function riskLabel(s){ return s<=25?'Low':s<=45?'Moderate':s<=65?'High':s<=80?'Very High':'Critical'; }
   function riskColor(s){ return s<=25?'var(--green)':s<=45?'var(--yellow)':s<=65?'var(--orange)':s<=80?'var(--red)':'#991b1b'; }
 
+  // Build the 3-column score comparison: Public → Validated → Protected
+  var validatedArrowColor = validatedDelta > 0 ? 'var(--red)' : validatedDelta < 0 ? 'var(--green)' : 'var(--muted-dim)';
+  var validatedDeltaLabel = validatedDelta > 0 ? '+'+d1(validatedDelta) : validatedDelta < 0 ? d1(validatedDelta) : '0';
+  var validatedBg = validatedDelta > 0 ? 'rgba(239,68,68,0.06)' : validatedDelta < 0 ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.03)';
+
   var scoreCompareHTML =
-    '<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;margin-top:16px">'+
+    '<div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;margin-top:16px">'+
       // Public data score
-      '<div style="text-align:center;padding:24px 20px;background:rgba(239,68,68,0.04);border-radius:12px 0 0 12px;border:1px solid rgba(239,68,68,0.12)">'+
-        '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted-dim);margin-bottom:8px;font-weight:600">Public Data Only</div>'+
-        '<div style="font-size:48px;font-weight:800;color:'+riskColor(publicScore)+'">'+d1(publicScore)+'</div>'+
-        '<div style="font-size:13px;font-weight:600;color:'+riskColor(publicScore)+';margin-top:2px">'+riskLabel(publicScore)+' Risk</div>'+
-        '<div style="font-size:11px;color:var(--muted-dim);margin-top:8px">Based on estimated & historical data</div>'+
+      '<div style="text-align:center;padding:20px 14px;background:rgba(239,68,68,0.04);border-radius:12px 0 0 12px;border:1px solid rgba(239,68,68,0.12)">'+
+        '<div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted-dim);margin-bottom:6px;font-weight:600">Public Data Only</div>'+
+        '<div style="font-size:42px;font-weight:800;color:'+riskColor(publicScore)+'">'+d1(publicScore)+'</div>'+
+        '<div style="font-size:12px;font-weight:600;color:'+riskColor(publicScore)+';margin-top:2px">'+riskLabel(publicScore)+' Risk</div>'+
+        '<div style="font-size:10px;color:var(--muted-dim);margin-top:6px">Estimated &amp; historical</div>'+
       '</div>'+
-      // Arrow
-      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;position:relative">'+
-        '<div style="font-size:28px;color:var(--teal)">&#x27A1;&#xFE0F;</div>'+
-        '<div style="background:var(--teal);color:white;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;margin-top:4px">-'+d1(scoreImprovement)+' pts</div>'+
+      // Arrow 1: Public → Validated
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 10px">'+
+        '<div style="font-size:20px;color:'+validatedArrowColor+'">&#x27A1;&#xFE0F;</div>'+
+        '<div style="background:'+validatedArrowColor+';color:white;padding:3px 8px;border-radius:16px;font-size:10px;font-weight:700;white-space:nowrap;margin-top:3px">'+validatedDeltaLabel+' pts</div>'+
       '</div>'+
-      // Namara score
-      '<div style="text-align:center;padding:24px 20px;background:rgba(45,212,191,0.06);border-radius:0 12px 12px 0;border:1px solid rgba(45,212,191,0.15)">'+
-        '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px;font-weight:600">With Namara Device</div>'+
-        '<div style="font-size:48px;font-weight:800;color:'+riskColor(namaraScore)+'">'+d1(namaraScore)+'</div>'+
-        '<div style="font-size:13px;font-weight:600;color:'+riskColor(namaraScore)+';margin-top:2px">'+riskLabel(namaraScore)+' Risk</div>'+
-        '<div style="font-size:11px;color:var(--muted-dim);margin-top:8px">Real-time measured data + active protection</div>'+
+      // Validated score (real device data)
+      '<div style="text-align:center;padding:20px 14px;background:'+validatedBg+';border:1px solid var(--border)">'+
+        '<div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--orange);margin-bottom:6px;font-weight:600">Validated by Device</div>'+
+        '<div style="font-size:42px;font-weight:800;color:'+riskColor(validatedScore)+'">'+d1(validatedScore)+'</div>'+
+        '<div style="font-size:12px;font-weight:600;color:'+riskColor(validatedScore)+';margin-top:2px">'+riskLabel(validatedScore)+' Risk</div>'+
+        '<div style="font-size:10px;color:var(--muted-dim);margin-top:6px">Real measured data</div>'+
+      '</div>'+
+      // Arrow 2: Validated → Protected
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 10px">'+
+        '<div style="font-size:20px;color:var(--teal)">&#x27A1;&#xFE0F;</div>'+
+        '<div style="background:var(--teal);color:white;padding:3px 8px;border-radius:16px;font-size:10px;font-weight:700;white-space:nowrap;margin-top:3px">-'+d1(validatedScore - namaraScore)+' pts</div>'+
+      '</div>'+
+      // Namara protected score
+      '<div style="text-align:center;padding:20px 14px;background:rgba(45,212,191,0.06);border-radius:0 12px 12px 0;border:1px solid rgba(45,212,191,0.15)">'+
+        '<div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:6px;font-weight:600">Namara Protected</div>'+
+        '<div style="font-size:42px;font-weight:800;color:'+riskColor(namaraScore)+'">'+d1(namaraScore)+'</div>'+
+        '<div style="font-size:12px;font-weight:600;color:'+riskColor(namaraScore)+';margin-top:2px">'+riskLabel(namaraScore)+' Risk</div>'+
+        '<div style="font-size:10px;color:var(--muted-dim);margin-top:6px">Active protection</div>'+
+      '</div>'+
+    '</div>'+
+    // Explanation row beneath the scores
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;font-size:11px;color:var(--muted-dim);line-height:1.4">'+
+      '<div style="text-align:center">'+
+        (hasDeviceData && validatedDelta > 0 ? '<span style="color:var(--orange)">Device reveals '+d1(hpEventsPerDay)+' high pressure events/day'+(maxPsiSeen>100?' and surges to '+Math.round(maxPsiSeen)+' PSI':'')+' — risk was underestimated</span>' :
+         hasDeviceData && validatedDelta < 0 ? '<span style="color:var(--green)">Device confirms lower risk than estimated</span>' :
+         'Based on 9 industry data sources')+
+      '</div>'+
+      '<div style="text-align:center">'+
+        (hasDeviceData ? 'Measured '+measuredInputPsi+' PSI input avg over '+Math.round(summary.total_readings/1000||0)+'K readings' : 'Awaiting device validation')+
+      '</div>'+
+      '<div style="text-align:center">'+
+        'Static '+staticPsi+' PSI / Flow '+optimizedFlowPsi+' PSI — optimized for '+(homeAge > 40?'pre-1986':homeAge > 25?'1986-2001':homeAge > 10?'2002-2016':'new')+' construction'+
       '</div>'+
     '</div>';
 
-  // --- SIMULATED DEVICE TELEMETRY ---
-  var now = new Date();
+  // --- DEVICE PRESSURE TELEMETRY ---
+  var hourlyPressure = telem.hourly_pressure||[];
   var pressurePoints = [];
-  for(var i=24;i>=0;i--){
-    var hr = new Date(now - i*3600000);
-    var basePsi = namaraPsi + (Math.sin(i/4)*5) + (Math.random()*3-1.5);
-    pressurePoints.push({time:hr.getHours()+':00', psi:Math.round(basePsi*10)/10});
+  if(hourlyPressure.length > 0){
+    // Use real telemetry data — show last 24 hours of hourly readings
+    var recentHours = hourlyPressure.slice(-24);
+    for(var pi=0;pi<recentHours.length;pi++){
+      var dt = new Date(recentHours[pi].t);
+      pressurePoints.push({time:dt.getHours()+':00', psi:Math.round(recentHours[pi].avg*10)/10, max:recentHours[pi].max});
+    }
+  } else {
+    // Fallback: simulated from measured input pressure
+    var now = new Date();
+    for(var i=24;i>=0;i--){
+      var hr = new Date(now - i*3600000);
+      var basePsi = measuredInputPsi + (Math.sin(i/4)*5) + (Math.random()*3-1.5);
+      pressurePoints.push({time:hr.getHours()+':00', psi:Math.round(basePsi*10)/10, max:basePsi+5});
+    }
   }
 
   var pressureChartHTML = '<div style="display:flex;align-items:flex-end;gap:2px;height:120px;padding:8px 0">';
@@ -2117,11 +2256,11 @@ function renderDevice(d){
 
   // --- CLEAN EVENT LOG (no duplicates) ---
   var events = [
-    {time:'2 min ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Reading',detail:namaraPsi+' PSI — Normal range',color:'var(--green)'},
-    {time:'18 min ago',type:'thermal',icon:'&#x1F321;',label:'Thermal Expansion Relief',detail:'Water heater cycle pushed pressure to 79.5 PSI trigger — relief activated, returned to '+namaraPsi+' PSI. Code and manufacturer warranties void at 80 PSI.',color:'var(--blue)'},
+    {time:'2 min ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Reading',detail:'Input '+measuredInputPsi+' PSI → Output '+optimizedFlowPsi+' PSI (static '+staticPsi+' PSI)',color:'var(--green)'},
+    {time:'18 min ago',type:'thermal',icon:'&#x1F321;',label:'Thermal Expansion Relief',detail:'Water heater cycle pushing toward 80 PSI code limit — pressure bleed activated, returned to '+optimizedFlowPsi+' PSI',color:'var(--blue)'},
     {time:'3.2 hrs ago',type:'leak',icon:'&#x1F4A7;',label:'Leak Check',detail:'No leak detected — Flow: 0.0 GPD',color:'var(--green)'},
     {time:'6 hrs ago',type:'freeze',icon:'&#x2744;',label:'Temperature Check',detail:'Water temp: '+namaraTemp+'°F — No freeze risk',color:'var(--green)'},
-    {time:'8 hrs ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Anomaly Detected',detail:'Pressure dropped to '+(namaraPsi-15)+' PSI for 4 min — Municipal supply fluctuation, auto-resolved',color:'var(--orange)'},
+    {time:'8 hrs ago',type:'pressure',icon:'&#x1F4CA;',label:'Pressure Anomaly Detected',detail:'Input dropped to '+(measuredInputPsi-15)+' PSI for 4 min — Municipal supply fluctuation, device auto-regulated',color:'var(--orange)'},
   ];
 
   var eventsHTML = events.map(function(e){
@@ -2169,51 +2308,63 @@ function renderDevice(d){
     '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Input Pressure (City)</div>'+
-        '<div style="font-size:16px;font-weight:700;color:var(--orange)">'+namaraPsi+' PSI</div>'+
+        '<div style="font-size:16px;font-weight:700;color:'+(measuredInputPsi>80?'var(--red)':'var(--orange)')+'">'+measuredInputPsi+' PSI</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">Unregulated supply</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
-        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Output Pressure (Home)</div>'+
-        '<div style="font-size:16px;font-weight:700;color:var(--teal)">48.0 PSI</div>'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Output Pressure (Flow)</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--teal)">'+optimizedFlowPsi+' PSI</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">Optimized for '+(homeAge>40?'pre-1986':homeAge>25?'1986-2001':homeAge>10?'2002-2016':'new build')+'</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
-        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Pressure Reduction</div>'+
-        '<div style="font-size:16px;font-weight:700;color:var(--teal)">'+Math.round((1 - 48/namaraPsi)*100)+'%</div>'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Static Pressure (No Flow)</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--teal)">'+staticPsi+' PSI</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">~'+(100-Math.round(flowFraction*100))+'% of day at low stress</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Effective Pressure Reduction</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--teal)">'+Math.round(pressureReductionPct*100)+'%</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">'+measuredInputPsi+' PSI → avg '+Math.round(effectivePsi)+' PSI</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Large Leak Detection</div>'+
         '<div style="font-size:16px;font-weight:700;color:var(--green)">Clear</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">Auto shutoff armed</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Small Leak Detection</div>'+
         '<div style="font-size:16px;font-weight:700;color:var(--green)">Clear</div>'+
-      '</div>'+
-      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
-        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Auto Shutoff</div>'+
-        '<div style="font-size:16px;font-weight:700;color:var(--teal)">Active</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">0.0 GPD anomalous flow</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Air Temperature</div>'+
         '<div style="font-size:16px;font-weight:700;color:var(--muted-dim)">72°F</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">No freeze risk</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Water Temperature</div>'+
         '<div style="font-size:16px;font-weight:700;color:var(--muted-dim)">'+namaraTemp+'°F</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">In-pipe measured</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Freeze Protection</div>'+
         '<div style="font-size:16px;font-weight:700;color:var(--green)">Armed</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">Triggers at 39°F for 30 min</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Pressure / Flow Optimization</div>'+
-        '<div style="font-size:16px;font-weight:700;color:var(--teal)">Active — 19.7% savings</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--teal)">Active — '+(summary.water_savings_pct||19.7)+'% savings</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">'+(summary.water_saved_gal||375)+' gal saved this period</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Thermal Expansion Mgmt</div>'+
-        '<div style="font-size:16px;font-weight:700;color:var(--green)">Active — relief cycling</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--green)">Active — '+(summary.thermal_expansion_events||0)+' events</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">Pressure bleed protecting system</div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
         '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">High Pressure Events / Day</div>'+
-        '<div style="font-size:16px;font-weight:700;color:var(--orange)">23.3</div>'+
+        '<div style="font-size:16px;font-weight:700;color:'+((summary.high_pressure_events_per_day||0)>10?'var(--red)':(summary.high_pressure_events_per_day||0)>3?'var(--orange)':'var(--green)')+'">'+d1(summary.high_pressure_events_per_day||0)+'</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">'+(maxPsiSeen>100?'Peak: '+Math.round(maxPsiSeen)+' PSI':'Within normal range')+'</div>'+
       '</div>'+
     '</div>'+
 
