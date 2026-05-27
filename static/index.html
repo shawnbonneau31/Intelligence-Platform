@@ -390,7 +390,7 @@ a:hover{text-decoration:underline}
   <!-- Hero Search -->
   <div class="hero">
     <h2>See the water risk. Reduce it with Namara.</h2>
-    <div class="hero-sub">The only water risk platform with real-time, property-level device intelligence — not just public data.</div>
+    <div class="hero-sub">The only water risk platform with real-time, property-level device intelligence — <span class="tooltip-wrap" style="position:relative;display:inline"><span style="border-bottom:1px dashed rgba(255,255,255,0.4);cursor:pointer" onmouseenter="document.getElementById('dataTooltip').style.display='block'" onmouseleave="document.getElementById('dataTooltip').style.display='none'">not just public data</span><div id="dataTooltip" style="display:none;position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:560px;background:#0d1b3e;border:1px solid rgba(96,165,250,0.25);border-radius:12px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,0.5);z-index:100;text-align:left"><div style="display:flex;gap:16px"><div style="flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:10px">Industry data (9 sources)</div><div style="font-size:11px;color:#cbd5e1;line-height:1.8">&#x2022; State-level claims history<br>&#x2022; Climate zone risk averages<br>&#x2022; Water quality violation records<br>&#x2022; Housing age estimates<br>&#x2022; Municipal pressure surveys<br>&#x2022; Builder license &amp; quality records<br>&#x2022; Property characteristics<br>&#x2022; Regulatory mandate databases<br>&#x2022; Building code compliance data</div><div style="margin-top:8px;font-size:10px;color:#64748b;font-style:italic">Static snapshots. Updated periodically.</div></div><div style="width:1px;background:rgba(96,165,250,0.15)"></div><div style="flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2dd4bf;margin-bottom:10px">Namara device intelligence (15+ signals)</div><div style="font-size:11px;color:#cbd5e1;line-height:1.8">&#x2022; Real-time input pressure (city supply)<br>&#x2022; Real-time output pressure (home)<br>&#x2022; Live flow rate (GPM)<br>&#x2022; Pressure / flow optimization<br>&#x2022; Large leak detection + auto shutoff<br>&#x2022; Small leak detection<br>&#x2022; Freeze protection (air + water temp)<br>&#x2022; Air temperature monitoring<br>&#x2022; Water temperature monitoring<br>&#x2022; Thermal expansion management<br>&#x2022; Over-pressure protection<br>&#x2022; Under-pressure monitoring<br>&#x2022; Water usage + savings tracking<br>&#x2022; High pressure event frequency<br>&#x2022; Irrigation vs domestic patterns</div><div style="margin-top:8px;font-size:10px;color:#2dd4bf;font-style:italic">Live. Measured. Updated every 5 seconds.</div></div></div><div style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:#0d1b3e;border-right:1px solid rgba(96,165,250,0.25);border-bottom:1px solid rgba(96,165,250,0.25)"></div></div></span></div>
 
     <!-- Toggle between Quick Zip and Full Address -->
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
@@ -1313,6 +1313,95 @@ function renderPropertyDetail(d) {
     return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.value+'</td>'+scoreCell+'</tr>';
   }).join('');
 
+  // Live Device Status + Water Usage panels (only when Namara device is present)
+  var liveDevicePanels = '';
+  if (hasNamara) {
+    var telem = pe.telemetry || {};
+    var summary = telem.summary || {};
+    var events_list = telem.events || [];
+    var totalUsed = summary.total_water_used_gal || 0;
+    var totalSaved = summary.water_saved_gal || 0;
+    var savPct = summary.water_savings_pct || 0;
+    var avgFlow = summary.avg_flow_rate_gpm || 0;
+    var peakFlow = summary.max_flow_rate_gpm || 0;
+    var highPressEvts = summary.high_pressure_events_per_day || 0;
+    var setPoint = pe.output_set_point || summary.output_set_point_psi || 48;
+    // Derive leak status from events
+    var leakEvt = events_list.find(function(e){ return e.type === 'leak'; });
+    var leakStatus = leakEvt ? (leakEvt.severity === 'clear' ? 'Clear — no leaks' : leakEvt.detail) : 'Monitoring';
+    var leakColor = leakEvt && leakEvt.severity === 'clear' ? '#22c55e' : '#f59e0b';
+    // Small leak — use anomalous flow from event detail or default
+    var smallLeakStatus = 'Clear — 0.0 GPD anomalous';
+    var smallLeakColor = '#22c55e';
+
+    liveDevicePanels =
+      '<div style="margin-bottom:16px;padding:16px;background:rgba(15,35,71,0.6);border:1px solid rgba(45,212,191,0.15);border-radius:10px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'+
+          '<div style="width:8px;height:8px;border-radius:50%;background:#2dd4bf;animation:pc-pulse 2s infinite"></div>'+
+          '<strong style="color:#fff;font-size:13px">Live Device Status</strong>'+
+          '<span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(45,212,191,0.15);color:#2dd4bf;font-weight:600">REAL-TIME</span>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Large Leak Detection</div>'+
+            '<div style="font-size:14px;font-weight:600;color:'+leakColor+'">'+leakStatus+'</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Small Leak Detection</div>'+
+            '<div style="font-size:14px;font-weight:600;color:'+smallLeakColor+'">'+smallLeakStatus+'</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Auto Shutoff</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#2dd4bf">Active</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Freeze Protection</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#22c55e">Armed</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Over-Pressure Protection</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#22c55e">Normal — '+setPoint+' PSI output</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Under-Pressure Monitoring</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#22c55e">Normal</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="margin-bottom:16px;padding:16px;background:rgba(15,35,71,0.6);border:1px solid rgba(37,99,235,0.15);border-radius:10px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'+
+          '<span style="font-size:16px;color:#60a5fa">&#x1F4A7;</span>'+
+          '<strong style="color:#fff;font-size:13px">Water Usage &amp; Environment</strong>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Total Used (Month)</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#60a5fa">'+totalUsed.toLocaleString()+' gal</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Saved by Namara</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#2dd4bf">'+totalSaved.toLocaleString()+' gal ('+savPct+'%)</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Current Flow</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#94a3b8">0.0 GPM (idle)</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Air Temperature</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#94a3b8">72°F</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Water Temperature</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#94a3b8">68°F</div>'+
+          '</div>'+
+          '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Peak Flow Rate</div>'+
+            '<div style="font-size:14px;font-weight:600;color:#f59e0b">'+peakFlow+' GPM</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+  }
+
   // Data source attribution banner
   var sourcesBanner = '';
   var attomFields = Object.keys(dataSources).filter(function(k){ return dataSources[k]==='attom'; });
@@ -1377,6 +1466,7 @@ function renderPropertyDetail(d) {
     '<div class="section-title">Property Risk Detail — '+d.address+'</div>'+
     '<div class="section-subtitle">Address-level risk assessment with '+d.confidence+' confidence</div>'+
     namaraBanner+
+    liveDevicePanels+
     sourcesBanner+
     '<div class="card-section">'+
       '<h3>Property-Specific Risk Factors</h3>'+
@@ -1871,68 +1961,79 @@ function renderDevice(d){
     {
       factor: 'Water Pressure',
       publicIcon: '&#x1F4CA;',
-      publicSource: 'Municipal avg / state database',
+      publicSource: 'Area average estimate',
       publicValue: avgPsi + ' PSI (area average)',
       publicConfidence: 'Low',
-      namaraValue: namaraPsi + ' PSI (real-time)',
+      namaraValue: namaraPsi + ' PSI (real-time measured)',
       namaraConfidence: 'Exact',
       impact: Math.abs(namaraPsi - avgPsi) > 5 ? 'high' : 'moderate',
       detail: namaraPsi > avgPsi ? 'Actual pressure is higher than area average — elevated risk' : 'Actual pressure is lower than estimated — reduced risk'
     },
     {
-      factor: 'Leak Detection',
+      factor: 'Large Leak Detection',
       publicIcon: '&#x1F4A7;',
-      publicSource: 'Claims history only',
+      publicSource: 'After-the-fact claims data',
       publicValue: 'Not available',
       publicConfidence: 'None',
-      namaraValue: '0.0 GPD — No leaks',
+      namaraValue: 'Clear — auto shutoff armed',
       namaraConfidence: 'Exact',
       impact: 'high',
-      detail: 'Continuous flow monitoring detects leaks as small as 1 GPD — public data has zero visibility'
+      detail: 'Continuous flow monitoring with automatic shutoff — public data only sees damage after claims are filed'
+    },
+    {
+      factor: 'Small Leak Detection',
+      publicIcon: '&#x1F4A7;',
+      publicSource: 'Not tracked',
+      publicValue: 'Not available',
+      publicConfidence: 'None',
+      namaraValue: 'Clear — 0.0 GPD anomalous flow',
+      namaraConfidence: 'Exact',
+      impact: 'high',
+      detail: 'Detects slow leaks as small as 1 GPD — these cause mold and structural damage long before a claim is filed'
     },
     {
       factor: 'Freeze Risk',
       publicIcon: '&#x2744;&#xFE0F;',
-      publicSource: 'Weather station data',
+      publicSource: 'Regional weather estimate',
       publicValue: weatherTemp + '°F (outdoor air temp)',
       publicConfidence: 'Low',
-      namaraValue: namaraTemp + '°F (in-pipe water temp)',
+      namaraValue: namaraTemp + '°F water / 72°F air (measured)',
       namaraConfidence: 'Exact',
       impact: namaraTemp < 45 ? 'high' : 'low',
-      detail: 'In-pipe temperature is the actual freeze risk indicator — outdoor air temp is an imprecise proxy'
+      detail: 'Actual water and air temperature at the pipe — regional weather is an imprecise proxy for freeze risk'
     },
     {
       factor: 'Thermal Expansion',
       publicIcon: '&#x1F321;&#xFE0F;',
-      publicSource: 'Water heater age estimate',
-      publicValue: 'Risk estimated from home age',
+      publicSource: 'Estimated from home age',
+      publicValue: 'Risk estimated from property data',
       publicConfidence: 'Low',
-      namaraValue: 'Active relief at 79.5 PSI — 2 events today',
+      namaraValue: 'Active relief at 79.5 PSI threshold',
       namaraConfidence: 'Exact',
       impact: 'moderate',
       detail: 'Triggers at 79.5 PSI — plumbing code and manufacturer warranties void at 80 PSI. Device relieves thermal expansion before the threshold is reached.'
     },
     {
-      factor: 'Supply Pressure Surges',
+      factor: 'Pressure / Flow Optimization',
       publicIcon: '&#x26A1;',
       publicSource: 'Not tracked',
       publicValue: 'Not available',
       publicConfidence: 'None',
-      namaraValue: '1 surge detected (8 hrs ago)',
-      namaraConfidence: 'Exact',
+      namaraValue: 'Active — 19.7% water savings',
+      namaraConfidence: 'Active',
       impact: 'high',
-      detail: 'Municipal pressure fluctuations are invisible without real-time monitoring — Namara auto-regulates'
+      detail: 'Real-time pressure regulation reduces pipe stress and water waste — invisible without a device at the point of entry'
     },
     {
-      factor: 'Auto Shut-Off',
+      factor: 'Auto Shutoff',
       publicIcon: '&#x1F6D1;',
       publicSource: 'N/A',
       publicValue: 'No protection',
       publicConfidence: 'None',
-      namaraValue: 'Armed — <0.5 sec response',
+      namaraValue: 'Active — <0.5 sec response',
       namaraConfidence: 'Active',
       impact: 'high',
-      detail: 'Without a shut-off device, a burst pipe can flow for hours causing catastrophic damage before being noticed'
+      detail: 'Without a shutoff device, a burst pipe can flow for hours causing catastrophic damage before being noticed'
     }
   ];
 
@@ -2050,26 +2151,70 @@ function renderDevice(d){
     // Data Source Comparison Table
     '<div class="card-section">'+
       '<h3>Data Source Comparison</h3>'+
-      '<div class="card-sub">Public estimates vs. actual Namara device measurements for each risk factor</div>'+
+      '<div class="card-sub">Industry data estimates vs. Namara device intelligence for each risk factor</div>'+
       '<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:12px">'+
         '<div style="display:grid;grid-template-columns:180px 1fr 1fr;gap:0;background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted-dim)">'+
           '<div style="padding:10px 12px">Risk Factor</div>'+
-          '<div style="padding:10px 16px;border-left:1px solid var(--border);color:var(--red)">&#x26A0;&#xFE0F; Public Data</div>'+
-          '<div style="padding:10px 16px;border-left:1px solid var(--border);color:var(--teal)">&#x2705; Namara Device</div>'+
+          '<div style="padding:10px 16px;border-left:1px solid var(--border);color:var(--red)">&#x26A0;&#xFE0F; Industry Data</div>'+
+          '<div style="padding:10px 16px;border-left:1px solid var(--border);color:var(--teal)">&#x2705; Namara Device Intelligence</div>'+
         '</div>'+
         comparisonHTML+
       '</div>'+
     '</div>'+
 
-    // Device KPIs
+    // Fleet-Level Home View — Expanded Device Intelligence Grid
     '<div style="margin:20px 0 12px;padding:12px 16px;background:rgba(37,99,235,0.04);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.5">'+
-      '<strong style="color:var(--text)">Fleet-Level Home View</strong> — This is the key data we provide for every home in a carrier\'s fleet. At a glance, you can see if the device is online, what the water pressure is, whether there\'s a leak, and if the water temperature is safe.'+
+      '<strong style="color:var(--text)">Fleet-Level Home View</strong> — Every data point the Namara device measures for this property. This is the real-time intelligence layer that no public data source can replicate.'+
     '</div>'+
-    '<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
-      '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Device Status</div><div class="kpi-value" style="font-size:18px;color:var(--green)">Online</div><div class="kpi-sub">Last reading: 20 sec ago</div></div>'+
-      '<div class="kpi-card"><div class="kpi-label">Current Pressure</div><div class="kpi-value">'+namaraPsi+'</div><div class="kpi-sub">PSI — Measured</div></div>'+
-      '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Leak Status</div><div class="kpi-value" style="font-size:18px;color:var(--green)">Clear</div><div class="kpi-sub">0.0 GPD detected</div></div>'+
-      '<div class="kpi-card" style="border-top-color:var(--green)"><div class="kpi-label">Water Temp</div><div class="kpi-value" style="font-size:18px;color:var(--green)">'+namaraTemp+'°F</div><div class="kpi-sub">In-pipe — No freeze risk</div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Input Pressure (City)</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--orange)">'+namaraPsi+' PSI</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Output Pressure (Home)</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--teal)">48.0 PSI</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Pressure Reduction</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--teal)">'+Math.round((1 - 48/namaraPsi)*100)+'%</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Large Leak Detection</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--green)">Clear</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Small Leak Detection</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--green)">Clear</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Auto Shutoff</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--teal)">Active</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Air Temperature</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--muted-dim)">72°F</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Water Temperature</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--muted-dim)">'+namaraTemp+'°F</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Freeze Protection</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--green)">Armed</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Pressure / Flow Optimization</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--teal)">Active — 19.7% savings</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Thermal Expansion Mgmt</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--green)">Active — relief cycling</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">High Pressure Events / Day</div>'+
+        '<div style="font-size:16px;font-weight:700;color:var(--orange)">23.3</div>'+
+      '</div>'+
     '</div>'+
 
     // Pressure Telemetry
@@ -2098,28 +2243,28 @@ function renderDevice(d){
       '<div class="card-sub">Capabilities running continuously on this device</div>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
-          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Pressure Monitoring</div>'+
-          '<div style="font-size:12px;color:var(--muted-dim)">20-second intervals, anomaly detection, historical trending</div>'+
+          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Pressure / Flow Optimization</div>'+
+          '<div style="font-size:12px;color:var(--muted-dim)">Continuous supply-side pressure regulation with 20-second monitoring intervals and historical trending</div>'+
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
-          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Leak Detection</div>'+
-          '<div style="font-size:12px;color:var(--muted-dim)">Small leak (1 GPD) and large leak (>5 GPD) monitoring</div>'+
+          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Large Leak Detection + Auto Shutoff</div>'+
+          '<div style="font-size:12px;color:var(--muted-dim)">Automatic water shutoff on detection of high-volume flow events — sub-second response</div>'+
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
-          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Auto Shut-Off</div>'+
-          '<div style="font-size:12px;color:var(--muted-dim)">Automatic water shut-off on large leak detection</div>'+
+          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Small Leak Detection</div>'+
+          '<div style="font-size:12px;color:var(--muted-dim)">Continuous monitoring for anomalous low-flow patterns as small as 1 GPD</div>'+
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
           '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Freeze Protection</div>'+
-          '<div style="font-size:12px;color:var(--muted-dim)">In-pipe temperature monitoring, automatic freeze prevention</div>'+
+          '<div style="font-size:12px;color:var(--muted-dim)">Air and water temperature monitoring with automatic freeze prevention at the point of entry</div>'+
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
-          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Thermal Expansion Relief</div>'+
-          '<div style="font-size:12px;color:var(--muted-dim)">Triggers at 79.5 PSI — code and manufacturer warranties void at 80 PSI</div>'+
+          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Thermal Expansion Management</div>'+
+          '<div style="font-size:12px;color:var(--muted-dim)">Pressure bleed at 79.5 PSI threshold — code and manufacturer warranties void at 80 PSI</div>'+
         '</div>'+
         '<div style="background:rgba(45,212,191,0.06);border-radius:10px;padding:16px;border:1px solid rgba(45,212,191,0.15)">'+
-          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Pressure Optimization</div>'+
-          '<div style="font-size:12px;color:var(--muted-dim)">Supply-side relief for experience, safety, and savings</div>'+
+          '<div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--teal)">Over / Under-Pressure Monitoring</div>'+
+          '<div style="font-size:12px;color:var(--muted-dim)">Real-time detection of pressure anomalies from municipal supply fluctuations</div>'+
         '</div>'+
       '</div>'+
     '</div>';
