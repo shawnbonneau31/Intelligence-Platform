@@ -101,7 +101,7 @@ a:hover{text-decoration:underline}
 .location-header .coords{font-size:13px;color:var(--muted-dim);margin-top:2px}
 
 /* ── KPI Cards Row ── */
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:28px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:16px;margin-bottom:28px}
 .kpi-card{background:var(--card);border-radius:12px;padding:20px;border-top:3px solid var(--border);border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
 .kpi-card .kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted-dim);margin-bottom:8px}
 .kpi-card .kpi-value{font-size:28px;font-weight:800;line-height:1}
@@ -1105,6 +1105,9 @@ async function scoreZip(){
       renderEnvironmental(data);
       renderPropertyZipLevel(data);
       document.getElementById('newSearchBtn').style.display = 'inline-block';
+      // Auto-scroll to results
+      var tabBar = document.querySelector('.tab-bar-wrap');
+      if(tabBar) tabBar.scrollIntoView({behavior:'smooth'});
     } else {
       document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
     }
@@ -1156,6 +1159,9 @@ async function scoreAddress(){
       renderMandates();
       renderEnvironmental(data);
       document.getElementById('newSearchBtn').style.display = 'inline-block';
+      // Auto-scroll to results
+      var tabBar = document.querySelector('.tab-bar-wrap');
+      if(tabBar) tabBar.scrollIntoView({behavior:'smooth'});
     } else {
       document.getElementById('scoreResult').innerHTML = '<div class="composite-section"><p style="color:var(--red)">'+(data.error||'Error')+'</p></div>';
     }
@@ -1480,8 +1486,8 @@ function renderPropertyDetail(d) {
 
 // ─── Render Property (zip-level fallback) ───
 function renderPropertyZipLevel(d) {
-  // Keep existing infrastructure/pressure view for zip-level scores
-  renderProperty(d);
+  // Zip-level searches should NOT show property detail — clear it
+  document.getElementById('propertyResult').innerHTML = '';
 }
 
 // ─── Render Risk Profile (Tab 1) ───
@@ -1525,7 +1531,7 @@ function renderScore(d){
   document.getElementById('scoreResult').innerHTML =
     '<div class="location-header">'+
       '<h2>'+locationLabel+'</h2>'+
-      '<div class="coords">'+d.zip_code+'</div>'+
+      ''+
     '</div>'+
     '<div class="kpi-row">'+
       '<div class="kpi-card highlight"><div class="kpi-label">Total Water Risk</div><div class="kpi-value">'+d1(cs)+'/100</div><div class="kpi-sub">'+riskLabel(cs)+' risk</div></div>'+
@@ -2810,6 +2816,9 @@ function switchTab(tab, el){
   var panel = document.getElementById('tab-'+tab);
   if(panel) panel.classList.add('active');
   if(tab==='builders') loadBuilders();
+  // Reset scroll to tab bar on tab switch
+  var tabBar = document.querySelector('.tab-bar-wrap');
+  if(tabBar) tabBar.scrollIntoView({behavior:'smooth'});
 }
 
 // ─── Init ───
