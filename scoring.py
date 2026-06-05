@@ -15,6 +15,38 @@ logger = logging.getLogger(__name__)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "data", "namara.db")
 
+# ─── Live device telemetry (real-time overlay for the deployed demo device) ───
+# Reads the read-only /live endpoint on the SMS-agent Lambda. The endpoint
+# itself enforces an allow-list and exposes only raw device readings (no PII,
+# no scoring weights / data sources), so it is safe to surface here.
+LIVE_TELEMETRY_URL = os.environ.get(
+    "LIVE_TELEMETRY_URL",
+    "https://f6njx72vcc.execute-api.us-west-2.amazonaws.com/prod/live",
+)
+LIVE_DEVICE_ZIP = os.environ.get("LIVE_DEVICE_ZIP", "92130")
+LIVE_DEVICE_THING = os.environ.get("LIVE_DEVICE_THING", "staging-pp0007")
+
+
+def fetch_live_telemetry():
+    """Fetch the current reading from the live device endpoint.
+
+    Returns a dict on success or None on any failure. Never raises — the
+    platform must keep working (falling back to seeded data) if the live
+    feed is slow or unavailable.
+    """
+    try:
+        resp = requests.get(
+            LIVE_TELEMETRY_URL,
+            params={"thing": LIVE_DEVICE_THING},
+            timeout=2.5,
+        )
+        data = resp.json()
+        if isinstance(data, dict) and data.get("ok"):
+            return data
+    except Exception as e:  # noqa: BLE001 — never let live feed break scoring
+        logger.warning("live telemetry fetch failed: %s", e)
+    return None
+
 # ─── ZIP → State mapping (909 prefix entries) ───
 ZIP_TO_STATE = {
     "005":"NY","006":"PR","007":"PR","008":"VI","009":"PR","010":"MA","011":"MA","012":"MA",
@@ -326,6 +358,38 @@ def lookup_namara_pressure(zip_code, neighborhood=None):
                     result["telemetry"] = json.loads(row["telemetry_data"])
                 except Exception:
                     pass
+            # Real-time overlay for the deployed demo device (zip 92130).
+            # Falls back silently to seeded data if the live feed is offline.
+            if str(zip_code) == LIVE_DEVICE_ZIP:
+                live = fetch_live_telemetry()
+                if live:
+                    if not isinstance(result.get("telemetry"), dict):
+                        result["telemetry"] = {}
+                    online = bool(live.get("online"))
+                    result["telemetry"]["live"] = online
+                    result["telemetry"]["current"] = {
+                        "input": live.get("inputPressure"),
+                        "output": live.get("outputPressure"),
+                        "flow": live.get("flowRate"),
+                        "valve": live.get("valvePosition"),
+                        "valveMode": live.get("valveMode"),
+                        "setPoint": live.get("setPoint"),
+                        "tempF": live.get("temperatureF"),
+                        "battery": live.get("battery"),
+                        "batteryVoltage": live.get("batteryVoltage"),
+                        "waterUsedToday": live.get("waterUsedToday"),
+                        "waterSaved": live.get("waterSaved"),
+                        "statusLevel": live.get("statusLevel"),
+                        "statusText": live.get("statusText"),
+                        "online": online,
+                        "lastSeen": live.get("lastSeen"),
+                    }
+                    # When truly live, use measured street pressure as ground truth
+                    if online and isinstance(live.get("inputPressure"), (int, float)):
+                        result["psi"] = round(live["inputPressure"])
+                        result["last_reading"] = "live"
+                        if isinstance(live.get("setPoint"), (int, float)):
+                            result["output_set_point"] = live["setPoint"]
             return result
     except Exception:
         pass

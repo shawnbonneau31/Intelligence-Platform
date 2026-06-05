@@ -1939,6 +1939,32 @@ function updateFleetCalc(val, freq, avgCost){
   document.getElementById('fleetSavingsInline').textContent = fmtM(namaraSavings5Yr);
 }
 
+// ─── Live device polling (real-time overlay for the deployed demo device) ───
+var LIVE_TELEMETRY_URL = 'https://f6njx72vcc.execute-api.us-west-2.amazonaws.com/prod/live?thing=staging-pp0007';
+var __liveTimer = null;
+function startLivePoll(){
+  if(__liveTimer){ clearInterval(__liveTimer); __liveTimer = null; }
+  if(!document.getElementById('liveStrip')) return;
+  var f = function(v,suf,dec){ if(v===null||v===undefined||isNaN(v)) return '—'; return Number(v).toFixed(dec===undefined?0:dec)+(suf||''); };
+  var ago = function(ms){ if(!ms) return ''; var s=Math.max(0,Math.round((Date.now()-ms)/1000)); if(s<60) return 'updated '+s+'s ago'; var m=Math.round(s/60); if(m<60) return 'updated '+m+'m ago'; return 'updated '+Math.round(m/60)+'h ago'; };
+  var set = function(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; };
+  function paint(){
+    fetch(LIVE_TELEMETRY_URL,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+      if(!d || d.ok===false) return;
+      set('ldnIn',f(d.inputPressure,' PSI')); set('ldnOut',f(d.outputPressure,' PSI'));
+      set('ldnFlow',f(d.flowRate,' GPM',1)); set('ldnValve',f(d.valvePosition,'°',0));
+      set('ldnSet',f(d.setPoint,' PSI')); set('ldnBatt',f(d.battery,'%'));
+      var badge=document.getElementById('ldnBadge'); if(badge) badge.textContent=d.online?'LIVE':'OFFLINE';
+      var dot=document.getElementById('ldnDot'); if(dot) dot.style.background=d.online?'#2dd4bf':'#64748b';
+      set('ldnUpdated',ago(d.lastSeen||d.serverTime));
+      var st=document.getElementById('ldnStatus');
+      if(st){ var c=d.statusLevel==='shutoff'?'#ef4444':(d.statusLevel==='warn'?'#f59e0b':'#2dd4bf'); st.style.color=c; st.textContent='Protection: '+(d.statusText||'—'); }
+    }).catch(function(){});
+  }
+  paint();
+  __liveTimer = setInterval(paint, 20000);
+}
+
 // ─── Render Device Intelligence (Tab) ───
 function renderDevice(d){
   // Support both zip-level (d.layers) and property-level (d.property_factors) data
@@ -1961,6 +1987,33 @@ function renderDevice(d){
   var devPe = d.pressure_estimate||{};
   var devTelem = (devPe.telemetry||{});
   var devHourly = devTelem.hourly_pressure||[];
+
+  // Live device strip (real-time overlay for the deployed demo device)
+  var liveCur = devTelem.current || null;
+  var liveStripHTML = '';
+  if (liveCur) {
+    var lvFmt = function(v,suf,dec){ if(v===null||v===undefined||isNaN(v)) return '—'; return Number(v).toFixed(dec===undefined?0:dec)+(suf||''); };
+    var lvCard = function(label,id,val){ return '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.06)"><div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">'+label+'</div><div id="'+id+'" style="font-size:15px;font-weight:700;color:#e2e8f0">'+val+'</div></div>'; };
+    var lvStColor = liveCur.statusLevel==='shutoff'?'#ef4444':(liveCur.statusLevel==='warn'?'#f59e0b':'#2dd4bf');
+    liveStripHTML =
+      '<div id="liveStrip" style="margin:4px 0 18px;padding:16px 18px;background:linear-gradient(135deg,rgba(45,212,191,0.08),rgba(15,35,71,0.55));border:1px solid rgba(45,212,191,0.25);border-radius:12px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">'+
+          '<span id="ldnDot" style="width:9px;height:9px;border-radius:50%;background:'+(liveCur.online?'#2dd4bf':'#64748b')+';box-shadow:0 0 8px rgba(45,212,191,0.6);animation:pc-pulse 2s infinite"></span>'+
+          '<strong style="color:#fff;font-size:13px">Live Device — staging-pp0007</strong>'+
+          '<span id="ldnBadge" style="font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(45,212,191,0.15);color:#2dd4bf;font-weight:700;letter-spacing:0.5px">'+(liveCur.online?'LIVE':'OFFLINE')+'</span>'+
+          '<span id="ldnUpdated" style="font-size:10px;color:#64748b;margin-left:auto">updating…</span>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">'+
+          lvCard('Street','ldnIn',lvFmt(liveCur.input,' PSI'))+
+          lvCard('Home','ldnOut',lvFmt(liveCur.output,' PSI'))+
+          lvCard('Flow','ldnFlow',lvFmt(liveCur.flow,' GPM',1))+
+          lvCard('Valve','ldnValve',lvFmt(liveCur.valve,'°',0))+
+          lvCard('Set Point','ldnSet',lvFmt(liveCur.setPoint,' PSI'))+
+          lvCard('Battery','ldnBatt',lvFmt(liveCur.battery,'%'))+
+        '</div>'+
+        '<div id="ldnStatus" style="margin-top:10px;font-size:12px;font-weight:600;color:'+lvStColor+'">Protection: '+(liveCur.statusText||'—')+'</div>'+
+      '</div>';
+  }
   var namaraPsi;
   if(devPe.source === 'namara_device' && devHourly.length > 0){
     var psiSum = 0; for(var qi=0;qi<devHourly.length;qi++) psiSum += devHourly[qi].avg;
@@ -2285,6 +2338,7 @@ function renderDevice(d){
   document.getElementById('deviceResult').innerHTML =
     '<div class="section-title">Device Intelligence — '+locationLabel+'</div>'+
     '<div class="section-subtitle">Public data risk assessment vs. Namara real-time device intelligence</div>'+
+    liveStripHTML+
 
     // Risk Score Comparison
     '<div class="card-section">'+
@@ -2425,6 +2479,8 @@ function renderDevice(d){
         '</div>'+
       '</div>'+
     '</div>';
+
+  startLivePoll();
 }
 
 // ─── Render Deployment (Tab) ───
