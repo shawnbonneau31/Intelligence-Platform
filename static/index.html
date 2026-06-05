@@ -798,6 +798,31 @@ function buildPressureCallout(pressureEstimate, pressureScore) {
     var events = tel.events || [];
     var hourlyP = tel.hourly_pressure || [];
 
+    // Live current reading (real-time overlay for the deployed demo device)
+    var curLive = tel.current || null;
+    var liveRowHTML = '';
+    if (curLive) {
+      var lrf = function(v,suf,dec){ if(v===null||v===undefined||isNaN(v)) return '—'; return Number(v).toFixed(dec===undefined?0:dec)+(suf||''); };
+      var lrCell = function(label,id,val){ return '<div><div style="font-size:9px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px">'+label+'</div><div id="'+id+'" style="font-size:14px;font-weight:700;color:#e2e8f0">'+val+'</div></div>'; };
+      liveRowHTML =
+        '<div id="ldpLiveRow" style="margin-bottom:16px;padding:12px 14px;background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.25);border-radius:8px">'+
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">'+
+            '<span id="ldpDot" style="width:9px;height:9px;border-radius:50%;background:'+(curLive.online?'#2dd4bf':'#64748b')+';animation:pc-pulse 2s infinite"></span>'+
+            '<strong style="color:#fff;font-size:12px">Live now — staging-pp0007</strong>'+
+            '<span id="ldpBadge" style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(45,212,191,0.15);color:#2dd4bf;font-weight:700;letter-spacing:0.5px">'+(curLive.online?'LIVE':'OFFLINE')+'</span>'+
+            '<span id="ldpUpdated" style="font-size:10px;color:rgba(255,255,255,0.5);margin-left:auto">updating…</span>'+
+          '</div>'+
+          '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">'+
+            lrCell('Street','ldpIn',lrf(curLive.input,' PSI'))+
+            lrCell('Home','ldpOut',lrf(curLive.output,' PSI'))+
+            lrCell('Flow','ldpFlow',lrf(curLive.flow,' GPM',1))+
+            lrCell('Valve','ldpValve',lrf(curLive.valve,'°',0))+
+            lrCell('Set Pt','ldpSet',lrf(curLive.setPoint,' PSI'))+
+            lrCell('Battery','ldpBatt',lrf(curLive.battery,'%'))+
+          '</div>'+
+        '</div>';
+    }
+
     var uid = 'pcTelem' + Math.random().toString(36).substr(2,6);
 
     // Stats row
@@ -880,11 +905,12 @@ function buildPressureCallout(pressureEstimate, pressureScore) {
           'loadChartJS(function(){buildTelemChart(\''+chartId+'\',window[\'__telemData_'+chartId+'\']);});'+
         '}'+
       '})()">'+
-        '<div class="pc-expand-label"><span class="pc-dot"></span>Namara device data available — '+nbhood+'</div>'+
+        '<div class="pc-expand-label"><span class="pc-dot"></span>'+(curLive?'Live Namara device data':'Namara device data available')+' — '+nbhood+'</div>'+
         '<span class="pc-chevron">&#x25BC;</span>'+
       '</div>'+
       '<div class="pc-telemetry" id="'+uid+'Panel">'+
         '<div class="pc-telemetry-inner">'+
+          liveRowHTML+
           '<div class="pc-telem-title">'+(period.days||7)+'-Day Device Telemetry — '+nbhood+'</div>'+
           '<div class="pc-telem-sub">Real data from device at '+devAddr+' &middot; '+(summ.total_readings||0).toLocaleString()+' readings &middot; '+period.start+' to '+period.end+'</div>'+
           telemStats+
@@ -1341,7 +1367,7 @@ function renderPropertyDetail(d) {
     var smallLeakColor = '#22c55e';
 
     liveDevicePanels =
-      '<div style="margin-bottom:16px;padding:16px;background:rgba(15,35,71,0.6);border:1px solid rgba(45,212,191,0.15);border-radius:10px">'+
+      '<div style="margin-bottom:16px;padding:16px;background:#102443;border:1px solid rgba(45,212,191,0.15);border-radius:10px">'+
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'+
           '<div style="width:8px;height:8px;border-radius:50%;background:#2dd4bf;animation:pc-pulse 2s infinite"></div>'+
           '<strong style="color:#fff;font-size:13px">Live Device Status</strong>'+
@@ -1374,7 +1400,7 @@ function renderPropertyDetail(d) {
           '</div>'+
         '</div>'+
       '</div>'+
-      '<div style="margin-bottom:16px;padding:16px;background:rgba(15,35,71,0.6);border:1px solid rgba(37,99,235,0.15);border-radius:10px">'+
+      '<div style="margin-bottom:16px;padding:16px;background:#102443;border:1px solid rgba(37,99,235,0.15);border-radius:10px">'+
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'+
           '<span style="font-size:16px;color:#60a5fa">&#x1F4A7;</span>'+
           '<strong style="color:#fff;font-size:13px">Water Usage &amp; Environment</strong>'+
@@ -1442,7 +1468,7 @@ function renderPropertyDetail(d) {
     var nSavPct = pe.water_savings_pct || 0;
     var nNbhood = pe.neighborhood || 'this area';
     namaraBanner =
-      '<div style="margin-bottom:16px;padding:16px 20px;background:linear-gradient(135deg,rgba(45,212,191,0.1),rgba(56,189,248,0.06));border:1px solid rgba(45,212,191,0.25);border-radius:10px">'+
+      '<div style="margin-bottom:16px;padding:16px 20px;background:linear-gradient(135deg,#0f2038 0%,#13324f 100%);border:1px solid rgba(45,212,191,0.3);border-radius:10px">'+
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'+
           '<div style="width:10px;height:10px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 8px rgba(45,212,191,0.5);animation:pc-pulse 2s infinite"></div>'+
           '<strong style="color:#2dd4bf;font-size:14px">Namara VFC Active at This Property</strong>'+
@@ -1481,6 +1507,7 @@ function renderPropertyDetail(d) {
     '</div>'+
     builderDetail;
 
+  startLivePoll();
   // Property detail now renders inside Risk Profile tab — no tab switch needed
 }
 
@@ -1944,7 +1971,7 @@ var LIVE_TELEMETRY_URL = 'https://f6njx72vcc.execute-api.us-west-2.amazonaws.com
 var __liveTimer = null;
 function startLivePoll(){
   if(__liveTimer){ clearInterval(__liveTimer); __liveTimer = null; }
-  if(!document.getElementById('liveStrip')) return;
+  if(!document.getElementById('liveStrip') && !document.getElementById('ldpLiveRow')) return;
   var f = function(v,suf,dec){ if(v===null||v===undefined||isNaN(v)) return '—'; return Number(v).toFixed(dec===undefined?0:dec)+(suf||''); };
   var ago = function(ms){ if(!ms) return ''; var s=Math.max(0,Math.round((Date.now()-ms)/1000)); if(s<60) return 'updated '+s+'s ago'; var m=Math.round(s/60); if(m<60) return 'updated '+m+'m ago'; return 'updated '+Math.round(m/60)+'h ago'; };
   var set = function(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; };
@@ -1959,6 +1986,13 @@ function startLivePoll(){
       set('ldnUpdated',ago(d.lastSeen||d.serverTime));
       var st=document.getElementById('ldnStatus');
       if(st){ var c=d.statusLevel==='shutoff'?'#ef4444':(d.statusLevel==='warn'?'#f59e0b':'#2dd4bf'); st.style.color=c; st.textContent='Protection: '+(d.statusText||'—'); }
+      // Live row inside the "Namara device data" dropdown (Risk Profile tab)
+      set('ldpIn',f(d.inputPressure,' PSI')); set('ldpOut',f(d.outputPressure,' PSI'));
+      set('ldpFlow',f(d.flowRate,' GPM',1)); set('ldpValve',f(d.valvePosition,'°',0));
+      set('ldpSet',f(d.setPoint,' PSI')); set('ldpBatt',f(d.battery,'%'));
+      var b2=document.getElementById('ldpBadge'); if(b2) b2.textContent=d.online?'LIVE':'OFFLINE';
+      var d2=document.getElementById('ldpDot'); if(d2) d2.style.background=d.online?'#2dd4bf':'#64748b';
+      set('ldpUpdated',ago(d.lastSeen||d.serverTime));
     }).catch(function(){});
   }
   paint();
