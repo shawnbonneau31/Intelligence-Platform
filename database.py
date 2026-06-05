@@ -263,6 +263,55 @@ def init_db():
     conn.close()
 
 
+def _reanchor_telemetry(telemetry_json):
+    """Shift the seeded device telemetry window so it ends on the current date.
+
+    The sample file is a fixed 7-day window; this slides every timestamp forward
+    by whole days so the dropdown/chart always shows a trailing window ending
+    today (the live current reading is shown separately, above the history).
+    Shifts by whole days only to keep clean hourly marks. Returns a JSON string;
+    falls back to the original on any error.
+    """
+    if not telemetry_json:
+        return telemetry_json
+    try:
+        from datetime import date, timedelta
+        data = json.loads(telemetry_json)
+        period = data.get("period", {})
+        orig_end = datetime.strptime(period["end"], "%Y-%m-%d").date()
+        delta_days = (date.today() - orig_end).days
+        if delta_days <= 0:
+            return telemetry_json
+        shift = timedelta(days=delta_days)
+
+        def shift_date(s):
+            return (datetime.strptime(s, "%Y-%m-%d").date() + shift).isoformat()
+
+        def shift_dt(s):
+            return (datetime.strptime(s, "%Y-%m-%dT%H:%M") + shift).strftime("%Y-%m-%dT%H:%M")
+
+        if "start" in period:
+            period["start"] = shift_date(period["start"])
+        if "end" in period:
+            period["end"] = shift_date(period["end"])
+        for hp in data.get("hourly_pressure", []):
+            if hp.get("t"):
+                try:
+                    hp["t"] = shift_dt(hp["t"])
+                except Exception:
+                    pass
+        for ev in data.get("events", []):
+            t = ev.get("time")
+            if t and "T" in t:
+                try:
+                    ev["time"] = shift_dt(t)
+                except Exception:
+                    pass
+        return json.dumps(data)
+    except Exception:
+        return telemetry_json
+
+
 def seed_device_zones():
     """Seed Namara device zones with real device data from deployed units."""
     conn = get_db()
@@ -280,6 +329,10 @@ def seed_device_zones():
     if os.path.exists(telemetry_path):
         with open(telemetry_path) as f:
             telemetry_json = f.read()
+        # Slide the sample window forward so it ends today (stays current each deploy)
+        telemetry_json = _reanchor_telemetry(telemetry_json)
+
+    last_reading_val = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     if existing:
         # Update telemetry data from file so edits propagate
@@ -301,7 +354,7 @@ def seed_device_zones():
             0.0,    # min_psi — drops to 0 during surges
             200.0,  # max_psi — peak surge recorded Sept 26
             1,      # device_count
-            "2025-09-29T09:49:54",
+            last_reading_val,
             "6085 African Holly Trl",
             23.3,   # high_pressure_events_per_day
             19.7,   # water_savings_pct
