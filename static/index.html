@@ -1968,35 +1968,41 @@ function updateFleetCalc(val, freq, avgCost){
 
 // ─── Live device polling (real-time overlay for the deployed demo device) ───
 var LIVE_TELEMETRY_URL = 'https://f6njx72vcc.execute-api.us-west-2.amazonaws.com/prod/live?thing=staging-pp0007';
-var __liveTimer = null;
-function startLivePoll(){
-  if(__liveTimer){ clearInterval(__liveTimer); __liveTimer = null; }
-  if(!document.getElementById('liveStrip') && !document.getElementById('ldpLiveRow')) return;
-  var f = function(v,suf,dec){ if(v===null||v===undefined||isNaN(v)) return '—'; return Number(v).toFixed(dec===undefined?0:dec)+(suf||''); };
-  var ago = function(ms){ if(!ms) return ''; var s=Math.max(0,Math.round((Date.now()-ms)/1000)); if(s<60) return 'updated '+s+'s ago'; var m=Math.round(s/60); if(m<60) return 'updated '+m+'m ago'; return 'updated '+Math.round(m/60)+'h ago'; };
-  var set = function(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; };
-  function paint(){
-    fetch(LIVE_TELEMETRY_URL,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
-      if(!d || d.ok===false) return;
-      set('ldnIn',f(d.inputPressure,' PSI')); set('ldnOut',f(d.outputPressure,' PSI'));
-      set('ldnFlow',f(d.flowRate,' GPM',1)); set('ldnValve',f(d.valvePosition,'°',0));
-      set('ldnSet',f(d.setPoint,' PSI')); set('ldnBatt',f(d.battery,'%'));
-      var badge=document.getElementById('ldnBadge'); if(badge) badge.textContent=d.online?'LIVE':'OFFLINE';
-      var dot=document.getElementById('ldnDot'); if(dot) dot.style.background=d.online?'#2dd4bf':'#64748b';
-      set('ldnUpdated',ago(d.lastSeen||d.serverTime));
-      var st=document.getElementById('ldnStatus');
-      if(st){ var c=d.statusLevel==='shutoff'?'#ef4444':(d.statusLevel==='warn'?'#f59e0b':'#2dd4bf'); st.style.color=c; st.textContent='Protection: '+(d.statusText||'—'); }
-      // Live row inside the "Namara device data" dropdown (Risk Profile tab)
-      set('ldpIn',f(d.inputPressure,' PSI')); set('ldpOut',f(d.outputPressure,' PSI'));
-      set('ldpFlow',f(d.flowRate,' GPM',1)); set('ldpValve',f(d.valvePosition,'°',0));
-      set('ldpSet',f(d.setPoint,' PSI')); set('ldpBatt',f(d.battery,'%'));
-      var b2=document.getElementById('ldpBadge'); if(b2) b2.textContent=d.online?'LIVE':'OFFLINE';
-      var d2=document.getElementById('ldpDot'); if(d2) d2.style.background=d.online?'#2dd4bf':'#64748b';
-      set('ldpUpdated',ago(d.lastSeen||d.serverTime));
-    }).catch(function(){});
-  }
-  paint();
-  __liveTimer = setInterval(paint, 20000);
+var __liveLastPoll = 0;
+function __liveFmt(v,suf,dec){ if(v===null||v===undefined||isNaN(v)) return '—'; return Number(v).toFixed(dec===undefined?0:dec)+(suf||''); }
+function __liveSet(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
+function __livePaint(){
+  fetch(LIVE_TELEMETRY_URL,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+    if(!d || d.ok===false) return;
+    __liveLastPoll = Date.now();
+    var f=__liveFmt, set=__liveSet;
+    // Update both live surfaces: the Device-tab strip (ldn*) and the Risk-Profile dropdown row (ldp*)
+    ['ldn','ldp'].forEach(function(p){
+      set(p+'In',f(d.inputPressure,' PSI')); set(p+'Out',f(d.outputPressure,' PSI'));
+      set(p+'Flow',f(d.flowRate,' GPM',1)); set(p+'Valve',f(d.valvePosition,'°',0));
+      set(p+'Set',f(d.setPoint,' PSI')); set(p+'Batt',f(d.battery,'%'));
+      var badge=document.getElementById(p+'Badge'); if(badge) badge.textContent=d.online?'LIVE':'OFFLINE';
+      var dot=document.getElementById(p+'Dot'); if(dot) dot.style.background=d.online?'#2dd4bf':'#64748b';
+    });
+    var st=document.getElementById('ldnStatus');
+    if(st){ var c=d.statusLevel==='shutoff'?'#ef4444':(d.statusLevel==='warn'?'#f59e0b':'#2dd4bf'); st.style.color=c; st.textContent='Protection: '+(d.statusText||'—'); }
+    __liveTick();
+  }).catch(function(){});
+}
+function __liveTick(){
+  var txt;
+  if(!__liveLastPoll){ txt='updating…'; }
+  else { var s=Math.max(0,Math.round((Date.now()-__liveLastPoll)/1000)); txt = (s<3?'updated just now':'updated '+s+'s ago'); }
+  __liveSet('ldnUpdated',txt); __liveSet('ldpUpdated',txt);
+}
+// Trigger an immediate refresh when a view renders a live element
+function startLivePoll(){ __livePaint(); }
+// Single always-on poller — covers whichever tab is showing a live element
+if(!window.__liveStarted){
+  window.__liveStarted = true;
+  __livePaint();
+  setInterval(__livePaint, 20000);
+  setInterval(__liveTick, 1000);
 }
 
 // ─── Render Device Intelligence (Tab) ───
